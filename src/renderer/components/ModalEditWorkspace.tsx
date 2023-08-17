@@ -12,14 +12,16 @@ import ModalEditWorkspaceGeneralSettings from './ModalEditWorkspaceGeneralSettin
 interface ModalEditWorkspaceProps {
   workspace: Workspace
   onClose?: () => void
+  onSave?: (workspace: Workspace) => void
 }
 
 const defaultProps = {
   onClose: () => {},
+  onSave: () => {},
 }
 
 function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
-  const { workspace, onClose } = props
+  const { workspace, onClose, onSave } = props
   const [currentPage, setCurrentPage] = useState<ModalEditWorkspacePages>(
     ModalEditWorkspacePages.General
   )
@@ -34,7 +36,7 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
   ]
 
   const onClickClose = () => onClose && onClose()
-  const onClickSave = () => onClose && onClose()
+  const onClickSave = () => onSave && onSave(workspace)
 
   return (
     <div className="flex absolute inset-0 w-screen h-screen">

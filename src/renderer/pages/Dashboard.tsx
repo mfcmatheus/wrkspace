@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import TopBar from 'renderer/components/TopBar'
 import WorkspaceList from 'renderer/components/WorkspaceList'
@@ -6,13 +6,10 @@ import ModalEditWorkspace from 'renderer/components/ModalEditWorkspace'
 import WorkspaceListItem from 'renderer/components/WorkspaceListItem'
 import Workspace from 'renderer/@types/Workspace'
 import ButtonMain from 'renderer/base-components/ButtonMain'
+import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 
 function Dashboard() {
-  const workspaces: Workspace[] = [
-    { id: 1, name: 'Workspace 1', path: '' },
-    { id: 2, name: 'Workspace 2', path: '' },
-  ]
-
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [isModalEditOpen, setIsModalEditOpen] = useState(false)
   const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(
     null
@@ -22,6 +19,20 @@ function Dashboard() {
     setSelectedWorkspace(workspace)
     setIsModalEditOpen(true)
   }
+
+  const onSave = (workspace: Workspace) => {
+    console.log(workspace)
+    ipcRenderer.sendMessage('workspaces.update', workspace)
+    setIsModalEditOpen(false)
+  }
+
+  useEffect(() => {
+    ipcRenderer.sendMessage('workspaces.get')
+  })
+
+  useIpc('workspaces.get', (data: Workspace[]) => {
+    setWorkspaces(data)
+  })
 
   return (
     <>
@@ -48,6 +59,7 @@ function Dashboard() {
         <ModalEditWorkspace
           workspace={selectedWorkspace as Workspace}
           onClose={() => setIsModalEditOpen(false)}
+          onSave={onSave}
         />
       )}
     </>
