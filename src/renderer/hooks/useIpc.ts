@@ -27,7 +27,7 @@ export const useIpc = (
     ipcRenderer.on(channel, eventHandler)
 
     return () => {
-      ipcRenderer.removeListener(channel, eventHandler)
+      // ipcRenderer.removeListener(channel, eventHandler)
     }
   }, [channel])
 }

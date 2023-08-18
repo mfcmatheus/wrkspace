@@ -2,7 +2,11 @@
 /* eslint no-unused-vars: off */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
 
-export type Channels = 'workspaces.get' | 'workspaces.update'
+export type Channels =
+  | 'workspaces.get'
+  | 'workspaces.update'
+  | 'workspaces.open'
+  | 'dialog:openDirectory'
 
 const electronHandler = {
   ipcRenderer: {

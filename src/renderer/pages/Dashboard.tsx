@@ -15,7 +15,7 @@ function Dashboard() {
     null
   )
 
-  const onClickWorkspace = (workspace: Workspace) => {
+  const onEditWorkspace = (workspace: Workspace) => {
     setSelectedWorkspace(workspace)
     setIsModalEditOpen(true)
   }
@@ -48,7 +48,7 @@ function Dashboard() {
             <WorkspaceListItem
               key={workspace.id}
               workspace={workspace}
-              onClick={onClickWorkspace}
+              onEdit={onEditWorkspace}
             />
           ))}
         </WorkspaceList>

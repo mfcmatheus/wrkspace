@@ -1,17 +1,24 @@
 import React from 'react'
-import { ErrorMessage } from 'formik'
+import { ErrorMessage, useField } from 'formik'
 
 import ButtonMain from 'renderer/base-components/ButtonMain'
 import InputMain from 'renderer/base-components/InputMain'
+import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 
 function ModalEditWorkspaceGeneralSettings() {
+  const pathFieldHelpers = useField('path')[2]
+
   const onClickSearch = () => {
-    console.log('search')
+    ipcRenderer.sendMessage('dialog:openDirectory')
   }
 
   const renderError = (message: string) => (
     <p className="text-xs text-red-500">{message}</p>
   )
+
+  useIpc('dialog:openDirectory', (path: string) => {
+    pathFieldHelpers.setValue(path)
+  })
 
   return (
     <div className="flex flex-col gap-y-3 flex-grow basis-0 overflow-auto h-full p-3">
@@ -30,7 +37,6 @@ function ModalEditWorkspaceGeneralSettings() {
             <ButtonMain primary onClick={onClickSearch}>
               SEARCH
             </ButtonMain>
-            <input type="file" className="hidden" />
           </div>
         </label>
         <ErrorMessage name="path" render={renderError} />

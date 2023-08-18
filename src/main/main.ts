@@ -9,13 +9,13 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path'
-import { app, BrowserWindow, shell, ipcMain } from 'electron'
+import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
 import Store from 'electron-store'
 import Workspace from 'renderer/@types/Workspace'
 import MenuBuilder from './menu'
-import { resolveHtmlPath } from './util'
+import { resolveHtmlPath, runScript } from './util'
 
 const store = new Store()
 
@@ -35,6 +35,10 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'))
 })
 
+ipcMain.on('workspaces.open', async (event, workspace: Workspace) => {
+  runScript(`code ${workspace.path}`, [''], () => ({}))
+})
+
 ipcMain.on('workspaces.get', async (event) => {
   event.reply('workspaces.get', store.get('workspaces') as Workspace[])
 })
@@ -49,6 +53,19 @@ ipcMain.on('workspaces.update', async (event, workspace: Workspace) => {
   store.set('workspaces', workspaces)
 
   event.reply('workspaces.update', workspaces)
+})
+
+ipcMain.on('dialog:openDirectory', async (event) => {
+  const { canceled, filePaths } = await dialog.showOpenDialog(
+    mainWindow as BrowserWindow,
+    {
+      properties: ['openDirectory'],
+    }
+  )
+
+  if (!canceled && filePaths.length) {
+    event.reply('dialog:openDirectory', filePaths[0])
+  }
 })
 
 if (process.env.NODE_ENV === 'production') {
