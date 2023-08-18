@@ -1,5 +1,5 @@
 export default interface Workspace {
-  id: number
+  id: number | string
   name: string
   path: string
 }

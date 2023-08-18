@@ -21,7 +21,7 @@ function ModalEditWorkspaceGeneralSettings() {
   })
 
   return (
-    <div className="flex flex-col gap-y-3 flex-grow basis-0 overflow-auto h-full p-3">
+    <div className="flex flex-col gap-y-3 flex-grow basis-0 overflow-auto p-3">
       <div className="flex flex-col">
         <label htmlFor="name" className="flex flex-col">
           <span className="text-white font-thin mb-2">Workspace name</span>

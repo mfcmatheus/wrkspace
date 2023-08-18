@@ -15,18 +15,24 @@ interface ModalEditWorkspaceProps {
   workspace: Workspace
   onClose?: () => void
   onSave?: (workspace: Workspace) => void
+  onDelete?: (workspace: Workspace) => void
+  onCreate?: (workspace: Workspace) => void
 }
 
 const defaultProps = {
   onClose: () => {},
   onSave: () => {},
+  onDelete: () => {},
+  onCreate: () => {},
 }
 
 function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
-  const { workspace, onClose, onSave } = props
+  const { workspace, onClose, onSave, onDelete, onCreate } = props
   const [currentPage, setCurrentPage] = useState<ModalEditWorkspacePages>(
     ModalEditWorkspacePages.General
   )
+
+  const isEditing = !!workspace.id
 
   const isGeneralPage = currentPage === ModalEditWorkspacePages.General
   const sidebarItems: SidebarItem[] = [
@@ -38,7 +44,10 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
   ]
 
   const onClickClose = () => onClose && onClose()
-  const onClickSave = (data: Workspace) => onSave && onSave(data)
+  const onSubmit = (data: Workspace) => {
+    return isEditing ? onSave && onSave(data) : onCreate && onCreate(data)
+  }
+  const onClickDelete = () => onDelete && onDelete(workspace)
 
   return (
     <div className="flex absolute inset-0 w-screen h-screen">
@@ -62,7 +71,11 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
         </ModalEditWorkspaceSidebar>
         <div className="flex flex-col flex-1">
           <div className="flex p-3">
-            <p className="text-white font-thin">Edit workspace</p>
+            {isEditing ? (
+              <p className="text-white font-thin">Edit workspace</p>
+            ) : (
+              <p className="text-white font-thin">Create workspace</p>
+            )}
             <button
               type="button"
               className="text-white ml-auto"
@@ -74,11 +87,16 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
           <Formik
             initialValues={workspace}
             validationSchema={WorkspaceFormSchema}
-            onSubmit={onClickSave}
+            onSubmit={onSubmit}
           >
-            <Form className="flex-1">
+            <Form className="flex flex-col flex-grow basis-0">
               {isGeneralPage && <ModalEditWorkspaceGeneralSettings />}
               <div className="flex p-3">
+                {isEditing && (
+                  <ButtonMain danger onClick={onClickDelete}>
+                    Delete
+                  </ButtonMain>
+                )}
                 <ButtonMain type="submit" primary className="ml-auto">
                   Save
                 </ButtonMain>

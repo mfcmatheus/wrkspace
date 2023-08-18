@@ -15,7 +15,7 @@ import log from 'electron-log'
 import Store from 'electron-store'
 import Workspace from 'renderer/@types/Workspace'
 import MenuBuilder from './menu'
-import { resolveHtmlPath, runScript } from './util'
+import { fakeId, resolveHtmlPath, runScript } from './util'
 
 const store = new Store()
 
@@ -53,6 +53,26 @@ ipcMain.on('workspaces.update', async (event, workspace: Workspace) => {
   store.set('workspaces', workspaces)
 
   event.reply('workspaces.update', workspaces)
+})
+
+ipcMain.on('workspaces.delete', async (event, workspace: Workspace) => {
+  let workspaces = store.get('workspaces') as Workspace[]
+  workspaces = workspaces.filter((target) => target.id !== workspace.id)
+
+  store.set('workspaces', workspaces)
+
+  event.reply('workspaces.delete', workspaces)
+})
+
+ipcMain.on('workspaces.create', async (event, workspace: Workspace) => {
+  workspace.id = fakeId()
+
+  let workspaces = store.get('workspaces') as Workspace[]
+  workspaces = [...workspaces, workspace]
+
+  store.set('workspaces', workspaces)
+
+  event.reply('workspaces.create', workspaces)
 })
 
 ipcMain.on('dialog:openDirectory', async (event) => {

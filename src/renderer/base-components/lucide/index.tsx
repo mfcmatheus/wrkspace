@@ -3,10 +3,11 @@ import * as lucideIcons from 'lucide-react'
 
 interface LucideProps {
   icon: string
+  size: number
   className?: string
 }
 
-const Lucide = ({ icon, className, ...computedProps }: LucideProps) => {
+function Lucide({ icon, className, ...computedProps }: LucideProps) {
   const Element = lucideIcons[icon]
 
   useEffect(() => {
@@ -15,9 +16,7 @@ const Lucide = ({ icon, className, ...computedProps }: LucideProps) => {
     }
   }, [Element, icon])
 
-  return (
-    <Element className={`lucide ${className}`} {...computedProps} />
-  )
+  return <Element className={`lucide ${className}`} {...computedProps} />
 }
 
 export default Lucide

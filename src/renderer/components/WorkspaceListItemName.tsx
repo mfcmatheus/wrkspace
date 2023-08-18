@@ -8,7 +8,7 @@ function WorkspaceListItemName(props: WorkspaceListItemNameProps) {
   const { children } = props
 
   return (
-    <h3 className="text-white text-medium text-sm uppercase mx-auto mt-3 mb-7">
+    <h3 className="text-white text-medium text-sm uppercase mx-auto mt-3 mb-7 text-center">
       {children}
     </h3>
   )

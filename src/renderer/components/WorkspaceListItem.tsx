@@ -3,6 +3,7 @@ import React from 'react'
 import WorkspaceListItemName from 'renderer/components/WorkspaceListItemName'
 import WorkspaceListItemLastOpened from 'renderer/components/WorkspaceListItemLastOpened'
 import WorkspaceListItemLaunch from 'renderer/components/WorkspaceListItemLaunch'
+import WorkspaceListItemEdit from 'renderer/components/WorkspaceListItemEdit'
 
 import Workspace from 'renderer/@types/Workspace'
 import { ipcRenderer } from 'renderer/hooks/useIpc'
@@ -23,19 +24,14 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
     ipcRenderer.sendMessage('workspaces.open', workspace)
   }
 
+  const onClickEdit = () => {
+    return onEdit && onEdit(workspace)
+  }
+
   return (
-    <div
-      aria-hidden="true"
-      className="flex flex-col group rounded border border-[#353535] hover:border-indigo-600 cursor-pointer p-3 transition ease-in-out duration-200"
-    >
+    <div className="flex flex-col group rounded border border-[#353535] hover:border-indigo-600 cursor-pointer p-3 transition ease-in-out duration-200">
       <div className="flex">
-        <button
-          type="button"
-          className="ml-auto"
-          onClick={() => onEdit && onEdit(workspace)}
-        >
-          edit
-        </button>
+        <WorkspaceListItemEdit onClick={onClickEdit} />
       </div>
       <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
       <WorkspaceListItemLastOpened>

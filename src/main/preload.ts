@@ -5,6 +5,8 @@ import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
 export type Channels =
   | 'workspaces.get'
   | 'workspaces.update'
+  | 'workspaces.delete'
+  | 'workspaces.create'
   | 'workspaces.open'
   | 'dialog:openDirectory'
 
