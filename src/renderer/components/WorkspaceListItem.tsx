@@ -24,7 +24,7 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
       className="flex flex-col group rounded border border-[#353535] hover:border-indigo-600 cursor-pointer p-3 transition ease-in-out duration-200"
       onClick={() => onClick && onClick(workspace)}
     >
-      <WorkspaceListItemName>Workspace Name</WorkspaceListItemName>
+      <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
       <WorkspaceListItemLastOpened>
         Opened 2 days ago
       </WorkspaceListItemLastOpened>

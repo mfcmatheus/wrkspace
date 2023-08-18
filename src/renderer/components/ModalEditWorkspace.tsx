@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Formik, Form, Field, ErrorMessage } from 'formik'
 
 import Workspace from 'renderer/@types/Workspace'
 import SidebarItem from 'renderer/@types/SidebarItem'
@@ -6,6 +7,7 @@ import ModalEditWorkspaceSidebarItem from 'renderer/components/ModalEditWorkspac
 import Lucide from 'renderer/base-components/lucide'
 import { ModalEditWorkspacePages } from 'renderer/@enums/ModalEditWorkspacePages'
 import ButtonMain from 'renderer/base-components/ButtonMain'
+import WorkspaceFormSchema from 'renderer/@schemas/WorkspaceFormSchema'
 import ModalEditWorkspaceSidebar from './ModalEditWorkspaceSidebar'
 import ModalEditWorkspaceGeneralSettings from './ModalEditWorkspaceGeneralSettings'
 
@@ -36,7 +38,7 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
   ]
 
   const onClickClose = () => onClose && onClose()
-  const onClickSave = () => onSave && onSave(workspace)
+  const onClickSave = (data: Workspace) => onSave && onSave(data)
 
   return (
     <div className="flex absolute inset-0 w-screen h-screen">
@@ -69,16 +71,20 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
               <Lucide icon="X" />
             </button>
           </div>
-          <div className="flex-1">
-            {isGeneralPage && (
-              <ModalEditWorkspaceGeneralSettings workspace={workspace} />
-            )}
-          </div>
-          <div className="flex p-3">
-            <ButtonMain primary className="ml-auto" onClick={onClickSave}>
-              Save
-            </ButtonMain>
-          </div>
+          <Formik
+            initialValues={workspace}
+            validationSchema={WorkspaceFormSchema}
+            onSubmit={onClickSave}
+          >
+            <Form className="flex-1">
+              {isGeneralPage && <ModalEditWorkspaceGeneralSettings />}
+              <div className="flex p-3">
+                <ButtonMain type="submit" primary className="ml-auto">
+                  Save
+                </ButtonMain>
+              </div>
+            </Form>
+          </Formik>
         </div>
       </div>
     </div>

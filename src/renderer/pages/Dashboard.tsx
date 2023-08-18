@@ -21,7 +21,6 @@ function Dashboard() {
   }
 
   const onSave = (workspace: Workspace) => {
-    console.log(workspace)
     ipcRenderer.sendMessage('workspaces.update', workspace)
     setIsModalEditOpen(false)
   }

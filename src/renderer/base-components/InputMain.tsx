@@ -1,14 +1,14 @@
-import React, { JSX } from 'react'
+import React from 'react'
 import classNames from 'classnames'
+import { Field } from 'formik'
 
 interface InputMainProps {
-  value: string | number
   id?: string
   type?: string
   placeholder?: string
   className?: string
   disabled?: boolean
-  onChange: (value: string) => void
+  name?: string
 }
 
 const defaultProps = {
@@ -16,25 +16,25 @@ const defaultProps = {
   type: 'text',
   placeholder: '',
   className: '',
+  name: '',
   disabled: false,
 }
 
 function InputMain(props: InputMainProps) {
-  const { id, value, type, placeholder, className, onChange, disabled } = props
+  const { id, type, placeholder, className, disabled, name } = props
 
   const classes = classNames({
     'flex p-2 flex-1 outline-none': true,
   })
 
   return (
-    <input
+    <Field
       id={id}
-      value={value}
+      name={name}
       type={type ?? 'text'}
       className={[classes, className].join(' ')}
       placeholder={placeholder}
       disabled={disabled}
-      onChange={(e) => onChange && onChange(e.target.value)}
     />
   )
 }
