@@ -13,10 +13,10 @@ import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
 import Store from 'electron-store'
+import moment from 'moment'
 import Workspace from 'renderer/@types/Workspace'
 import MenuBuilder from './menu'
 import { fakeId, resolveHtmlPath, runScript } from './util'
-import moment from 'moment'
 
 const store = new Store()
 
@@ -46,11 +46,16 @@ ipcMain.on('workspaces.open', async (event, workspace: Workspace) => {
 
   store.set('workspaces', workspaces)
 
-  runScript(`code ${workspace.path}`, [''], () => ({}))
+  runScript(
+    mainWindow as BrowserWindow,
+    `open vscode://file/${workspace.path}/`,
+    [''],
+    () => ({})
+  )
 })
 
 ipcMain.on('workspaces.get', async (event) => {
-  event.reply('workspaces.get', store.get('workspaces') as Workspace[])
+  event.reply('workspaces.get', (store.get('workspaces') ?? []) as Workspace[])
 })
 
 ipcMain.on('workspaces.update', async (event, workspace: Workspace) => {
@@ -78,7 +83,7 @@ ipcMain.on('workspaces.create', async (event, workspace: Workspace) => {
   workspace.id = fakeId()
   workspace.created_at = moment().format('YYYY-MM-DD HH:mm:ss')
 
-  let workspaces = store.get('workspaces') as Workspace[]
+  let workspaces = (store.get('workspaces') ?? []) as Workspace[]
   workspaces = [...workspaces, workspace]
 
   store.set('workspaces', workspaces)

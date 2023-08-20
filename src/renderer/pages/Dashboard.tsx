@@ -52,7 +52,7 @@ function Dashboard() {
     <>
       <TopBar />
       <div className="flex flex-col flex-1 p-4">
-        {workspaces.length ? (
+        {workspaces?.length ? (
           <>
             <div className="flex mb-4">
               <h2 className="text-medium text-[#f0f0f0] text-xl">Dashboard</h2>

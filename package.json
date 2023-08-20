@@ -115,8 +115,8 @@
     "webpack-merge": "^5.9.0"
   },
   "build": {
-    "productName": "ElectronReact",
-    "appId": "org.erb.ElectronReact",
+    "productName": "Wrkspace",
+    "appId": "io.wrkspace",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
@@ -171,19 +171,11 @@
     },
     "extraResources": [
       "./assets/**"
-    ],
-    "publish": {
-      "provider": "github",
-      "owner": "electron-react-boilerplate",
-      "repo": "electron-react-boilerplate"
-    }
-  },
-  "collective": {
-    "url": "https://opencollective.com/electron-react-boilerplate-594"
+    ]
   },
   "devEngines": {
-    "node": ">=14.x",
-    "npm": ">=7.x"
+    "node": ">=18.x",
+    "npm": ">=9.x"
   },
   "electronmon": {
     "patterns": [

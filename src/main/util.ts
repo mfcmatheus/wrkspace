@@ -3,7 +3,7 @@ import { URL } from 'url'
 import path from 'path'
 
 import childProcess from 'child_process'
-import { dialog } from 'electron'
+import { BrowserWindow, dialog } from 'electron'
 
 export function resolveHtmlPath(htmlFileName: string) {
   if (process.env.NODE_ENV === 'development') {
@@ -27,28 +27,36 @@ export function fakeId(length: number = 16) {
 }
 
 export function runScript(
+  mainWindow: BrowserWindow,
   command: string,
   args?: readonly string[],
   callback?: () => {}
 ) {
   const child = childProcess.spawn(command, (args ?? '') as readonly string[], {
-    encoding: 'utf8',
+    // encoding: 'utf8',
     shell: true,
   })
   // You can also use a variable to save the output for when the script closes later
   child.on('error', (error) => {
-    dialog.showMessageBox({
+    /* dialog.showMessageBox({
       title: 'Title',
       type: 'warning',
       message: `Error occured.\r\n${error}`,
-    })
+    }) */
   })
 
   child.stdout.setEncoding('utf8')
   child.stdout.on('data', (data) => {
     // Here is the output
     data = data.toString()
-    console.log(data)
+
+    /* console.log(data)
+
+    dialog.showMessageBox({
+      title: 'Title',
+      type: 'info',
+      message: data,
+    }) */
   })
 
   child.stderr.setEncoding('utf8')
@@ -56,11 +64,17 @@ export function runScript(
     // Return some data to the renderer process with the mainprocess-response ID
     mainWindow.webContents.send('mainprocess-response', data)
     // Here is the output from the command
-    console.log(data)
+    /* console.log(data)
+
+    dialog.showMessageBox({
+      title: 'Title',
+      type: 'info',
+      message: data,
+    }) */
   })
 
   child.on('close', (code) => {
-    // Here you can get the exit code of the script
+    // Here you can get the exit code of the scrip t
     switch (code) {
       case 0:
         /* dialog.showMessageBox({
