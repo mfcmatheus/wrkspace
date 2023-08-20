@@ -16,6 +16,7 @@ import Store from 'electron-store'
 import Workspace from 'renderer/@types/Workspace'
 import MenuBuilder from './menu'
 import { fakeId, resolveHtmlPath, runScript } from './util'
+import moment from 'moment'
 
 const store = new Store()
 
@@ -36,6 +37,15 @@ ipcMain.on('ipc-example', async (event, arg) => {
 })
 
 ipcMain.on('workspaces.open', async (event, workspace: Workspace) => {
+  const workspaces = store.get('workspaces') as Workspace[]
+  const index = workspaces.findIndex(
+    (target: Workspace) => target.id === workspace.id
+  )
+
+  workspaces[index].opened_at = moment().format('YYYY-MM-DD HH:mm:ss')
+
+  store.set('workspaces', workspaces)
+
   runScript(`code ${workspace.path}`, [''], () => ({}))
 })
 
@@ -66,6 +76,7 @@ ipcMain.on('workspaces.delete', async (event, workspace: Workspace) => {
 
 ipcMain.on('workspaces.create', async (event, workspace: Workspace) => {
   workspace.id = fakeId()
+  workspace.created_at = moment().format('YYYY-MM-DD HH:mm:ss')
 
   let workspaces = store.get('workspaces') as Workspace[]
   workspaces = [...workspaces, workspace]

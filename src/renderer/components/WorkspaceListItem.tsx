@@ -1,4 +1,5 @@
 import React from 'react'
+import moment from 'moment'
 
 import WorkspaceListItemName from 'renderer/components/WorkspaceListItemName'
 import WorkspaceListItemLastOpened from 'renderer/components/WorkspaceListItemLastOpened'
@@ -28,15 +29,43 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
     return onEdit && onEdit(workspace)
   }
 
+  const lastOpened = moment(workspace.opened_at, 'YYYY-MM-DD HH:mm:ss')
+
+  const renderDate = () => {
+    if (!lastOpened.isValid()) {
+      return <>Never opened</>
+    }
+
+    const keys = [
+      'years',
+      'months',
+      'weeks',
+      'days',
+      'hours',
+      'minutes',
+      'seconds',
+    ]
+
+    let result = ''
+
+    keys.forEach((key) => {
+      const diff = moment().diff(lastOpened, key)
+
+      if (!result && diff) {
+        result = `Opened ${diff} ${key} ago`
+      }
+    })
+
+    return result
+  }
+
   return (
     <div className="flex flex-col group rounded border border-[#353535] hover:border-indigo-600 cursor-pointer p-3 transition ease-in-out duration-200">
       <div className="flex">
         <WorkspaceListItemEdit onClick={onClickEdit} />
       </div>
       <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
-      <WorkspaceListItemLastOpened>
-        Opened 2 days ago
-      </WorkspaceListItemLastOpened>
+      <WorkspaceListItemLastOpened>{renderDate()}</WorkspaceListItemLastOpened>
       <WorkspaceListItemLaunch onClick={onLaunch} />
     </div>
   )
