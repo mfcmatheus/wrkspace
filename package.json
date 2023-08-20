@@ -115,7 +115,7 @@
     "webpack-merge": "^5.9.0"
   },
   "build": {
-    "productName": "Wrkspace",
+    "productName": "wrkspace",
     "appId": "io.wrkspace",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
