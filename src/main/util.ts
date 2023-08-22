@@ -92,4 +92,6 @@ export function runScript(
     }
   })
   if (typeof callback === 'function') callback()
+
+  return child
 }

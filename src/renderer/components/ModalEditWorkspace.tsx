@@ -13,7 +13,6 @@ import ButtonMain from 'renderer/base-components/ButtonMain'
 import { ModalEditWorkspacePages } from 'renderer/@enums/ModalEditWorkspacePages'
 import WorkspaceFormSchema from 'renderer/@schemas/WorkspaceFormSchema'
 
-
 interface ModalEditWorkspaceProps {
   workspace: Workspace
   onClose?: () => void

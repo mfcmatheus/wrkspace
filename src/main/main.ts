@@ -75,6 +75,22 @@ ipcMain.on('workspaces.open', async (event, workspace: Workspace) => {
       () => ({})
     )
   }
+
+  // Start docker containers
+  if (
+    workspace.enableDocker &&
+    workspace.enableDockerContainers &&
+    workspace.containers?.length
+  ) {
+    workspace.containers.forEach((container) => {
+      runScript(
+        mainWindow as BrowserWindow,
+        `/usr/local/bin/docker start ${container}`,
+        [''],
+        () => ({})
+      )
+    })
+  }
 })
 
 ipcMain.on('workspaces.get', async (event) => {
@@ -125,6 +141,19 @@ ipcMain.on('dialog:openDirectory', async (event) => {
   if (!canceled && filePaths.length) {
     event.reply('dialog:openDirectory', filePaths[0])
   }
+})
+
+ipcMain.on('containers.get', async (event) => {
+  const process = runScript(
+    mainWindow as BrowserWindow,
+    `/usr/local/bin/docker container ls -a --format '{{json .}}'`,
+    [''],
+    () => ({})
+  )
+
+  process.stdout.on('data', (data) => {
+    event.reply('containers.get', data.toString())
+  })
 })
 
 if (process.env.NODE_ENV === 'production') {
