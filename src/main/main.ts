@@ -65,6 +65,16 @@ ipcMain.on('workspaces.open', async (event, workspace: Workspace) => {
       () => ({})
     )
   })
+
+  // Start docker compose containers
+  if (workspace.enableDocker && workspace.enableDockerCompose) {
+    runScript(
+      mainWindow as BrowserWindow,
+      `cd ${workspace.path} && /usr/local/bin/docker compose up -d`,
+      [''],
+      () => ({})
+    )
+  }
 })
 
 ipcMain.on('workspaces.get', async (event) => {

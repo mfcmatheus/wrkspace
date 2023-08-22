@@ -1,16 +1,18 @@
 import React, { useState } from 'react'
-import { Formik, Form, Field, ErrorMessage } from 'formik'
+import { Formik, Form } from 'formik'
 
 import Workspace from 'renderer/@types/Workspace'
 import SidebarItem from 'renderer/@types/SidebarItem'
 import ModalEditWorkspaceSidebarItem from 'renderer/components/ModalEditWorkspaceSidebarItem'
+import ModalEditWorkspaceSidebar from 'renderer/components/ModalEditWorkspaceSidebar'
+import ModalEditWorkspaceGeneralSettings from 'renderer/components/ModalEditWorkspaceGeneralSettings'
+import ModalEditWorkspaceTerminal from 'renderer/components/ModalEditWorkspaceTerminal'
+import ModalEditWorkspaceDocker from 'renderer/components/ModalEditWorkspaceDocker'
 import Lucide from 'renderer/base-components/lucide'
-import { ModalEditWorkspacePages } from 'renderer/@enums/ModalEditWorkspacePages'
 import ButtonMain from 'renderer/base-components/ButtonMain'
+import { ModalEditWorkspacePages } from 'renderer/@enums/ModalEditWorkspacePages'
 import WorkspaceFormSchema from 'renderer/@schemas/WorkspaceFormSchema'
-import ModalEditWorkspaceSidebar from './ModalEditWorkspaceSidebar'
-import ModalEditWorkspaceGeneralSettings from './ModalEditWorkspaceGeneralSettings'
-import ModalEditWorkspaceTerminal from './ModalEditWorkspaceTerminal'
+
 
 interface ModalEditWorkspaceProps {
   workspace: Workspace
@@ -37,6 +39,7 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
 
   const isGeneralPage = currentPage === ModalEditWorkspacePages.General
   const isTerminalPage = currentPage === ModalEditWorkspacePages.Terminal
+  const isDockerPage = currentPage === ModalEditWorkspacePages.Docker
 
   const sidebarItems: SidebarItem[] = [
     {
@@ -48,6 +51,11 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
       icon: 'Terminal',
       label: 'Terminals',
       page: ModalEditWorkspacePages.Terminal,
+    },
+    {
+      icon: 'Container',
+      label: 'Docker',
+      page: ModalEditWorkspacePages.Docker,
     },
   ]
 
@@ -102,6 +110,7 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
               {isTerminalPage && (
                 <ModalEditWorkspaceTerminal workspace={workspace} />
               )}
+              {isDockerPage && <ModalEditWorkspaceDocker />}
               <div className="flex p-3">
                 {isEditing && (
                   <ButtonMain danger bordered onClick={onClickDelete}>

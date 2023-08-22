@@ -1,5 +1,5 @@
 export default interface SidebarItem {
-  icon: string;
-  label: string;
-  page: number;
+  icon: string
+  label: string
+  page: number
 }
