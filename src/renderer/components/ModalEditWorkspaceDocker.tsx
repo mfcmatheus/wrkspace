@@ -1,9 +1,55 @@
+import React, { useEffect, useState } from 'react'
 import { useField } from 'formik'
-import React from 'react'
+
 import CheckboxMain from 'renderer/base-components/CheckboxMain'
+import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
+import Container from 'renderer/@types/Container'
+import Lucide from 'renderer/base-components/lucide'
 
 function ModalEditWorkspaceDocker() {
+  const [fieldContainers, metaContainers, helpersContainers] =
+    useField('containers')
   const [fieldCheckbox] = useField('enableDocker')
+  const [fieldCheckboxContainers] = useField('enableDockerContainers')
+
+  const [containers, setContainers] = useState<Container[]>([])
+
+  const onSelectContainer = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    container: Container
+  ) => {
+    if (e.target.checked) {
+      helpersContainers.setValue([
+        ...(fieldContainers.value ?? []),
+        container.ID,
+      ])
+    } else {
+      helpersContainers.setValue(
+        fieldContainers.value?.filter((item: string) => item !== container.ID)
+      )
+    }
+  }
+
+  const isSelectedContainer = (container: Container) => {
+    return (
+      fieldContainers.value?.findIndex(
+        (item: string) => item === container.ID
+      ) > -1
+    )
+  }
+
+  useEffect(() => {
+    ipcRenderer.sendMessage('containers.get')
+  }, [fieldCheckboxContainers.value])
+
+  useIpc('containers.get', (data: string) => {
+    const dataParsed = data
+      .split('\n')
+      .filter((item: string) => item !== '')
+      .map((item) => JSON.parse(item))
+
+    setContainers(dataParsed as Container[])
+  })
 
   return (
     <div className="flex flex-col gap-y-3 flex-grow basis-0 overflow-auto p-3">
@@ -26,11 +72,41 @@ function ModalEditWorkspaceDocker() {
             primary
             name="enableDockerContainers"
             className="w-full"
-            disabled
           >
             Enable Containers
           </CheckboxMain>
         </div>
+        {fieldCheckboxContainers.value && (
+          <div className="flex flex-col gap-y-2 mt-6">
+            {containers &&
+              containers.map((container: Container) => (
+                <div
+                  key={container.ID}
+                  className="flex items-center gap-x-3 border-b border-[#353535] last:border-none pb-2"
+                >
+                  <Lucide icon="Container" color="#d2d2d2" />
+                  <div className="flex flex-col flex-1 font-thin leading-none">
+                    <span className="text-white">{container.Names}</span>
+                    <span className="text-[#d2d2d2] text-xs">
+                      {container.ID}
+                    </span>
+                  </div>
+                  <CheckboxMain
+                    sm
+                    as="button"
+                    primary
+                    name="containers[]"
+                    labelClassName="px-4"
+                    value={container.ID}
+                    checked={isSelectedContainer(container)}
+                    onChange={(e) => onSelectContainer(e, container)}
+                  >
+                    Select
+                  </CheckboxMain>
+                </div>
+              ))}
+          </div>
+        )}
       </div>
     </div>
   )

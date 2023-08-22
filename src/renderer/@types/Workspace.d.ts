@@ -1,4 +1,5 @@
 import Terminal from 'renderer/@types/Terminal'
+import Container from 'renderer/@types/Container'
 
 export default interface Workspace {
   id: number | string
@@ -8,6 +9,7 @@ export default interface Workspace {
   enableDocker: boolean
   enableDockerCompose?: boolean
   enableDockerContainers?: boolean
+  containers?: Container[]
   created_at: string
   opened_at?: string
 }

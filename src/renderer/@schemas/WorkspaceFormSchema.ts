@@ -11,5 +11,6 @@ export default Yup.object({
   enableDocker: Yup.boolean().required(),
   enableDockerCompose: Yup.boolean(),
   enableDockerContainers: Yup.boolean(),
+  containers: Yup.array().of(Yup.string()).nullable(),
   terminals: Yup.array().of(TerminalSchema).nullable(),
 })
