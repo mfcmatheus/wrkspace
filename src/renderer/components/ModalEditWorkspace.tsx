@@ -10,6 +10,7 @@ import ButtonMain from 'renderer/base-components/ButtonMain'
 import WorkspaceFormSchema from 'renderer/@schemas/WorkspaceFormSchema'
 import ModalEditWorkspaceSidebar from './ModalEditWorkspaceSidebar'
 import ModalEditWorkspaceGeneralSettings from './ModalEditWorkspaceGeneralSettings'
+import ModalEditWorkspaceTerminal from './ModalEditWorkspaceTerminal'
 
 interface ModalEditWorkspaceProps {
   workspace: Workspace
@@ -35,11 +36,18 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
   const isEditing = !!workspace.id
 
   const isGeneralPage = currentPage === ModalEditWorkspacePages.General
+  const isTerminalPage = currentPage === ModalEditWorkspacePages.Terminal
+
   const sidebarItems: SidebarItem[] = [
     {
-      icon: 'SlidersHorizontal',
-      label: 'Settings',
+      icon: 'Settings',
+      label: 'General',
       page: ModalEditWorkspacePages.General,
+    },
+    {
+      icon: 'Terminal',
+      label: 'Terminals',
+      page: ModalEditWorkspacePages.Terminal,
     },
   ]
 
@@ -62,7 +70,7 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
             <ModalEditWorkspaceSidebarItem
               {...item}
               key={item.label}
-              current={isGeneralPage}
+              current={currentPage === item.page}
               onClick={(page) => setCurrentPage(page)}
             >
               {item.label}
@@ -91,9 +99,12 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
           >
             <Form className="flex flex-col flex-grow basis-0">
               {isGeneralPage && <ModalEditWorkspaceGeneralSettings />}
+              {isTerminalPage && (
+                <ModalEditWorkspaceTerminal workspace={workspace} />
+              )}
               <div className="flex p-3">
                 {isEditing && (
-                  <ButtonMain danger onClick={onClickDelete}>
+                  <ButtonMain danger bordered onClick={onClickDelete}>
                     Delete
                   </ButtonMain>
                 )}

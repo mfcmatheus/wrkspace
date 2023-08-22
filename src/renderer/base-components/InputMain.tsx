@@ -9,6 +9,9 @@ interface InputMainProps {
   className?: string
   disabled?: boolean
   name?: string
+  value?: string
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void
 }
 
 const defaultProps = {
@@ -17,11 +20,24 @@ const defaultProps = {
   placeholder: '',
   className: '',
   name: '',
+  value: '',
   disabled: false,
+  onChange: undefined,
+  onBlur: undefined,
 }
 
 function InputMain(props: InputMainProps) {
-  const { id, type, placeholder, className, disabled, name } = props
+  const {
+    id,
+    type,
+    placeholder,
+    className,
+    disabled,
+    name,
+    value,
+    onChange,
+    onBlur,
+  } = props
 
   const classes = classNames({
     'flex p-2 flex-1 outline-none': true,
@@ -35,6 +51,9 @@ function InputMain(props: InputMainProps) {
       className={[classes, className].join(' ')}
       placeholder={placeholder}
       disabled={disabled}
+      {...(value ? { value } : undefined)}
+      {...(onChange ? { onChange } : undefined)}
+      {...(onBlur ? { onBlur } : undefined)}
     />
   )
 }
