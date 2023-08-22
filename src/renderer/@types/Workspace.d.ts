@@ -5,6 +5,9 @@ export default interface Workspace {
   name: string
   path: string
   terminals?: Terminal[]
+  enableDocker: boolean
+  enableDockerCompose?: boolean
+  enableDockerContainers?: boolean
   created_at: string
   opened_at?: string
 }
