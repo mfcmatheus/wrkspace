@@ -46,12 +46,25 @@ ipcMain.on('workspaces.open', async (event, workspace: Workspace) => {
 
   store.set('workspaces', workspaces)
 
+  // Open VSCode
   runScript(
     mainWindow as BrowserWindow,
-    `open vscode://file/${workspace.path}/`,
+    `open -a 'Visual Studio Code' ${workspace.path}`,
     [''],
     () => ({})
   )
+
+  // Execute terminal commands
+  workspace.terminals?.forEach((terminal) => {
+    runScript(
+      mainWindow as BrowserWindow,
+      `osascript -e 'tell app "Terminal" \n
+        do script "cd '${workspace.path}' && ${terminal.command}" \n
+      end tell'`,
+      [''],
+      () => ({})
+    )
+  })
 })
 
 ipcMain.on('workspaces.get', async (event) => {

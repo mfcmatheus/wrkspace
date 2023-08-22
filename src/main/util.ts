@@ -38,11 +38,11 @@ export function runScript(
   })
   // You can also use a variable to save the output for when the script closes later
   child.on('error', (error) => {
-    /* dialog.showMessageBox({
+    dialog.showMessageBox({
       title: 'Title',
       type: 'warning',
       message: `Error occured.\r\n${error}`,
-    }) */
+    })
   })
 
   child.stdout.setEncoding('utf8')
@@ -50,13 +50,13 @@ export function runScript(
     // Here is the output
     data = data.toString()
 
-    /* console.log(data)
+    console.log(data)
 
     dialog.showMessageBox({
       title: 'Title',
       type: 'info',
       message: data,
-    }) */
+    })
   })
 
   child.stderr.setEncoding('utf8')
@@ -64,24 +64,24 @@ export function runScript(
     // Return some data to the renderer process with the mainprocess-response ID
     mainWindow.webContents.send('mainprocess-response', data)
     // Here is the output from the command
-    /* console.log(data)
+    console.log(data)
 
     dialog.showMessageBox({
       title: 'Title',
       type: 'info',
       message: data,
-    }) */
+    })
   })
 
   child.on('close', (code) => {
     // Here you can get the exit code of the scrip t
     switch (code) {
       case 0:
-        /* dialog.showMessageBox({
+        dialog.showMessageBox({
           title: 'Title',
           type: 'info',
           message: 'End process.\r\n',
-        }) */
+        })
         break
     }
   })

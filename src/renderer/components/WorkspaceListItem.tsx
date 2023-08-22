@@ -60,7 +60,7 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
   }
 
   return (
-    <div className="flex flex-col group rounded border border-[#353535] hover:border-indigo-600 cursor-pointer p-3 transition ease-in-out duration-200">
+    <div className="flex flex-col group rounded border border-[#353535] hover:border-indigo-600 p-3 transition ease-in-out duration-200">
       <div className="flex">
         <WorkspaceListItemEdit onClick={onClickEdit} />
       </div>
