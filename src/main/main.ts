@@ -9,16 +9,20 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path'
-import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron'
+import { app, BrowserWindow, shell, ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
-import Store from 'electron-store'
-import moment from 'moment'
-import Workspace from 'renderer/@types/Workspace'
 import MenuBuilder from './menu'
-import { fakeId, resolveHtmlPath, runScript } from './util'
-
-const store = new Store()
+import { resolveHtmlPath } from './util'
+import {
+  onContainersGet,
+  onOpenDirectory,
+  onWorkspaceCreate,
+  onWorkspaceDelete,
+  onWorkspaceGet,
+  onWorkspaceOpen,
+  onWorkspaceUpdate,
+} from './process'
 
 class AppUpdater {
   constructor() {
@@ -36,125 +40,20 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'))
 })
 
-ipcMain.on('workspaces.open', async (event, workspace: Workspace) => {
-  const workspaces = store.get('workspaces') as Workspace[]
-  const index = workspaces.findIndex(
-    (target: Workspace) => target.id === workspace.id
-  )
+ipcMain.on('workspaces.open', (event, workspace) =>
+  onWorkspaceOpen(mainWindow as BrowserWindow, event, workspace)
+)
+ipcMain.on('dialog:openDirectory', async (event) =>
+  onOpenDirectory(mainWindow as BrowserWindow, event)
+)
+ipcMain.on('containers.get', async (event) =>
+  onContainersGet(mainWindow as BrowserWindow, event)
+)
 
-  workspaces[index].opened_at = moment().format('YYYY-MM-DD HH:mm:ss')
-
-  store.set('workspaces', workspaces)
-
-  // Open VSCode
-  runScript(
-    mainWindow as BrowserWindow,
-    `open -a 'Visual Studio Code' ${workspace.path}`,
-    [''],
-    () => ({})
-  )
-
-  // Execute terminal commands
-  workspace.terminals?.forEach((terminal) => {
-    runScript(
-      mainWindow as BrowserWindow,
-      `osascript -e 'tell app "Terminal" \n
-        do script "cd '${workspace.path}' && ${terminal.command}" \n
-      end tell'`,
-      [''],
-      () => ({})
-    )
-  })
-
-  // Start docker compose containers
-  if (workspace.enableDocker && workspace.enableDockerCompose) {
-    runScript(
-      mainWindow as BrowserWindow,
-      `cd ${workspace.path} && /usr/local/bin/docker compose up -d`,
-      [''],
-      () => ({})
-    )
-  }
-
-  // Start docker containers
-  if (
-    workspace.enableDocker &&
-    workspace.enableDockerContainers &&
-    workspace.containers?.length
-  ) {
-    workspace.containers.forEach((container) => {
-      runScript(
-        mainWindow as BrowserWindow,
-        `/usr/local/bin/docker start ${container}`,
-        [''],
-        () => ({})
-      )
-    })
-  }
-})
-
-ipcMain.on('workspaces.get', async (event) => {
-  event.reply('workspaces.get', (store.get('workspaces') ?? []) as Workspace[])
-})
-
-ipcMain.on('workspaces.update', async (event, workspace: Workspace) => {
-  const workspaces = store.get('workspaces') as Workspace[]
-  const index = workspaces.findIndex(
-    (target: Workspace) => target.id === workspace.id
-  )
-
-  workspaces[index] = workspace
-  store.set('workspaces', workspaces)
-
-  event.reply('workspaces.update', workspaces)
-})
-
-ipcMain.on('workspaces.delete', async (event, workspace: Workspace) => {
-  let workspaces = store.get('workspaces') as Workspace[]
-  workspaces = workspaces.filter((target) => target.id !== workspace.id)
-
-  store.set('workspaces', workspaces)
-
-  event.reply('workspaces.delete', workspaces)
-})
-
-ipcMain.on('workspaces.create', async (event, workspace: Workspace) => {
-  workspace.id = fakeId()
-  workspace.created_at = moment().format('YYYY-MM-DD HH:mm:ss')
-
-  let workspaces = (store.get('workspaces') ?? []) as Workspace[]
-  workspaces = [...workspaces, workspace]
-
-  store.set('workspaces', workspaces)
-
-  event.reply('workspaces.create', workspaces)
-})
-
-ipcMain.on('dialog:openDirectory', async (event) => {
-  const { canceled, filePaths } = await dialog.showOpenDialog(
-    mainWindow as BrowserWindow,
-    {
-      properties: ['openDirectory'],
-    }
-  )
-
-  if (!canceled && filePaths.length) {
-    event.reply('dialog:openDirectory', filePaths[0])
-  }
-})
-
-ipcMain.on('containers.get', async (event) => {
-  const process = runScript(
-    mainWindow as BrowserWindow,
-    `/usr/local/bin/docker container ls -a --format '{{json .}}'`,
-    [''],
-    () => ({})
-  )
-
-  process.stdout.on('data', (data) => {
-    event.reply('containers.get', data.toString())
-  })
-})
+ipcMain.on('workspaces.get', onWorkspaceGet)
+ipcMain.on('workspaces.create', onWorkspaceCreate)
+ipcMain.on('workspaces.update', onWorkspaceUpdate)
+ipcMain.on('workspaces.delete', onWorkspaceDelete)
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support')
