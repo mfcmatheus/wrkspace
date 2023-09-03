@@ -40,16 +40,12 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'))
 })
 
-ipcMain.on('workspaces.open', (event, workspace) =>
-  onWorkspaceOpen(mainWindow as BrowserWindow, event, workspace)
-)
 ipcMain.on('dialog:openDirectory', async (event) =>
   onOpenDirectory(mainWindow as BrowserWindow, event)
 )
-ipcMain.on('containers.get', async (event) =>
-  onContainersGet(mainWindow as BrowserWindow, event)
-)
 
+ipcMain.on('containers.get', onContainersGet)
+ipcMain.on('workspaces.open', onWorkspaceOpen)
 ipcMain.on('workspaces.get', onWorkspaceGet)
 ipcMain.on('workspaces.create', onWorkspaceCreate)
 ipcMain.on('workspaces.update', onWorkspaceUpdate)

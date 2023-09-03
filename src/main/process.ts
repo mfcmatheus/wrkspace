@@ -3,78 +3,118 @@ import Store from 'electron-store'
 import moment from 'moment'
 
 import Workspace from 'renderer/@types/Workspace'
+import Terminal from 'renderer/@types/Terminal'
+import Container from 'renderer/@types/Container'
 import { fakeId, runScript } from './util'
 
 const store = new Store()
 
 const openEditor = (
   event: IpcMainEvent,
-  mainWindow: BrowserWindow,
   workspace: Workspace
-) => {
-  event.reply('workspaces.open.status', 'Opening with editor ...')
+): Promise<boolean> =>
+  new Promise((resolve, reject) => {
+    event.reply('workspaces.open.status', 'Opening with editor ...')
 
-  const process = runScript(
-    mainWindow as BrowserWindow,
-    `open -a 'Visual Studio Code' '${workspace.path}'`,
-    [''],
-    () => ({})
-  )
+    const process = runScript(
+      `open -a 'Visual Studio Code' '${workspace.path}'`,
+      [''],
+      () => ({})
+    )
 
-  process.stdout.on('data', (data) => {
-    event.reply('workspaces.open.status', data.toString())
+    process.stdout.on('data', (data) => {
+      event.reply('workspaces.open.status', data.toString())
+    })
+
+    process.on('close', () => {
+      event.reply('workspaces.open.status', 'Success')
+      resolve(true)
+    })
+    process.on('error', reject)
   })
 
-  event.reply('workspaces.open.status', 'Success')
-}
-
-const executeTerminalCommands = (
-  event: IpcMainEvent,
-  mainWindow: BrowserWindow,
-  workspace: Workspace
-) => {
-  event.reply('workspaces.open.status', 'Executing terminal commands ...')
-
-  workspace.terminals?.forEach((terminal) => {
+const executeTerminalCommand = (
+  workspace: Workspace,
+  terminal: Terminal
+): Promise<boolean> =>
+  new Promise((resolve, reject) => {
     const escapedPath = workspace.path.replace("'", "'\\''")
     const escapedCommand = terminal.command.replace(/(["\\$`])/g, '\\$1')
 
     const osascriptCommand = `osascript -e 'tell app "Terminal" to do script "cd '\\''${escapedPath}'\\'' && ${escapedCommand}"'`
 
-    runScript(mainWindow as BrowserWindow, osascriptCommand, [''], () => ({}))
+    const process = runScript(osascriptCommand, [''], () => ({}))
+
+    process.on('close', () => resolve(true))
+    process.on('error', reject)
   })
+
+const executeTerminalCommands = async (
+  event: IpcMainEvent,
+  workspace: Workspace
+) => {
+  event.reply('workspaces.open.status', 'Executing terminal commands ...')
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const terminal of workspace.terminals ?? []) {
+    // eslint-disable-next-line no-await-in-loop
+    await executeTerminalCommand(workspace, terminal)
+  }
 
   event.reply('workspaces.open.status', 'Success')
 }
 
 const startDockerCompose = (
   event: IpcMainEvent,
-  mainWindow: BrowserWindow,
   workspace: Workspace
-) => {
-  if (!workspace.enableDocker || !workspace.enableDockerCompose) {
-    return
-  }
+): Promise<boolean> =>
+  new Promise((resolve, reject) => {
+    if (!workspace.enableDocker || !workspace.enableDockerCompose) {
+      reject(new Error('Docker is not enabled'))
 
-  event.reply('workspaces.open.status', 'Starting docker compose ...')
+      return
+    }
 
-  const process = runScript(
-    mainWindow as BrowserWindow,
-    `cd '${workspace.path}' && /usr/local/bin/docker compose up -d`,
-    [''],
-    () => ({})
-  )
+    event.reply('workspaces.open.status', 'Starting docker compose ...')
 
-  process.stdout.on('data', (data) => {
-    event.reply('workspaces.open.status', data.toString())
+    const process = runScript(
+      `cd '${workspace.path}' && /usr/local/bin/docker compose up -d`,
+      [''],
+      () => ({})
+    )
+
+    process.stdout.on('data', (data) => {
+      event.reply('workspaces.open.status', data.toString())
+    })
+
+    process.on('close', () => {
+      event.reply('workspaces.open.status', 'Success')
+      resolve(true)
+    })
+    process.on('error', reject)
   })
 
-  event.reply('workspaces.open.status', 'Success')
-}
-
-const startDockerContainers = (
+const startDockerContainer = (
   event: IpcMainEvent,
-  mainWindow: BrowserWindow,
+  container: Container
+): Promise<boolean> =>
+  new Promise((resolve, reject) => {
+    const process = runScript(
+      `/usr/local/bin/docker start ${container}`,
+      [''],
+      () => ({})
+    )
+
+    process.stdout.on('data', (data) => {
+      event.reply('workspaces.open.status', data.toString())
+    })
+
+    process.on('close', () => resolve(true))
+    process.on('error', reject)
+  })
+
+const startDockerContainers = async (
+  event: IpcMainEvent,
   workspace: Workspace
 ) => {
   if (
@@ -87,24 +127,16 @@ const startDockerContainers = (
 
   event.reply('workspaces.open.status', 'Starting docker containers ...')
 
-  workspace.containers.forEach((container) => {
-    const process = runScript(
-      mainWindow as BrowserWindow,
-      `/usr/local/bin/docker start ${container}`,
-      [''],
-      () => ({})
-    )
-
-    process.stdout.on('data', (data) => {
-      event.reply('workspaces.open.status', data.toString())
-    })
-  })
+  // eslint-disable-next-line no-restricted-syntax
+  for (const container of workspace.containers ?? []) {
+    // eslint-disable-next-line no-await-in-loop
+    await startDockerContainer(event, container)
+  }
 
   event.reply('workspaces.open.status', 'Success')
 }
 
-export const onWorkspaceOpen = (
-  mainWindow: BrowserWindow,
+export const onWorkspaceOpen = async (
   event: IpcMainEvent,
   workspace: Workspace
 ) => {
@@ -117,14 +149,14 @@ export const onWorkspaceOpen = (
 
   store.set('workspaces', workspaces)
 
-  // Open VSCode
-  openEditor(event, mainWindow as BrowserWindow, workspace)
+  // Open with editor
+  await openEditor(event, workspace).catch(() => {})
   // Execute terminal commands
-  executeTerminalCommands(event, mainWindow as BrowserWindow, workspace)
+  await executeTerminalCommands(event, workspace).catch(() => {})
   // Start docker compose containers
-  startDockerCompose(event, mainWindow as BrowserWindow, workspace)
+  await startDockerCompose(event, workspace).catch(() => {})
   // Start docker containers
-  startDockerContainers(event, mainWindow as BrowserWindow, workspace)
+  await startDockerContainers(event, workspace).catch(() => {})
 }
 
 export const onWorkspaceGet = async (event: IpcMainEvent) => {
@@ -189,12 +221,8 @@ export const onOpenDirectory = async (
   }
 }
 
-export const onContainersGet = async (
-  mainWindow: BrowserWindow,
-  event: IpcMainEvent
-) => {
+export const onContainersGet = async (event: IpcMainEvent) => {
   const process = runScript(
-    mainWindow as BrowserWindow,
     `/usr/local/bin/docker container ls -a --format '{{json .}}'`,
     [''],
     () => ({})

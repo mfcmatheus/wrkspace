@@ -27,7 +27,6 @@ export function fakeId(length: number = 16) {
 }
 
 export function runScript(
-  mainWindow: BrowserWindow,
   command: string,
   args?: readonly string[],
   callback?: () => {}
@@ -64,10 +63,6 @@ export function runScript(
 
   child.stderr.setEncoding('utf8')
   child.stderr.on('data', (data) => {
-    // Return some data to the renderer process with the mainprocess-response ID
-    mainWindow.webContents.send('mainprocess-response', data)
-    // Here is the output from the command
-
     if (enableDebug) {
       dialog.showMessageBox({
         title: 'Title',
