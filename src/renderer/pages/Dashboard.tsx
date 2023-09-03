@@ -7,6 +7,7 @@ import WorkspaceListItem from 'renderer/components/WorkspaceListItem'
 import Workspace from 'renderer/@types/Workspace'
 import ButtonMain from 'renderer/base-components/ButtonMain'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
+import StatusBar from 'renderer/components/StatusBar'
 
 function Dashboard() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
@@ -81,6 +82,7 @@ function Dashboard() {
           </div>
         )}
       </div>
+      <StatusBar />
 
       {isModalEditOpen && (
         <ModalEditWorkspace
