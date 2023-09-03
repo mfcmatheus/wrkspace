@@ -20,7 +20,7 @@ function StatusBar() {
 
   return (
     <div className="flex border-t border-[#353535] w-full p-2">
-      <span className="w-full whitespace-nowrap text-ellipsis text-white font-thin text-xs">
+      <span className="w-full whitespace-nowrap text-ellipsis text-[#d2d2d2] font-thin text-xs">
         {status}
       </span>
     </div>

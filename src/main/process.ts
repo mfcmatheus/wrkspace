@@ -146,6 +146,7 @@ export const onWorkspaceOpen = async (
   )
 
   workspaces[index].opened_at = moment().format('YYYY-MM-DD HH:mm:ss')
+  workspaces[index].loading = true
 
   store.set('workspaces', workspaces)
 
@@ -157,6 +158,10 @@ export const onWorkspaceOpen = async (
   await startDockerCompose(event, workspace).catch(() => {})
   // Start docker containers
   await startDockerContainers(event, workspace).catch(() => {})
+
+  workspaces[index].loading = false
+
+  store.set('workspaces', workspaces)
 }
 
 export const onWorkspaceGet = async (event: IpcMainEvent) => {

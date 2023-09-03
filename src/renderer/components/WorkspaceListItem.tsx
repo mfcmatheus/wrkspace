@@ -75,7 +75,7 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
       </div>
       <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
       <WorkspaceListItemLastOpened>{renderDate()}</WorkspaceListItemLastOpened>
-      <WorkspaceListItemLaunch onClick={onLaunch} />
+      <WorkspaceListItemLaunch workspace={workspace} onClick={onLaunch} />
     </div>
   )
 }
