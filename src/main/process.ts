@@ -238,6 +238,17 @@ export const onContainersGet = async (event: IpcMainEvent) => {
   })
 }
 
+export const onServicesDocker = async (event: IpcMainEvent) => {
+  const process = runScript(`/usr/local/bin/docker info`, [''], () => ({}))
+
+  process.stderr.on('data', (data) => {
+    event.reply(
+      'services.docker',
+      !data.toString().includes('Is the docker daemon running?')
+    )
+  })
+}
+
 export default {
   onWorkspaceOpen,
   onWorkspaceGet,
@@ -246,4 +257,5 @@ export default {
   onWorkspaceCreate,
   onOpenDirectory,
   onContainersGet,
+  onServicesDocker,
 }

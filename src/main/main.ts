@@ -17,6 +17,7 @@ import { resolveHtmlPath } from './util'
 import {
   onContainersGet,
   onOpenDirectory,
+  onServicesDocker,
   onWorkspaceCreate,
   onWorkspaceDelete,
   onWorkspaceGet,
@@ -50,6 +51,7 @@ ipcMain.on('workspaces.get', onWorkspaceGet)
 ipcMain.on('workspaces.create', onWorkspaceCreate)
 ipcMain.on('workspaces.update', onWorkspaceUpdate)
 ipcMain.on('workspaces.delete', onWorkspaceDelete)
+ipcMain.on('services.docker', onServicesDocker)
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support')
