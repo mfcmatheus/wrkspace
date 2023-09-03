@@ -16,6 +16,8 @@ import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
 import {
   onContainersGet,
+  onFoldersCreate,
+  onFoldersGet,
   onOpenDirectory,
   onServicesDocker,
   onWorkspaceCreate,
@@ -52,6 +54,8 @@ ipcMain.on('workspaces.create', onWorkspaceCreate)
 ipcMain.on('workspaces.update', onWorkspaceUpdate)
 ipcMain.on('workspaces.delete', onWorkspaceDelete)
 ipcMain.on('services.docker', onServicesDocker)
+ipcMain.on('folders.get', onFoldersGet)
+ipcMain.on('folders.create', onFoldersCreate)
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support')

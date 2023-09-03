@@ -8,10 +8,16 @@ import Workspace from 'renderer/@types/Workspace'
 import ButtonMain from 'renderer/base-components/ButtonMain'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import StatusBar from 'renderer/components/StatusBar'
+import FolderBar from 'renderer/components/FolderBar'
+import ModalCreateFolder from 'renderer/components/ModalCreateFolder'
+import Folder from 'renderer/@types/Folder'
+import FolderBarItem from 'renderer/components/FolderBarItem'
 
 function Dashboard() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
+  const [folders, setFolders] = useState<Folder[]>([])
   const [isModalEditOpen, setIsModalEditOpen] = useState(false)
+  const [isModalCreateFolderOpen, setIsModalCreateFolderOpen] = useState(false)
   const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(
     {} as Workspace
   )
@@ -41,35 +47,54 @@ function Dashboard() {
     setIsModalEditOpen(false)
   }
 
+  const onCreateFolder = (folder: Folder) => {
+    ipcRenderer.sendMessage('folders.create', folder)
+    setIsModalCreateFolderOpen(false)
+  }
+
   useEffect(() => {
     ipcRenderer.sendMessage('workspaces.get')
+    ipcRenderer.sendMessage('folders.get')
   })
 
   useIpc('workspaces.get', (data: Workspace[]) => {
     setWorkspaces(data)
   })
 
+  useIpc('folders.get', (data: Folder[]) => {
+    setFolders(data)
+  })
+
   return (
     <>
       <TopBar />
-      <div className="flex flex-col flex-1 p-4">
+      <div className="flex flex-1">
         {workspaces?.length ? (
           <>
-            <div className="flex mb-4">
-              <h2 className="text-medium text-[#f0f0f0] text-xl">Dashboard</h2>
-              <ButtonMain primary className="ml-auto" onClick={onClickCreate}>
-                Create
-              </ButtonMain>
+            <div className="flex flex-col flex-1 p-4">
+              <div className="flex mb-4">
+                <h2 className="text-medium text-[#f0f0f0] text-xl">
+                  Dashboard
+                </h2>
+                <ButtonMain primary className="ml-auto" onClick={onClickCreate}>
+                  Create
+                </ButtonMain>
+              </div>
+              <WorkspaceList>
+                {workspaces.map((workspace) => (
+                  <WorkspaceListItem
+                    key={workspace.id}
+                    workspace={workspace}
+                    onEdit={onEditWorkspace}
+                  />
+                ))}
+              </WorkspaceList>
             </div>
-            <WorkspaceList>
-              {workspaces.map((workspace) => (
-                <WorkspaceListItem
-                  key={workspace.id}
-                  workspace={workspace}
-                  onEdit={onEditWorkspace}
-                />
+            <FolderBar onClickCreate={() => setIsModalCreateFolderOpen(true)}>
+              {folders.map((folder) => (
+                <FolderBarItem key={folder.id} folder={folder} />
               ))}
-            </WorkspaceList>
+            </FolderBar>
           </>
         ) : (
           <div className="flex flex-col flex-1 items-center h-full justify-center">
@@ -91,6 +116,13 @@ function Dashboard() {
           onSave={onSave}
           onDelete={onDelete}
           onCreate={onCreate}
+        />
+      )}
+
+      {isModalCreateFolderOpen && (
+        <ModalCreateFolder
+          onSave={onCreateFolder}
+          onClose={() => setIsModalCreateFolderOpen(false)}
         />
       )}
     </>
