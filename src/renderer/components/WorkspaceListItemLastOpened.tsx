@@ -8,7 +8,7 @@ function WorkspaceListItemLastOpened(props: WorkspaceListItemLastOpenedProps) {
   const { children } = props
 
   return (
-    <p className="mx-auto text-[#757575] text-[10px] uppercase font-thin">
+    <p className="mx-auto text-[#757575] text-[10px] h-[15px] uppercase font-thin">
       {children}
     </p>
   )

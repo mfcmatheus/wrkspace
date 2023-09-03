@@ -10,6 +10,7 @@ export type Channels =
   | 'workspaces.open'
   | 'dialog:openDirectory'
   | 'containers.get'
+  | 'services.docker'
 
 const electronHandler = {
   ipcRenderer: {

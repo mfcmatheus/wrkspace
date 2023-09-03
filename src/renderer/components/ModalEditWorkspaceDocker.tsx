@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useField } from 'formik'
 
+import classNames from 'classnames'
 import CheckboxMain from 'renderer/base-components/CheckboxMain'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import Container from 'renderer/@types/Container'
@@ -13,6 +14,7 @@ function ModalEditWorkspaceDocker() {
   const [fieldCheckboxContainers] = useField('enableDockerContainers')
 
   const [containers, setContainers] = useState<Container[]>([])
+  const [isDockerRunning, setIsDockerRunning] = useState<boolean>(false)
 
   const onSelectContainer = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -42,6 +44,10 @@ function ModalEditWorkspaceDocker() {
     ipcRenderer.sendMessage('containers.get')
   }, [fieldCheckboxContainers.value])
 
+  useEffect(() => {
+    ipcRenderer.sendMessage('services.docker')
+  }, [])
+
   useIpc('containers.get', (data: string) => {
     const dataParsed = data
       .split('\n')
@@ -51,11 +57,28 @@ function ModalEditWorkspaceDocker() {
     setContainers(dataParsed as Container[])
   })
 
+  useIpc('services.docker', (status: boolean) => {
+    setIsDockerRunning(status)
+  })
+
   return (
     <div className="flex flex-col gap-y-3 flex-grow basis-0 overflow-auto p-3">
-      <CheckboxMain name="enableDocker">Enable Docker</CheckboxMain>
+      <div className="flex items-center">
+        <CheckboxMain name="enableDocker">Enable Docker</CheckboxMain>
+
+        <div className="flex items-center text-[#d2d2d2] text-xs gap-x-1 font-thin ml-auto">
+          <div
+            className={classNames({
+              'h-2 w-2 rounded-full bg-red-600': true,
+              '!bg-green-600': isDockerRunning,
+            })}
+          />
+          <span>Service status:</span>
+          <span>{isDockerRunning ? 'Running' : 'Stopped'}</span>
+        </div>
+      </div>
       <div className="flex flex-col relative flex-1">
-        {!fieldCheckbox.value && (
+        {(!fieldCheckbox.value || !isDockerRunning) && (
           <div className="absolute inset-0 bg-[#202020] opacity-75 z-[2]" />
         )}
         <div className="mt-4 flex w-3/4 mx-auto gap-x-1 relative z-[1]">

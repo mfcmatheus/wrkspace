@@ -10,6 +10,7 @@ export default interface Workspace {
   enableDockerCompose?: boolean
   enableDockerContainers?: boolean
   containers?: Container[]
+  loading?: boolean
   created_at: string
   opened_at?: string
 }

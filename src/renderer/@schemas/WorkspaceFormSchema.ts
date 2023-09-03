@@ -8,9 +8,9 @@ export const TerminalSchema = Yup.object().shape({
 export default Yup.object({
   name: Yup.string().required(),
   path: Yup.string().required(),
-  enableDocker: Yup.boolean().required(),
-  enableDockerCompose: Yup.boolean(),
-  enableDockerContainers: Yup.boolean(),
+  enableDocker: Yup.boolean().nullable(),
+  enableDockerCompose: Yup.boolean().nullable(),
+  enableDockerContainers: Yup.boolean().nullable(),
   containers: Yup.array().of(Yup.string()).nullable(),
   terminals: Yup.array().of(TerminalSchema).nullable(),
 })

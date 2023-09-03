@@ -117,7 +117,6 @@
   },
   "build": {
     "productName": "wrkspace",
-    "appId": "io.wrkspace",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
@@ -138,7 +137,11 @@
       "hardenedRuntime": true,
       "entitlements": "assets/entitlements.mac.plist",
       "entitlementsInherit": "assets/entitlements.mac.plist",
-      "gatekeeperAssess": false
+      "gatekeeperAssess": false,
+      "extendInfo": {
+        "com.apple.developer.devicecheck.appattest-environment": true,
+        "com.apple.security.automation.apple-events": true
+      }
     },
     "dmg": {
       "contents": [
