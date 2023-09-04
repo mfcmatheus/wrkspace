@@ -6,6 +6,7 @@ import Workspace from 'renderer/@types/Workspace'
 import Terminal from 'renderer/@types/Terminal'
 import Container from 'renderer/@types/Container'
 import Folder from 'renderer/@types/Folder'
+import Setting from 'renderer/@types/Setting'
 import { fakeId, runScript } from './util'
 
 const store = new Store()
@@ -262,6 +263,18 @@ export const onFoldersCreate = async (event: IpcMainEvent, folder: Folder) => {
   store.set('folders', folders)
 }
 
+export const onSettingsGet = async (event: IpcMainEvent) => {
+  event.reply('settings.get', (store.get('settings') ?? {}) as Setting)
+}
+
+export const onSettingsUpdate = async (
+  event: IpcMainEvent,
+  settings: Setting
+) => {
+  const setting = (store.get('settings') ?? {}) as Setting
+  store.set('settings', { ...setting, ...settings } as Setting)
+}
+
 export default {
   onWorkspaceOpen,
   onWorkspaceGet,
@@ -273,4 +286,6 @@ export default {
   onServicesDocker,
   onFoldersGet,
   onFoldersCreate,
+  onSettingsGet,
+  onSettingsUpdate,
 }

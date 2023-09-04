@@ -13,6 +13,8 @@ export type Channels =
   | 'services.docker'
   | 'folders.get'
   | 'folders.create'
+  | 'settings.get'
+  | 'settings.update'
 
 const electronHandler = {
   ipcRenderer: {

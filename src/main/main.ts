@@ -20,6 +20,8 @@ import {
   onFoldersGet,
   onOpenDirectory,
   onServicesDocker,
+  onSettingsGet,
+  onSettingsUpdate,
   onWorkspaceCreate,
   onWorkspaceDelete,
   onWorkspaceGet,
@@ -56,6 +58,8 @@ ipcMain.on('workspaces.delete', onWorkspaceDelete)
 ipcMain.on('services.docker', onServicesDocker)
 ipcMain.on('folders.get', onFoldersGet)
 ipcMain.on('folders.create', onFoldersCreate)
+ipcMain.on('settings.get', onSettingsGet)
+ipcMain.on('settings.update', onSettingsUpdate)
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support')
