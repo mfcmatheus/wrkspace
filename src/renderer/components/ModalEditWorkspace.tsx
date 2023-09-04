@@ -12,9 +12,11 @@ import Lucide from 'renderer/base-components/lucide'
 import ButtonMain from 'renderer/base-components/ButtonMain'
 import { ModalEditWorkspacePages } from 'renderer/@enums/ModalEditWorkspacePages'
 import WorkspaceFormSchema from 'renderer/@schemas/WorkspaceFormSchema'
+import Setting from 'renderer/@types/Setting'
 
 interface ModalEditWorkspaceProps {
   workspace: Workspace
+  settings: Setting
   onClose?: () => void
   onSave?: (workspace: Workspace) => void
   onDelete?: (workspace: Workspace) => void
@@ -29,7 +31,7 @@ const defaultProps = {
 }
 
 function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
-  const { workspace, onClose, onSave, onDelete, onCreate } = props
+  const { workspace, settings, onClose, onSave, onDelete, onCreate } = props
   const [currentPage, setCurrentPage] = useState<ModalEditWorkspacePages>(
     ModalEditWorkspacePages.General
   )
@@ -60,6 +62,7 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
 
   const onClickClose = () => onClose && onClose()
   const onSubmit = (data: Workspace) => {
+    data.folder = settings.currentFolder
     return isEditing ? onSave && onSave(data) : onCreate && onCreate(data)
   }
   const onClickDelete = () => onDelete && onDelete(workspace)

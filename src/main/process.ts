@@ -5,6 +5,8 @@ import moment from 'moment'
 import Workspace from 'renderer/@types/Workspace'
 import Terminal from 'renderer/@types/Terminal'
 import Container from 'renderer/@types/Container'
+import Folder from 'renderer/@types/Folder'
+import Setting from 'renderer/@types/Setting'
 import { fakeId, runScript } from './util'
 
 const store = new Store()
@@ -249,6 +251,30 @@ export const onServicesDocker = async (event: IpcMainEvent) => {
   })
 }
 
+export const onFoldersGet = async (event: IpcMainEvent) => {
+  event.reply('folders.get', (store.get('folders') ?? []) as Folder[])
+}
+
+export const onFoldersCreate = async (event: IpcMainEvent, folder: Folder) => {
+  const folders = (store.get('folders') ?? []) as Folder[]
+
+  folders.push({ id: fakeId(), ...folder } as Folder)
+
+  store.set('folders', folders)
+}
+
+export const onSettingsGet = async (event: IpcMainEvent) => {
+  event.reply('settings.get', (store.get('settings') ?? {}) as Setting)
+}
+
+export const onSettingsUpdate = async (
+  event: IpcMainEvent,
+  settings: Setting
+) => {
+  const setting = (store.get('settings') ?? {}) as Setting
+  store.set('settings', { ...setting, ...settings } as Setting)
+}
+
 export default {
   onWorkspaceOpen,
   onWorkspaceGet,
@@ -258,4 +284,8 @@ export default {
   onOpenDirectory,
   onContainersGet,
   onServicesDocker,
+  onFoldersGet,
+  onFoldersCreate,
+  onSettingsGet,
+  onSettingsUpdate,
 }

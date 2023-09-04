@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import TopBar from 'renderer/components/TopBar'
 import WorkspaceList from 'renderer/components/WorkspaceList'
@@ -8,10 +8,18 @@ import Workspace from 'renderer/@types/Workspace'
 import ButtonMain from 'renderer/base-components/ButtonMain'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import StatusBar from 'renderer/components/StatusBar'
+import FolderBar from 'renderer/components/FolderBar'
+import ModalCreateFolder from 'renderer/components/ModalCreateFolder'
+import Folder from 'renderer/@types/Folder'
+import FolderBarItem from 'renderer/components/FolderBarItem'
+import Setting from 'renderer/@types/Setting'
 
 function Dashboard() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
+  const [folders, setFolders] = useState<Folder[]>([])
+  const [settings, setSettings] = useState<Setting>({})
   const [isModalEditOpen, setIsModalEditOpen] = useState(false)
+  const [isModalCreateFolderOpen, setIsModalCreateFolderOpen] = useState(false)
   const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(
     {} as Workspace
   )
@@ -41,28 +49,63 @@ function Dashboard() {
     setIsModalEditOpen(false)
   }
 
+  const onCreateFolder = (folder: Folder) => {
+    ipcRenderer.sendMessage('folders.create', folder)
+    setIsModalCreateFolderOpen(false)
+  }
+
+  const onClickFolder = (folder: Folder) => {
+    const currentFolder = settings?.currentFolder
+
+    ipcRenderer.sendMessage('settings.update', {
+      currentFolder: currentFolder?.id === folder.id ? null : folder,
+    } as Setting)
+  }
+
+  const title = useMemo(() => {
+    return settings?.currentFolder?.name ?? 'Dashboard'
+  }, [settings?.currentFolder])
+
+  const filteredWorkspaces = useMemo(() => {
+    return workspaces.filter((workspace) => {
+      return settings?.currentFolder
+        ? workspace.folder?.id === settings?.currentFolder?.id
+        : true
+    })
+  }, [workspaces, settings?.currentFolder]) as Workspace[]
+
   useEffect(() => {
     ipcRenderer.sendMessage('workspaces.get')
+    ipcRenderer.sendMessage('folders.get')
+    ipcRenderer.sendMessage('settings.get')
   })
 
   useIpc('workspaces.get', (data: Workspace[]) => {
     setWorkspaces(data)
   })
 
+  useIpc('folders.get', (data: Folder[]) => {
+    setFolders(data)
+  })
+
+  useIpc('settings.get', (data: Setting) => {
+    setSettings(data)
+  })
+
   return (
     <>
       <TopBar />
-      <div className="flex flex-col flex-1 p-4">
-        {workspaces?.length ? (
-          <>
+      <div className="flex flex-1">
+        {filteredWorkspaces?.length ? (
+          <div className="flex flex-col flex-1 p-4">
             <div className="flex mb-4">
-              <h2 className="text-medium text-[#f0f0f0] text-xl">Dashboard</h2>
+              <h2 className="text-medium text-[#f0f0f0] text-xl">{title}</h2>
               <ButtonMain primary className="ml-auto" onClick={onClickCreate}>
                 Create
               </ButtonMain>
             </div>
             <WorkspaceList>
-              {workspaces.map((workspace) => (
+              {filteredWorkspaces.map((workspace) => (
                 <WorkspaceListItem
                   key={workspace.id}
                   workspace={workspace}
@@ -70,7 +113,7 @@ function Dashboard() {
                 />
               ))}
             </WorkspaceList>
-          </>
+          </div>
         ) : (
           <div className="flex flex-col flex-1 items-center h-full justify-center">
             <p className="text-lg text-[#727272] font-thin">
@@ -81,16 +124,34 @@ function Dashboard() {
             </ButtonMain>
           </div>
         )}
+        <FolderBar onClickCreate={() => setIsModalCreateFolderOpen(true)}>
+          {folders.map((folder) => (
+            <FolderBarItem
+              key={folder.id}
+              folder={folder}
+              current={settings?.currentFolder?.id === folder.id}
+              onClick={onClickFolder}
+            />
+          ))}
+        </FolderBar>
       </div>
       <StatusBar />
 
       {isModalEditOpen && (
         <ModalEditWorkspace
           workspace={selectedWorkspace as Workspace}
+          settings={settings}
           onClose={() => setIsModalEditOpen(false)}
           onSave={onSave}
           onDelete={onDelete}
           onCreate={onCreate}
+        />
+      )}
+
+      {isModalCreateFolderOpen && (
+        <ModalCreateFolder
+          onSave={onCreateFolder}
+          onClose={() => setIsModalCreateFolderOpen(false)}
         />
       )}
     </>

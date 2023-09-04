@@ -11,6 +11,10 @@ export type Channels =
   | 'dialog:openDirectory'
   | 'containers.get'
   | 'services.docker'
+  | 'folders.get'
+  | 'folders.create'
+  | 'settings.get'
+  | 'settings.update'
 
 const electronHandler = {
   ipcRenderer: {

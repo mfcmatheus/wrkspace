@@ -16,8 +16,12 @@ import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
 import {
   onContainersGet,
+  onFoldersCreate,
+  onFoldersGet,
   onOpenDirectory,
   onServicesDocker,
+  onSettingsGet,
+  onSettingsUpdate,
   onWorkspaceCreate,
   onWorkspaceDelete,
   onWorkspaceGet,
@@ -52,6 +56,10 @@ ipcMain.on('workspaces.create', onWorkspaceCreate)
 ipcMain.on('workspaces.update', onWorkspaceUpdate)
 ipcMain.on('workspaces.delete', onWorkspaceDelete)
 ipcMain.on('services.docker', onServicesDocker)
+ipcMain.on('folders.get', onFoldersGet)
+ipcMain.on('folders.create', onFoldersCreate)
+ipcMain.on('settings.get', onSettingsGet)
+ipcMain.on('settings.update', onSettingsUpdate)
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support')
@@ -92,6 +100,9 @@ const createWindow = async () => {
   }
 
   mainWindow = new BrowserWindow({
+    frame: false,
+    titleBarStyle: 'hidden',
+    trafficLightPosition: { x: 15, y: 12 },
     show: false,
     width: 1024,
     height: 728,
