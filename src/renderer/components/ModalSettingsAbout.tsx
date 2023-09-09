@@ -12,7 +12,7 @@ function ModalSettingsAbout() {
       <span className="text-[2rem] uppercase tracking-[.4rem] text-white">
         Wrkspace
       </span>
-      <span className="text-[#d2d2d2]">Version 0.7.0</span>
+      <span className="text-[#d2d2d2]">Version 0.8.0</span>
       <div className="flex mt-2">
         <GitHubButton
           href="https://github.com/mfcmatheus/wrkspace"
