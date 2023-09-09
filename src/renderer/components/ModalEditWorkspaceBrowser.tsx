@@ -155,11 +155,9 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
             onBlur={(e) => onBlurUrl(e, browser)}
           />
           <div className="col-span-1 flex justify-center">
-            {index > 0 && (
-              <button type="button" onClick={() => onClickRemove(browser)}>
-                <Lucide icon="Trash" size={20} color="#dc2626" />
-              </button>
-            )}
+            <button type="button" onClick={() => onClickRemove(browser)}>
+              <Lucide icon="Trash" size={20} color="#dc2626" />
+            </button>
           </div>
           <div className="col-span-12">
             <ErrorMessage

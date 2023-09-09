@@ -21,6 +21,8 @@ export const BrowserSchema = Yup.object().shape({
 export default Yup.object({
   name: Yup.string().required(),
   path: Yup.string().required(),
+  editor: Yup.string().nullable(),
+  enableEditor: Yup.boolean().nullable(),
   enableDocker: Yup.boolean().nullable(),
   enableDockerCompose: Yup.boolean().nullable(),
   enableDockerContainers: Yup.boolean().nullable(),
