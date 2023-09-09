@@ -8,9 +8,11 @@ export default interface Workspace {
   name: string
   path: string
   folder?: Folder
+  editor?: string
   terminals?: Terminal[]
   browsers?: Browser[]
-  enableDocker: boolean
+  enableEditor?: boolean
+  enableDocker?: boolean
   enableDockerCompose?: boolean
   enableDockerContainers?: boolean
   containers?: Container[]

@@ -1,12 +1,16 @@
-import React from 'react'
-import { ErrorMessage, useField } from 'formik'
+import React, { useEffect, useState } from 'react'
+import { ErrorMessage, Field, useField } from 'formik'
 
 import ButtonMain from 'renderer/base-components/ButtonMain'
 import InputMain from 'renderer/base-components/InputMain'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
+import SwitchMain from 'renderer/base-components/SwitchMain'
 
 function ModalEditWorkspaceGeneralSettings() {
   const pathFieldHelpers = useField('path')[2]
+  const [enableEditorField] = useField('enableEditor')
+
+  const [applications, setApplications] = useState<string[]>([])
 
   const onClickSearch = () => {
     ipcRenderer.sendMessage('dialog:openDirectory')
@@ -19,6 +23,14 @@ function ModalEditWorkspaceGeneralSettings() {
   useIpc('dialog:openDirectory', (path: string) => {
     pathFieldHelpers.setValue(path)
   })
+
+  useIpc('applications.get', (data: string[]) => {
+    setApplications(data.map((app) => app.replace('.app', '')))
+  })
+
+  useEffect(() => {
+    ipcRenderer.sendMessage('applications.get')
+  }, [])
 
   return (
     <div className="flex flex-col gap-y-3 flex-grow basis-0 overflow-auto p-3">
@@ -40,6 +52,26 @@ function ModalEditWorkspaceGeneralSettings() {
           </div>
         </label>
         <ErrorMessage name="path" render={renderError} />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="enableEditor" className="flex flex-col">
+          <span className="text-white font-thin mb-2">Open with editor</span>
+          <div className="flex gap-x-2">
+            <Field
+              name="editor"
+              as="select"
+              disabled={!enableEditorField.value}
+            >
+              {applications.map((app) => (
+                <option key={app} value={app}>
+                  {app}
+                </option>
+              ))}
+            </Field>
+            <SwitchMain sm primary name="enableEditor" id="enableEditor" />
+          </div>
+        </label>
+        <ErrorMessage name="editor" render={renderError} />
       </div>
     </div>
   )

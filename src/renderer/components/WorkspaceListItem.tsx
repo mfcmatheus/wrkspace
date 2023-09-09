@@ -5,10 +5,10 @@ import WorkspaceListItemName from 'renderer/components/WorkspaceListItemName'
 import WorkspaceListItemLastOpened from 'renderer/components/WorkspaceListItemLastOpened'
 import WorkspaceListItemLaunch from 'renderer/components/WorkspaceListItemLaunch'
 import WorkspaceListItemEdit from 'renderer/components/WorkspaceListItemEdit'
+import WorkspaceListItemFeatures from 'renderer/components/WorkspaceListItemFeatures'
 
 import Workspace from 'renderer/@types/Workspace'
 import { ipcRenderer } from 'renderer/hooks/useIpc'
-import Lucide from 'renderer/base-components/lucide'
 
 interface WorkspaceListItemProps {
   workspace: Workspace
@@ -62,18 +62,8 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
 
   return (
     <div className="flex flex-col group rounded border border-[#353535] hover:border-indigo-600 p-3 transition ease-in-out duration-200">
-      <div className="flex">
-        <div className="flex gap-x-1">
-          {!!workspace.terminals?.length && (
-            <Lucide icon="TerminalSquare" size={20} color="#d2d2d2" />
-          )}
-          {workspace.enableDocker && (
-            <Lucide icon="Container" size={20} color="#d2d2d2" />
-          )}
-          {!!workspace.browsers?.length && (
-            <Lucide icon="Globe" size={20} color="#d2d2d2" />
-          )}
-        </div>
+      <div className="flex items-center">
+        <WorkspaceListItemFeatures workspace={workspace} />
         <WorkspaceListItemEdit onClick={onClickEdit} />
       </div>
       <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>

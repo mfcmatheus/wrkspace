@@ -18,10 +18,16 @@ const openEditor = (
   workspace: Workspace
 ): Promise<boolean> =>
   new Promise((resolve, reject) => {
+    if (!workspace.enableEditor || !workspace.editor) {
+      reject(new Error('Editor is not enabled'))
+
+      return
+    }
+
     event.reply('workspaces.open.status', 'Opening with editor ...')
 
     const process = runScript(
-      `open -g -a 'Visual Studio Code' '${workspace.path}'`,
+      `open -g -a '${workspace.editor}' '${workspace.path}'`,
       [''],
       () => ({})
     )
@@ -304,7 +310,10 @@ export const onSettingsUpdate = async (
 }
 
 export const onApplicationsGet = async (event: IpcMainEvent) => {
-  const applications = fs.readdirSync('/Applications')
+  let applications = fs.readdirSync('/Applications') ?? []
+  applications = applications.filter((application) =>
+    application.endsWith('.app')
+  )
   event.reply('applications.get', applications)
 }
 
