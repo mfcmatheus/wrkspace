@@ -52,7 +52,7 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
     },
     {
       icon: 'Globe',
-      label: 'Browser',
+      label: 'Pages',
       page: ModalEditWorkspacePages.Browser,
     },
     {
