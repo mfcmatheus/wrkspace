@@ -1,6 +1,7 @@
 import Terminal from 'renderer/@types/Terminal'
 import Container from 'renderer/@types/Container'
 import Folder from './Folder'
+import Browser from './Browser'
 
 export default interface Workspace {
   id: number | string
@@ -8,6 +9,7 @@ export default interface Workspace {
   path: string
   folder?: Folder
   terminals?: Terminal[]
+  browsers?: Browser[]
   enableDocker: boolean
   enableDockerCompose?: boolean
   enableDockerContainers?: boolean

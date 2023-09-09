@@ -10,6 +10,7 @@ interface InputMainProps {
   disabled?: boolean
   name?: string
   value?: string
+  defaultValue?: string
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void
 }
@@ -21,6 +22,7 @@ const defaultProps = {
   className: '',
   name: '',
   value: '',
+  defaultValue: '',
   disabled: false,
   onChange: undefined,
   onBlur: undefined,
@@ -35,6 +37,7 @@ function InputMain(props: InputMainProps) {
     disabled,
     name,
     value,
+    defaultValue,
     onChange,
     onBlur,
   } = props
@@ -52,6 +55,7 @@ function InputMain(props: InputMainProps) {
       placeholder={placeholder}
       disabled={disabled}
       {...(value ? { value } : undefined)}
+      {...(defaultValue ? { defaultValue } : undefined)}
       {...(onChange ? { onChange } : undefined)}
       {...(onBlur ? { onBlur } : undefined)}
     />

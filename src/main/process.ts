@@ -1,3 +1,4 @@
+import fs from 'fs'
 import { IpcMainEvent, BrowserWindow, dialog } from 'electron'
 import Store from 'electron-store'
 import moment from 'moment'
@@ -7,6 +8,7 @@ import Terminal from 'renderer/@types/Terminal'
 import Container from 'renderer/@types/Container'
 import Folder from 'renderer/@types/Folder'
 import Setting from 'renderer/@types/Setting'
+import Browser from 'renderer/@types/Browser'
 import { fakeId, runScript } from './util'
 
 const store = new Store()
@@ -19,7 +21,7 @@ const openEditor = (
     event.reply('workspaces.open.status', 'Opening with editor ...')
 
     const process = runScript(
-      `open -a 'Visual Studio Code' '${workspace.path}'`,
+      `open -g -a 'Visual Studio Code' '${workspace.path}'`,
       [''],
       () => ({})
     )
@@ -34,6 +36,30 @@ const openEditor = (
     })
     process.on('error', reject)
   })
+
+const openBrowser = (browser: Browser): Promise<void> =>
+  new Promise((resolve, reject) => {
+    const process = runScript(
+      `open -g -a '/Applications/${browser.application}.app' '${browser.url}'`,
+      [''],
+      () => ({})
+    )
+
+    process.on('close', resolve)
+    process.on('error', reject)
+  })
+
+const openBrowsers = async (event: IpcMainEvent, workspace: Workspace) => {
+  event.reply('workspaces.open.status', 'Opening browsers ...')
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const browser of workspace.browsers ?? []) {
+    // eslint-disable-next-line no-await-in-loop
+    await openBrowser(browser)
+  }
+
+  event.reply('workspaces.open.status', 'Success')
+}
 
 const executeTerminalCommand = (
   workspace: Workspace,
@@ -154,6 +180,8 @@ export const onWorkspaceOpen = async (
 
   // Open with editor
   await openEditor(event, workspace).catch(() => {})
+  // Open browsers
+  await openBrowsers(event, workspace).catch(() => {})
   // Execute terminal commands
   await executeTerminalCommands(event, workspace).catch(() => {})
   // Start docker compose containers
@@ -275,6 +303,11 @@ export const onSettingsUpdate = async (
   store.set('settings', { ...setting, ...settings } as Setting)
 }
 
+export const onApplicationsGet = async (event: IpcMainEvent) => {
+  const applications = fs.readdirSync('/Applications')
+  event.reply('applications.get', applications)
+}
+
 export default {
   onWorkspaceOpen,
   onWorkspaceGet,
@@ -288,4 +321,5 @@ export default {
   onFoldersCreate,
   onSettingsGet,
   onSettingsUpdate,
+  onApplicationsGet,
 }

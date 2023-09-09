@@ -15,6 +15,7 @@ import log from 'electron-log'
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
 import {
+  onApplicationsGet,
   onContainersGet,
   onFoldersCreate,
   onFoldersGet,
@@ -60,6 +61,7 @@ ipcMain.on('folders.get', onFoldersGet)
 ipcMain.on('folders.create', onFoldersCreate)
 ipcMain.on('settings.get', onSettingsGet)
 ipcMain.on('settings.update', onSettingsUpdate)
+ipcMain.on('applications.get', onApplicationsGet)
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support')

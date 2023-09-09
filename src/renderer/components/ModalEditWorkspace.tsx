@@ -8,6 +8,7 @@ import ModalEditWorkspaceSidebar from 'renderer/components/ModalEditWorkspaceSid
 import ModalEditWorkspaceGeneralSettings from 'renderer/components/ModalEditWorkspaceGeneralSettings'
 import ModalEditWorkspaceTerminal from 'renderer/components/ModalEditWorkspaceTerminal'
 import ModalEditWorkspaceDocker from 'renderer/components/ModalEditWorkspaceDocker'
+import ModalEditWorkspaceBrowser from 'renderer/components/ModalEditWorkspaceBrowser'
 import Lucide from 'renderer/base-components/lucide'
 import ButtonMain from 'renderer/base-components/ButtonMain'
 import { ModalEditWorkspacePages } from 'renderer/@enums/ModalEditWorkspacePages'
@@ -41,12 +42,18 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
   const isGeneralPage = currentPage === ModalEditWorkspacePages.General
   const isTerminalPage = currentPage === ModalEditWorkspacePages.Terminal
   const isDockerPage = currentPage === ModalEditWorkspacePages.Docker
+  const isBrowserPage = currentPage === ModalEditWorkspacePages.Browser
 
   const sidebarItems: SidebarItem[] = [
     {
       icon: 'Settings',
       label: 'General',
       page: ModalEditWorkspacePages.General,
+    },
+    {
+      icon: 'Globe',
+      label: 'Browser',
+      page: ModalEditWorkspacePages.Browser,
     },
     {
       icon: 'Terminal',
@@ -109,6 +116,9 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
           >
             <Form className="flex flex-col flex-grow basis-0">
               {isGeneralPage && <ModalEditWorkspaceGeneralSettings />}
+              {isBrowserPage && (
+                <ModalEditWorkspaceBrowser workspace={workspace} />
+              )}
               {isTerminalPage && (
                 <ModalEditWorkspaceTerminal workspace={workspace} />
               )}
