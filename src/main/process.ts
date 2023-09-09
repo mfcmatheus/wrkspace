@@ -297,6 +297,10 @@ export const onFoldersCreate = async (event: IpcMainEvent, folder: Folder) => {
   store.set('folders', folders)
 }
 
+export const onFoldersSet = async (event: IpcMainEvent, folders: Folder[]) => {
+  store.set('folders', folders)
+}
+
 export const onSettingsGet = async (event: IpcMainEvent) => {
   event.reply('settings.get', (store.get('settings') ?? {}) as Setting)
 }
@@ -328,6 +332,7 @@ export default {
   onServicesDocker,
   onFoldersGet,
   onFoldersCreate,
+  onFoldersSet,
   onSettingsGet,
   onSettingsUpdate,
   onApplicationsGet,

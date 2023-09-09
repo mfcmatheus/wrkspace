@@ -13,12 +13,16 @@ import ModalCreateFolder from 'renderer/components/ModalCreateFolder'
 import Folder from 'renderer/@types/Folder'
 import FolderBarItem from 'renderer/components/FolderBarItem'
 import Setting from 'renderer/@types/Setting'
+import Lucide from 'renderer/base-components/lucide'
+import ModalSettings from 'renderer/components/ModalSettings'
+import Logo from 'renderer/base-components/Logo'
 
 function Dashboard() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [folders, setFolders] = useState<Folder[]>([])
   const [settings, setSettings] = useState<Setting>({})
   const [isModalEditOpen, setIsModalEditOpen] = useState(false)
+  const [isModalSettingsOpen, setIsModalSettingsOpen] = useState(false)
   const [isModalCreateFolderOpen, setIsModalCreateFolderOpen] = useState(false)
   const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(
     {} as Workspace
@@ -62,6 +66,14 @@ function Dashboard() {
     } as Setting)
   }
 
+  const onSaveSettings = (setting: Setting) => {
+    const { folders: updatedFolders } = setting
+
+    ipcRenderer.sendMessage('folders.set', updatedFolders)
+
+    setIsModalSettingsOpen(false)
+  }
+
   const title = useMemo(() => {
     return settings?.currentFolder?.name ?? 'Dashboard'
   }, [settings?.currentFolder])
@@ -97,7 +109,7 @@ function Dashboard() {
       <TopBar />
       <div className="flex flex-1">
         {filteredWorkspaces?.length ? (
-          <div className="flex flex-col flex-1 p-4">
+          <div className="flex flex-col flex-1 p-4 relative">
             <div className="flex mb-4">
               <h2 className="text-medium text-[#f0f0f0] text-xl">{title}</h2>
               <ButtonMain primary className="ml-auto" onClick={onClickCreate}>
@@ -113,6 +125,9 @@ function Dashboard() {
                 />
               ))}
             </WorkspaceList>
+            <div className="flex flex-col items-center justify-center absolute top-[50%] left-[50%] z-[-1] h-[20rem] w-[20rem] transform translate-x-[-50%] translate-y-[-50%]">
+              <Logo color="#252525" />
+            </div>
           </div>
         ) : (
           <div className="flex flex-col flex-1 items-center h-full justify-center">
@@ -133,6 +148,15 @@ function Dashboard() {
               onClick={onClickFolder}
             />
           ))}
+          <div className="flex mt-auto border-t border-[#353535] pt-2">
+            <button
+              type="button"
+              className="flex h-12 w-12 justify-center items-center"
+              onClick={() => setIsModalSettingsOpen(true)}
+            >
+              <Lucide icon="Settings" size={26} color="#6f6f6f" />
+            </button>
+          </div>
         </FolderBar>
       </div>
       <StatusBar />
@@ -145,6 +169,14 @@ function Dashboard() {
           onSave={onSave}
           onDelete={onDelete}
           onCreate={onCreate}
+        />
+      )}
+
+      {isModalSettingsOpen && (
+        <ModalSettings
+          folders={folders}
+          onClose={() => setIsModalSettingsOpen(false)}
+          onSave={onSaveSettings}
         />
       )}
 
