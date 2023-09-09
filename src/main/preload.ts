@@ -15,6 +15,7 @@ export type Channels =
   | 'folders.create'
   | 'settings.get'
   | 'settings.update'
+  | 'applications.get'
 
 const electronHandler = {
   ipcRenderer: {

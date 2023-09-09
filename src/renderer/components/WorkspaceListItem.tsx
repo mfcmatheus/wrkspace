@@ -70,6 +70,9 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
           {workspace.enableDocker && (
             <Lucide icon="Container" size={20} color="#d2d2d2" />
           )}
+          {!!workspace.browsers?.length && (
+            <Lucide icon="Globe" size={20} color="#d2d2d2" />
+          )}
         </div>
         <WorkspaceListItemEdit onClick={onClickEdit} />
       </div>
