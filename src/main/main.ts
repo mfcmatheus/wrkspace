@@ -19,6 +19,7 @@ import {
   onContainersGet,
   onFoldersCreate,
   onFoldersGet,
+  onFoldersSet,
   onOpenDirectory,
   onServicesDocker,
   onSettingsGet,
@@ -59,6 +60,7 @@ ipcMain.on('workspaces.delete', onWorkspaceDelete)
 ipcMain.on('services.docker', onServicesDocker)
 ipcMain.on('folders.get', onFoldersGet)
 ipcMain.on('folders.create', onFoldersCreate)
+ipcMain.on('folders.set', onFoldersSet)
 ipcMain.on('settings.get', onSettingsGet)
 ipcMain.on('settings.update', onSettingsUpdate)
 ipcMain.on('applications.get', onApplicationsGet)

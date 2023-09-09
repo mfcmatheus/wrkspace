@@ -7,7 +7,11 @@ interface WorkspaceListProps {
 function WorkspaceList(props: WorkspaceListProps) {
   const { children } = props
 
-  return <div className="grid grid-cols-5 gap-3">{children}</div>
+  return (
+    <div className="grid grid-cols-5 gap-3 flex-grow basis-0 overflow-auto">
+      {children}
+    </div>
+  )
 }
 
 export default WorkspaceList

@@ -13,6 +13,7 @@ export type Channels =
   | 'services.docker'
   | 'folders.get'
   | 'folders.create'
+  | 'folders.set'
   | 'settings.get'
   | 'settings.update'
   | 'applications.get'
