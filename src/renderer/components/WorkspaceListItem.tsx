@@ -1,6 +1,7 @@
 import React from 'react'
 import moment from 'moment'
 
+import { useContextMenu } from 'react-contexify'
 import WorkspaceListItemName from 'renderer/components/WorkspaceListItemName'
 import WorkspaceListItemLastOpened from 'renderer/components/WorkspaceListItemLastOpened'
 import WorkspaceListItemLaunch from 'renderer/components/WorkspaceListItemLaunch'
@@ -9,6 +10,7 @@ import WorkspaceListItemFeatures from 'renderer/components/WorkspaceListItemFeat
 
 import Workspace from 'renderer/@types/Workspace'
 import { ipcRenderer } from 'renderer/hooks/useIpc'
+import WorkspaceListItemContext from './WorkspaceListItemContext'
 
 interface WorkspaceListItemProps {
   workspace: Workspace
@@ -21,6 +23,10 @@ const defaultProps = {
 
 function WorkspaceListItem(props: WorkspaceListItemProps) {
   const { workspace, onEdit } = props
+
+  const { show: showContextMenu } = useContextMenu({
+    id: workspace.id,
+  })
 
   const onLaunch = () => {
     ipcRenderer.sendMessage('workspaces.open', workspace)
@@ -60,16 +66,35 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
     return result
   }
 
+  function handleContextMenu(
+    event: React.MouseEventHandler<HTMLDivElement, MouseEvent>
+  ) {
+    showContextMenu({ event })
+  }
+
   return (
-    <div className="flex flex-col group rounded border border-[#353535] hover:border-indigo-600 p-3 transition ease-in-out duration-200">
-      <div className="flex items-center">
-        <WorkspaceListItemFeatures workspace={workspace} />
-        <WorkspaceListItemEdit onClick={onClickEdit} />
+    <>
+      <div
+        onContextMenu={handleContextMenu}
+        className="flex flex-col group rounded border border-[#353535] hover:border-indigo-600 p-3 transition ease-in-out duration-200"
+      >
+        <div className="flex items-center h-[20px]">
+          <WorkspaceListItemFeatures workspace={workspace} />
+          {/* <WorkspaceListItemEdit onClick={onClickEdit} /> */}
+        </div>
+        <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
+        <WorkspaceListItemLastOpened>
+          {renderDate()}
+        </WorkspaceListItemLastOpened>
+        <WorkspaceListItemLaunch workspace={workspace} onClick={onLaunch} />
       </div>
-      <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
-      <WorkspaceListItemLastOpened>{renderDate()}</WorkspaceListItemLastOpened>
-      <WorkspaceListItemLaunch workspace={workspace} onClick={onLaunch} />
-    </div>
+      <WorkspaceListItemContext
+        id={workspace.id}
+        workspace={workspace}
+        onEdit={onClickEdit}
+        onLaunch={onLaunch}
+      />
+    </>
   )
 }
 
