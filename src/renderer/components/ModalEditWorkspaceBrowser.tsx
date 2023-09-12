@@ -19,7 +19,9 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
 
   const [field, meta, helpers] = useField('browsers')
 
-  const [browsers, setBrowsers] = useState<Browser[]>(workspace.browsers ?? [])
+  const [browsers, setBrowsers] = useState<Browser[]>(
+    field.value ?? workspace.browsers ?? []
+  )
   const [applications, setApplications] = useState<string[]>([])
 
   const installedBrowsers = useMemo(() => {
@@ -105,10 +107,10 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
   )
 
   useEffect(() => {
-    if (!workspace.browsers) return
+    if (!field.value && !workspace.browsers?.length) return
 
-    helpers.setValue(workspace.browsers)
-  }, [workspace.browsers, helpers])
+    helpers.setValue(field.value ?? workspace.browsers)
+  }, [field.value, workspace.browsers, helpers])
 
   useEffect(() => {
     ipcRenderer.sendMessage('applications.get')

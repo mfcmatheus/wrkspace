@@ -18,7 +18,7 @@ function ModalEditWorkspaceTerminal(props: ModalEditWorkspaceTerminalProps) {
   const [field, meta, helpers] = useField('terminals')
 
   const [terminals, setTerminals] = useState<Terminal[]>(
-    workspace.terminals ?? []
+    field.value ?? workspace.terminals ?? []
   )
 
   const onClickAddTerminal = () => {
@@ -57,10 +57,10 @@ function ModalEditWorkspaceTerminal(props: ModalEditWorkspaceTerminalProps) {
   }
 
   useEffect(() => {
-    if (!workspace.terminals) return
+    if (!field.value && !workspace.terminals?.length) return
 
-    helpers.setValue(workspace.terminals)
-  }, [workspace.terminals, helpers])
+    helpers.setValue(field.value ?? workspace.terminals)
+  }, [field.value, workspace.terminals, helpers])
 
   return (
     <div className="flex flex-col gap-y-5 flex-grow basis-0 overflow-auto p-3">
