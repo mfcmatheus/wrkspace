@@ -27,7 +27,7 @@ function ButtonMain(props: ButtonMainProps) {
     props
 
   const classes = classNames({
-    'uppercase shadow font-thin': true,
+    'uppercase shadow font-thin transition-all duration-200 ease-in-out': true,
     'py-2 px-6 text-sm': !sm,
     'py-1 px-3 text-xs': sm,
     'text-white bg-indigo-600': !bordered && primary,
