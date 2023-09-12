@@ -32,7 +32,7 @@ export default class MenuBuilder {
         : this.buildDefaultTemplate()
 
     const menu = Menu.buildFromTemplate(template)
-    Menu.setApplicationMenu(menu)
+    Menu.setApplicationMenu(null)
 
     return menu
   }
@@ -54,10 +54,10 @@ export default class MenuBuilder {
 
   buildDarwinTemplate(): MenuItemConstructorOptions[] {
     const subMenuAbout: DarwinMenuItemConstructorOptions = {
-      label: 'Electron',
+      label: 'Wrkspace',
       submenu: [
         {
-          label: 'About ElectronReact',
+          label: 'About Wrkspace',
           selector: 'orderFrontStandardAboutPanel:',
         },
         { type: 'separator' },
