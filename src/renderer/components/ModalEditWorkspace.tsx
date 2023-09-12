@@ -14,6 +14,7 @@ import ButtonMain from 'renderer/base-components/ButtonMain'
 import { ModalEditWorkspacePages } from 'renderer/@enums/ModalEditWorkspacePages'
 import WorkspaceFormSchema from 'renderer/@schemas/WorkspaceFormSchema'
 import Setting from 'renderer/@types/Setting'
+import DeleteButton from './DeleteButton'
 
 interface ModalEditWorkspaceProps {
   workspace: Workspace
@@ -125,9 +126,7 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
               {isDockerPage && <ModalEditWorkspaceDocker />}
               <div className="flex p-3">
                 {isEditing && (
-                  <ButtonMain danger bordered onClick={onClickDelete}>
-                    Delete
-                  </ButtonMain>
+                  <DeleteButton onClick={onClickDelete}>Delete</DeleteButton>
                 )}
                 <ButtonMain type="submit" primary className="ml-auto">
                   Save
