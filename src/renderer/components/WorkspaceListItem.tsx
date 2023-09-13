@@ -2,6 +2,7 @@ import React from 'react'
 import moment from 'moment'
 
 import { useContextMenu } from 'react-contexify'
+import classNames from 'classnames'
 import WorkspaceListItemName from 'renderer/components/WorkspaceListItemName'
 import WorkspaceListItemLastOpened from 'renderer/components/WorkspaceListItemLastOpened'
 import WorkspaceListItemLaunch from 'renderer/components/WorkspaceListItemLaunch'
@@ -15,14 +16,16 @@ import WorkspaceListItemContext from './WorkspaceListItemContext'
 interface WorkspaceListItemProps {
   workspace: Workspace
   onEdit?: (workspace: Workspace) => void
+  onFavorite?: (workspace: Workspace) => void
 }
 
 const defaultProps = {
-  onEdit: () => {},
+  onEdit: null,
+  onFavorite: null,
 }
 
 function WorkspaceListItem(props: WorkspaceListItemProps) {
-  const { workspace, onEdit } = props
+  const { workspace, onEdit, onFavorite } = props
 
   const { show: showContextMenu } = useContextMenu({
     id: workspace.id,
@@ -36,7 +39,16 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
     return onEdit && onEdit(workspace)
   }
 
+  const onClickFavorite = () => {
+    return onFavorite && onFavorite(workspace)
+  }
+
   const lastOpened = moment(workspace.opened_at, 'YYYY-MM-DD HH:mm:ss')
+  const classes = classNames({
+    'flex flex-col group rounded border border-[#353535] hover:border-indigo-600 p-3 transition ease-in-out duration-200':
+      true,
+    '!border-[#857000]': workspace.favorite,
+  })
 
   const renderDate = () => {
     if (!lastOpened.isValid()) {
@@ -74,10 +86,7 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
 
   return (
     <>
-      <div
-        onContextMenu={handleContextMenu}
-        className="flex flex-col group rounded border border-[#353535] hover:border-indigo-600 p-3 transition ease-in-out duration-200"
-      >
+      <div onContextMenu={handleContextMenu} className={classes}>
         <div className="flex items-center h-[20px]">
           <WorkspaceListItemFeatures workspace={workspace} />
           {/* <WorkspaceListItemEdit onClick={onClickEdit} /> */}
@@ -93,6 +102,7 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
         workspace={workspace}
         onEdit={onClickEdit}
         onLaunch={onLaunch}
+        onFavorite={onClickFavorite}
       />
     </>
   )

@@ -3,21 +3,24 @@ import { Item, Menu, RightSlot, Separator } from 'react-contexify'
 import 'react-contexify/ReactContexify.css'
 
 import Workspace from 'renderer/@types/Workspace'
+import Lucide from 'renderer/base-components/lucide'
 
 interface WorkspaceListItemContextProps {
   id: string | number
   workspace: Workspace
   onEdit?: (workspace: Workspace) => void
   onLaunch?: (workspace: Workspace) => void
+  onFavorite?: (workspace: Workspace) => void
 }
 
 const defaultProps = {
   onEdit: null,
   onLaunch: null,
+  onFavorite: null,
 }
 
 function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
-  const { id, workspace, onEdit, onLaunch } = props
+  const { id, workspace, onEdit, onLaunch, onFavorite } = props
 
   const styles: React.CSSProperties = {
     '--contexify-menu-bgColor': 'rgba(40,40,40,.98)',
@@ -34,6 +37,7 @@ function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
 
   const onClickLaunch = () => onLaunch?.(workspace)
   const onClickEdit = () => onEdit?.(workspace)
+  const onClickFavorite = () => onFavorite?.(workspace)
 
   const matchShortcutEdit = (e: KeyboardEvent) => e.metaKey && e.key === 'e'
 
@@ -41,6 +45,14 @@ function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
     <Menu id={id} style={styles}>
       <Item id="launch" onClick={onClickLaunch}>
         Launch
+      </Item>
+      <Item id="favorite" onClick={onClickFavorite}>
+        <span>{workspace.favorite ? 'Unpin' : 'Pin'}</span>
+        <Lucide
+          className="ml-auto"
+          icon={workspace.favorite ? 'StarOff' : 'Star'}
+          size={16}
+        />
       </Item>
       <Separator />
       <Item id="edit" onClick={onClickEdit} keyMatcher={matchShortcutEdit}>

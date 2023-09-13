@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
+import moment from 'moment'
 import TopBar from 'renderer/components/TopBar'
 import WorkspaceList from 'renderer/components/WorkspaceList'
 import ModalEditWorkspace from 'renderer/components/ModalEditWorkspace'
@@ -53,6 +54,10 @@ function Dashboard() {
     setIsModalEditOpen(false)
   }
 
+  const onFavorite = (workspace: Workspace) => {
+    return onSave({ ...workspace, favorite: !workspace.favorite })
+  }
+
   const onCreateFolder = (folder: Folder) => {
     ipcRenderer.sendMessage('folders.create', folder)
     setIsModalCreateFolderOpen(false)
@@ -79,11 +84,22 @@ function Dashboard() {
   }, [settings?.currentFolder])
 
   const filteredWorkspaces = useMemo(() => {
-    return workspaces.filter((workspace) => {
-      return settings?.currentFolder
-        ? workspace.folder?.id === settings?.currentFolder?.id
-        : true
-    })
+    return workspaces
+      .filter((workspace) => {
+        return settings?.currentFolder
+          ? workspace.folder?.id === settings?.currentFolder?.id
+          : true
+      })
+      .sort((a, b) => (a.name.toLowerCase() <= b.name.toLowerCase() ? -1 : 1))
+      .sort((a) => (a.opened_at ? -1 : 1))
+      .sort((a, b) =>
+        moment(a.opened_at ?? '1999-01-01').isBefore(
+          moment(b.opened_at ?? '1999-01-01')
+        )
+          ? 1
+          : -1
+      )
+      .sort((a) => (a.favorite ? -1 : 1))
   }, [workspaces, settings?.currentFolder]) as Workspace[]
 
   useEffect(() => {
@@ -122,6 +138,7 @@ function Dashboard() {
                   key={workspace.id}
                   workspace={workspace}
                   onEdit={onEditWorkspace}
+                  onFavorite={onFavorite}
                 />
               ))}
             </WorkspaceList>
