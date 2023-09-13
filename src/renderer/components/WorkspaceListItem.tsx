@@ -11,21 +11,25 @@ import WorkspaceListItemFeatures from 'renderer/components/WorkspaceListItemFeat
 
 import Workspace from 'renderer/@types/Workspace'
 import { ipcRenderer } from 'renderer/hooks/useIpc'
+import Folder from 'renderer/@types/Folder'
 import WorkspaceListItemContext from './WorkspaceListItemContext'
 
 interface WorkspaceListItemProps {
   workspace: Workspace
+  folders: Folder[]
   onEdit?: (workspace: Workspace) => void
   onFavorite?: (workspace: Workspace) => void
+  onSetFolder?: (workspace: Workspace, folder: Folder | undefined) => void
 }
 
 const defaultProps = {
   onEdit: null,
   onFavorite: null,
+  onSetFolder: null,
 }
 
 function WorkspaceListItem(props: WorkspaceListItemProps) {
-  const { workspace, onEdit, onFavorite } = props
+  const { workspace, folders, onEdit, onFavorite, onSetFolder } = props
 
   const { show: showContextMenu } = useContextMenu({
     id: workspace.id,
@@ -41,6 +45,13 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
 
   const onClickFavorite = () => {
     return onFavorite && onFavorite(workspace)
+  }
+
+  const onClickSetFolder = (
+    workspaceParam: Workspace,
+    folder: Folder | undefined
+  ) => {
+    return onSetFolder && onSetFolder(workspaceParam, folder)
   }
 
   const lastOpened = moment(workspace.opened_at, 'YYYY-MM-DD HH:mm:ss')
@@ -100,9 +111,11 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
       <WorkspaceListItemContext
         id={workspace.id}
         workspace={workspace}
+        folders={folders}
         onEdit={onClickEdit}
         onLaunch={onLaunch}
         onFavorite={onClickFavorite}
+        onSetFolder={onClickSetFolder}
       />
     </>
   )

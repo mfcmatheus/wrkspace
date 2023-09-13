@@ -58,6 +58,10 @@ function Dashboard() {
     return onSave({ ...workspace, favorite: !workspace.favorite })
   }
 
+  const onSetFolder = (workspace: Workspace, folder: Folder | undefined) => {
+    return onSave({ ...workspace, folder })
+  }
+
   const onCreateFolder = (folder: Folder) => {
     ipcRenderer.sendMessage('folders.create', folder)
     setIsModalCreateFolderOpen(false)
@@ -137,8 +141,10 @@ function Dashboard() {
                 <WorkspaceListItem
                   key={workspace.id}
                   workspace={workspace}
+                  folders={folders}
                   onEdit={onEditWorkspace}
                   onFavorite={onFavorite}
+                  onSetFolder={onSetFolder}
                 />
               ))}
             </WorkspaceList>

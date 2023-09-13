@@ -1,6 +1,7 @@
-import React from 'react'
-import { Item, Menu, RightSlot, Separator } from 'react-contexify'
+import React, { useMemo } from 'react'
+import { Item, Menu, RightSlot, Separator, Submenu } from 'react-contexify'
 import 'react-contexify/ReactContexify.css'
+import Folder from 'renderer/@types/Folder'
 
 import Workspace from 'renderer/@types/Workspace'
 import Lucide from 'renderer/base-components/lucide'
@@ -8,19 +9,23 @@ import Lucide from 'renderer/base-components/lucide'
 interface WorkspaceListItemContextProps {
   id: string | number
   workspace: Workspace
+  folders: Folder[]
   onEdit?: (workspace: Workspace) => void
   onLaunch?: (workspace: Workspace) => void
   onFavorite?: (workspace: Workspace) => void
+  onSetFolder?: (workspace: Workspace, folder: Folder | undefined) => void
 }
 
 const defaultProps = {
   onEdit: null,
   onLaunch: null,
   onFavorite: null,
+  onSetFolder: null,
 }
 
 function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
-  const { id, workspace, onEdit, onLaunch, onFavorite } = props
+  const { id, workspace, folders, onEdit, onLaunch, onFavorite, onSetFolder } =
+    props
 
   const styles: React.CSSProperties = {
     '--contexify-menu-bgColor': 'rgba(40,40,40,.98)',
@@ -38,6 +43,12 @@ function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
   const onClickLaunch = () => onLaunch?.(workspace)
   const onClickEdit = () => onEdit?.(workspace)
   const onClickFavorite = () => onFavorite?.(workspace)
+  const onClickFolder = (folder: Folder) => {
+    return onSetFolder?.(
+      workspace,
+      folder.id === workspace.folder?.id ? undefined : folder
+    )
+  }
 
   const matchShortcutEdit = (e: KeyboardEvent) => e.metaKey && e.key === 'e'
 
@@ -54,6 +65,21 @@ function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
           size={16}
         />
       </Item>
+      <Submenu label="Move to">
+        {folders.map((folder) => (
+          <Item
+            key={folder.id}
+            id={`folder-${folder.id}`}
+            className="text-ellipsis"
+            onClick={() => onClickFolder(folder)}
+          >
+            {folder.name}
+            {folder.id === workspace.folder?.id && (
+              <Lucide className="ml-auto" icon="Check" size={16} />
+            )}
+          </Item>
+        ))}
+      </Submenu>
       <Separator />
       <Item id="edit" onClick={onClickEdit} keyMatcher={matchShortcutEdit}>
         Edit <RightSlot>⌘E</RightSlot>
