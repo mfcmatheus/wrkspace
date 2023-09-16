@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Formik, Form } from 'formik'
 
 import Workspace from 'renderer/@types/Workspace'
@@ -38,42 +38,62 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
     ModalEditWorkspacePages.General
   )
 
-  const isEditing = !!workspace.id
+  const isEditing = useMemo(() => !!workspace.id, [workspace])
+  const isGeneralPage = useMemo(
+    () => currentPage === ModalEditWorkspacePages.General,
+    [currentPage]
+  )
+  const isTerminalPage = useMemo(
+    () => currentPage === ModalEditWorkspacePages.Terminal,
+    [currentPage]
+  )
+  const isDockerPage = useMemo(
+    () => currentPage === ModalEditWorkspacePages.Docker,
+    [currentPage]
+  )
+  const isBrowserPage = useMemo(
+    () => currentPage === ModalEditWorkspacePages.Browser,
+    [currentPage]
+  )
 
-  const isGeneralPage = currentPage === ModalEditWorkspacePages.General
-  const isTerminalPage = currentPage === ModalEditWorkspacePages.Terminal
-  const isDockerPage = currentPage === ModalEditWorkspacePages.Docker
-  const isBrowserPage = currentPage === ModalEditWorkspacePages.Browser
+  const sidebarItems: SidebarItem[] = useMemo(
+    () => [
+      {
+        icon: 'Settings',
+        label: 'General',
+        page: ModalEditWorkspacePages.General,
+      },
+      {
+        icon: 'Globe',
+        label: 'Pages',
+        page: ModalEditWorkspacePages.Browser,
+      },
+      {
+        icon: 'Terminal',
+        label: 'Terminals',
+        page: ModalEditWorkspacePages.Terminal,
+      },
+      {
+        icon: 'Container',
+        label: 'Docker',
+        page: ModalEditWorkspacePages.Docker,
+      },
+    ],
+    []
+  )
 
-  const sidebarItems: SidebarItem[] = [
-    {
-      icon: 'Settings',
-      label: 'General',
-      page: ModalEditWorkspacePages.General,
+  const onClickClose = useCallback(() => onClose && onClose(), [onClose])
+  const onSubmit = useCallback(
+    (data: Workspace) => {
+      data.folder = settings.currentFolder
+      return isEditing ? onSave && onSave(data) : onCreate && onCreate(data)
     },
-    {
-      icon: 'Globe',
-      label: 'Pages',
-      page: ModalEditWorkspacePages.Browser,
-    },
-    {
-      icon: 'Terminal',
-      label: 'Terminals',
-      page: ModalEditWorkspacePages.Terminal,
-    },
-    {
-      icon: 'Container',
-      label: 'Docker',
-      page: ModalEditWorkspacePages.Docker,
-    },
-  ]
-
-  const onClickClose = () => onClose && onClose()
-  const onSubmit = (data: Workspace) => {
-    data.folder = settings.currentFolder
-    return isEditing ? onSave && onSave(data) : onCreate && onCreate(data)
-  }
-  const onClickDelete = () => onDelete && onDelete(workspace)
+    [isEditing, onSave, onCreate, settings]
+  )
+  const onClickDelete = useCallback(
+    () => onDelete && onDelete(workspace),
+    [onDelete, workspace]
+  )
 
   return (
     <div className="flex absolute inset-0 w-screen h-screen">

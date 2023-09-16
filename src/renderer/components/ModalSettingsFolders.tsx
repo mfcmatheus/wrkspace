@@ -1,5 +1,5 @@
 import { ErrorMessage, useField } from 'formik'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Folder from 'renderer/@types/Folder'
 import ButtonMain from 'renderer/base-components/ButtonMain'
 import InputMain from 'renderer/base-components/InputMain'
@@ -18,26 +18,30 @@ function ModalSettingsFolders(props: ModalSettingsFoldersProps) {
 
   const [folders, setFolders] = useState(storedFolders)
 
-  const onClickAddFolder = () => {
+  const onClickAddFolder = useCallback(() => {
     const newFolder = {
       id: fakeId(),
       name: '',
     } as Folder
 
     foldersField.setValue([...folders, newFolder])
-  }
+  }, [folders, foldersField])
 
-  const onClickRemoveFolder = (folder: Folder) => {
-    const index = folders.findIndex((f) => f.id === folder.id)
+  const onClickRemoveFolder = useCallback(
+    (folder: Folder) => {
+      const index = folders.findIndex((f) => f.id === folder.id)
 
-    const updatedFolders = [...folders]
-    updatedFolders.splice(index, 1)
+      const updatedFolders = [...folders]
+      updatedFolders.splice(index, 1)
 
-    foldersField.setValue(updatedFolders)
-  }
+      foldersField.setValue(updatedFolders)
+    },
+    [folders, foldersField]
+  )
 
-  const renderError = (message: string) => (
-    <p className="text-xs text-red-500">{message}</p>
+  const renderError = useCallback(
+    (message: string) => <p className="text-xs text-red-500">{message}</p>,
+    []
   )
 
   useEffect(() => {

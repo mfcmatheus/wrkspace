@@ -20,23 +20,32 @@ function SwitchMain(props: SwitchMainProps) {
 
   const isChecked = useMemo(() => fieldCheckbox.value, [fieldCheckbox.value])
 
-  const switchClasses = classNames({
-    'slider flex items-center rounded-full p-1 duration-200 bg-[#CCCCCE]': true,
-    '!bg-indigo-600': isChecked && primary,
-    'w-[36px] h-6': sm,
-    'w-[48px] h-7': md,
-    'w-[60px] h-8': lg,
-  })
+  const switchClasses = useMemo(
+    () =>
+      classNames({
+        'slider flex items-center rounded-full p-1 duration-200 bg-[#CCCCCE]':
+          true,
+        '!bg-indigo-600': isChecked && primary,
+        'w-[36px] h-6': sm,
+        'w-[48px] h-7': md,
+        'w-[60px] h-8': lg,
+      }),
+    [isChecked, primary, sm, md, lg]
+  )
 
-  const dotClasses = classNames({
-    'dot rounded-full bg-white duration-200': true,
-    'translate-x-[12px]': isChecked && sm,
-    'translate-x-[20px]': isChecked && md,
-    'translate-x-[28px]': isChecked && lg,
-    'h-4 w-4': sm,
-    'h-5 w-5': md,
-    'h-6 w-6': lg,
-  })
+  const dotClasses = useMemo(
+    () =>
+      classNames({
+        'dot rounded-full bg-white duration-200': true,
+        'translate-x-[12px]': isChecked && sm,
+        'translate-x-[20px]': isChecked && md,
+        'translate-x-[28px]': isChecked && lg,
+        'h-4 w-4': sm,
+        'h-5 w-5': md,
+        'h-6 w-6': lg,
+      }),
+    [isChecked, sm, md, lg]
+  )
 
   return (
     <label className="relative inline-flex cursor-pointer select-none items-center">

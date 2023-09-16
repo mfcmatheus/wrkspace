@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Form, Formik } from 'formik'
 
 import { ModalSettingsPages } from 'renderer/@enums/ModalSettingsPages'
@@ -40,25 +40,34 @@ function ModalSettings(props: ModalSettingsProps) {
     [currentPage]
   )
 
-  const sidebarItems: SidebarItem[] = [
-    {
-      icon: 'Folder',
-      label: 'Folders',
-      page: ModalSettingsPages.FOLDERS,
-    },
-    {
-      icon: 'Info',
-      label: 'About',
-      page: ModalSettingsPages.ABOUT,
-    },
-  ]
+  const sidebarItems: SidebarItem[] = useMemo(
+    () => [
+      {
+        icon: 'Folder',
+        label: 'Folders',
+        page: ModalSettingsPages.FOLDERS,
+      },
+      {
+        icon: 'Info',
+        label: 'About',
+        page: ModalSettingsPages.ABOUT,
+      },
+    ],
+    []
+  )
 
-  const formValues = {
-    folders,
-  }
+  const formValues = useMemo(
+    () => ({
+      folders,
+    }),
+    [folders]
+  )
 
-  const onClickClose = () => onClose?.()
-  const onFormSubmit = (values: Setting) => onSave?.(values)
+  const onClickClose = useCallback(() => onClose?.(), [onClose])
+  const onFormSubmit = useCallback(
+    (values: Setting) => onSave?.(values),
+    [onSave]
+  )
 
   return (
     <div className="flex absolute inset-0 w-screen h-screen">

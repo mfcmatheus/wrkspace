@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { ErrorMessage, Field, useField } from 'formik'
 
 import ButtonMain from 'renderer/base-components/ButtonMain'
@@ -12,12 +12,13 @@ function ModalEditWorkspaceGeneralSettings() {
 
   const [applications, setApplications] = useState<string[]>([])
 
-  const onClickSearch = () => {
+  const onClickSearch = useCallback(() => {
     ipcRenderer.sendMessage('dialog:openDirectory')
-  }
+  }, [])
 
-  const renderError = (message: string) => (
-    <p className="text-xs text-red-500">{message}</p>
+  const renderError = useCallback(
+    (message: string) => <p className="text-xs text-red-500">{message}</p>,
+    []
   )
 
   useIpc('dialog:openDirectory', (path: string) => {

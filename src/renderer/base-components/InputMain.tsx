@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import classNames from 'classnames'
 import { Field } from 'formik'
 
@@ -42,9 +42,13 @@ function InputMain(props: InputMainProps) {
     onBlur,
   } = props
 
-  const classes = classNames({
-    'flex p-2 flex-1 outline-none': true,
-  })
+  const classes = useMemo(
+    () =>
+      classNames({
+        'flex p-2 flex-1 outline-none': true,
+      }),
+    []
+  )
 
   return (
     <Field

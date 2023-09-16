@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import moment from 'moment'
 import TopBar from 'renderer/components/TopBar'
@@ -29,59 +29,68 @@ function Dashboard() {
     {} as Workspace
   )
 
-  const onEditWorkspace = (workspace: Workspace) => {
+  const onEditWorkspace = useCallback((workspace: Workspace) => {
     setSelectedWorkspace(workspace)
     setIsModalEditOpen(true)
-  }
+  }, [])
 
-  const onClickCreate = () => {
+  const onClickCreate = useCallback(() => {
     setSelectedWorkspace({} as Workspace)
     setIsModalEditOpen(true)
-  }
+  }, [])
 
-  const onSave = (workspace: Workspace) => {
+  const onSave = useCallback((workspace: Workspace) => {
     ipcRenderer.sendMessage('workspaces.update', workspace)
     setIsModalEditOpen(false)
-  }
+  }, [])
 
-  const onDelete = (workspace: Workspace) => {
+  const onDelete = useCallback((workspace: Workspace) => {
     ipcRenderer.sendMessage('workspaces.delete', workspace)
     setIsModalEditOpen(false)
-  }
+  }, [])
 
-  const onCreate = (workspace: Workspace) => {
+  const onCreate = useCallback((workspace: Workspace) => {
     ipcRenderer.sendMessage('workspaces.create', workspace)
     setIsModalEditOpen(false)
-  }
+  }, [])
 
-  const onFavorite = (workspace: Workspace) => {
-    return onSave({ ...workspace, favorite: !workspace.favorite })
-  }
+  const onFavorite = useCallback(
+    (workspace: Workspace) => {
+      return onSave({ ...workspace, favorite: !workspace.favorite })
+    },
+    [onSave]
+  )
 
-  const onSetFolder = (workspace: Workspace, folder: Folder | undefined) => {
-    return onSave({ ...workspace, folder })
-  }
+  const onSetFolder = useCallback(
+    (workspace: Workspace, folder: Folder | undefined) => {
+      return onSave({ ...workspace, folder })
+    },
+    [onSave]
+  )
 
-  const onCreateFolder = (folder: Folder) => {
+  const onCreateFolder = useCallback((folder: Folder) => {
     ipcRenderer.sendMessage('folders.create', folder)
     setIsModalCreateFolderOpen(false)
-  }
+  }, [])
 
-  const onClickFolder = (folder: Folder) => {
-    const currentFolder = settings?.currentFolder
+  const onClickFolder = useCallback(
+    (folder: Folder) => {
+      const currentFolder = settings?.currentFolder
 
-    ipcRenderer.sendMessage('settings.update', {
-      currentFolder: currentFolder?.id === folder.id ? null : folder,
-    } as Setting)
-  }
+      ipcRenderer.sendMessage('settings.update', {
+        currentFolder: currentFolder?.id === folder.id ? null : folder,
+      } as Setting)
+    },
+    [settings]
+  )
 
-  const onSaveSettings = (setting: Setting) => {
+  const onSaveSettings = useCallback((setting: Setting) => {
     const { folders: updatedFolders } = setting
 
     ipcRenderer.sendMessage('folders.set', updatedFolders)
 
     setIsModalSettingsOpen(false)
-  }
+  }, [])
 
   const title = useMemo(() => {
     return settings?.currentFolder?.name ?? 'Dashboard'

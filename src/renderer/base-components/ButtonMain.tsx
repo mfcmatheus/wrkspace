@@ -1,5 +1,5 @@
 import classNames from 'classnames'
-import React from 'react'
+import React, { useMemo } from 'react'
 
 interface ButtonMainProps {
   children: React.ReactNode
@@ -26,15 +26,20 @@ function ButtonMain(props: ButtonMainProps) {
   const { children, primary, danger, className, onClick, type, sm, bordered } =
     props
 
-  const classes = classNames({
-    'uppercase shadow font-thin transition-all duration-200 ease-in-out': true,
-    'py-2 px-6 text-sm': !sm,
-    'py-1 px-3 text-xs': sm,
-    'text-white bg-indigo-600': !bordered && primary,
-    'text-white bg-red-600': !bordered && danger,
-    'text-indigo-600 border border-indigo-600': bordered && primary,
-    'text-red-600 border border-red-600': bordered && danger,
-  })
+  const classes = useMemo(
+    () =>
+      classNames({
+        'uppercase shadow font-thin transition-all duration-200 ease-in-out':
+          true,
+        'py-2 px-6 text-sm': !sm,
+        'py-1 px-3 text-xs': sm,
+        'text-white bg-indigo-600': !bordered && primary,
+        'text-white bg-red-600': !bordered && danger,
+        'text-indigo-600 border border-indigo-600': bordered && primary,
+        'text-red-600 border border-red-600': bordered && danger,
+      }),
+    [primary, danger, sm, bordered]
+  )
 
   return (
     <button

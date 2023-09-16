@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { Item, Menu, RightSlot, Separator, Submenu } from 'react-contexify'
 import 'react-contexify/ReactContexify.css'
 import Folder from 'renderer/@types/Folder'
@@ -27,30 +27,48 @@ function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
   const { id, workspace, folders, onEdit, onLaunch, onFavorite, onSetFolder } =
     props
 
-  const styles: React.CSSProperties = {
-    '--contexify-menu-bgColor': 'rgba(40,40,40,.98)',
-    '--contexify-separator-color': '#4c4c4c',
-    '--contexify-item-color': '#fff',
-    '--contexify-activeItem-color': '#fff',
-    '--contexify-activeItem-bgColor': '#4f46e5',
-    '--contexify-rightSlot-color': '#6f6e77',
-    '--contexify-activeRightSlot-color': '#fff',
-    '--contexify-arrow-color': '#6f6e77',
-    '--contexify-activeArrow-color': '#fff',
-    '--contexify-menu-minWidth': '150px',
-  }
+  const styles: React.CSSProperties = useMemo(
+    () => ({
+      '--contexify-menu-bgColor': 'rgba(40,40,40,.98)',
+      '--contexify-separator-color': '#4c4c4c',
+      '--contexify-item-color': '#fff',
+      '--contexify-activeItem-color': '#fff',
+      '--contexify-activeItem-bgColor': '#4f46e5',
+      '--contexify-rightSlot-color': '#6f6e77',
+      '--contexify-activeRightSlot-color': '#fff',
+      '--contexify-arrow-color': '#6f6e77',
+      '--contexify-activeArrow-color': '#fff',
+      '--contexify-menu-minWidth': '150px',
+    }),
+    []
+  )
 
-  const onClickLaunch = () => onLaunch?.(workspace)
-  const onClickEdit = () => onEdit?.(workspace)
-  const onClickFavorite = () => onFavorite?.(workspace)
-  const onClickFolder = (folder: Folder) => {
-    return onSetFolder?.(
-      workspace,
-      folder.id === workspace.folder?.id ? undefined : folder
-    )
-  }
+  const onClickLaunch = useCallback(
+    () => onLaunch?.(workspace),
+    [workspace, onLaunch]
+  )
+  const onClickEdit = useCallback(
+    () => onEdit?.(workspace),
+    [workspace, onEdit]
+  )
+  const onClickFavorite = useCallback(
+    () => onFavorite?.(workspace),
+    [workspace, onFavorite]
+  )
+  const onClickFolder = useCallback(
+    (folder: Folder) => {
+      return onSetFolder?.(
+        workspace,
+        folder.id === workspace.folder?.id ? undefined : folder
+      )
+    },
+    [workspace, onSetFolder]
+  )
 
-  const matchShortcutEdit = (e: KeyboardEvent) => e.metaKey && e.key === 'e'
+  const matchShortcutEdit = useCallback(
+    (e: KeyboardEvent) => e.metaKey && e.key === 'e',
+    []
+  )
 
   return (
     <Menu id={id} style={styles}>

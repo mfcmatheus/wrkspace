@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ErrorMessage, useField } from 'formik'
 
 import Browser from 'renderer/@types/Browser'
@@ -32,7 +32,7 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
     )
   }, [applications])
 
-  const onClickAddPage = () => {
+  const onClickAddPage = useCallback(() => {
     const browser = {
       id: fakeId(),
       application: Browsers.CHROME,
@@ -42,68 +42,73 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
 
     setBrowsers(updatedBrowsers)
     helpers.setValue(updatedBrowsers)
-  }
+  }, [browsers, helpers])
 
-  const onClickRemove = (browser: Browser) => {
-    const index = browsers.findIndex((b) => b.id === browser.id)
-    const updatedBrowsers = [...browsers]
+  const onClickRemove = useCallback(
+    (browser: Browser) => {
+      const index = browsers.findIndex((b) => b.id === browser.id)
+      const updatedBrowsers = [...browsers]
 
-    updatedBrowsers.splice(index, 1)
+      updatedBrowsers.splice(index, 1)
 
-    setBrowsers(updatedBrowsers)
-    helpers.setValue(updatedBrowsers)
-  }
+      setBrowsers(updatedBrowsers)
+      helpers.setValue(updatedBrowsers)
+    },
+    [browsers, helpers]
+  )
 
-  const onChangeApp = (
-    e: React.ChangeEvent<HTMLSelectElement>,
-    browser: Browser
-  ) => {
-    const index = browsers.findIndex((b) => b.id === browser.id)
+  const onChangeApp = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>, browser: Browser) => {
+      const index = browsers.findIndex((b) => b.id === browser.id)
 
-    browser.application = e.target.value
+      browser.application = e.target.value
 
-    const updatedBrowsers = [...browsers]
-    updatedBrowsers[index] = browser
+      const updatedBrowsers = [...browsers]
+      updatedBrowsers[index] = browser
 
-    setBrowsers(updatedBrowsers)
-    helpers.setValue(updatedBrowsers)
-  }
+      setBrowsers(updatedBrowsers)
+      helpers.setValue(updatedBrowsers)
+    },
+    [browsers, helpers]
+  )
 
-  const onChangeUrl = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    browser: Browser
-  ) => {
-    const index = browsers.findIndex((b) => b.id === browser.id)
+  const onChangeUrl = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>, browser: Browser) => {
+      const index = browsers.findIndex((b) => b.id === browser.id)
 
-    browser.url = e.target.value
+      browser.url = e.target.value
 
-    const updatedBrowsers = [...browsers]
-    updatedBrowsers[index] = browser
+      const updatedBrowsers = [...browsers]
+      updatedBrowsers[index] = browser
 
-    setBrowsers(updatedBrowsers)
-    helpers.setValue(updatedBrowsers)
-  }
+      setBrowsers(updatedBrowsers)
+      helpers.setValue(updatedBrowsers)
+    },
+    [browsers, helpers]
+  )
 
-  const onBlurUrl = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    browser: Browser
-  ) => {
-    const index = browsers.findIndex((b) => b.id === browser.id)
+  const onBlurUrl = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>, browser: Browser) => {
+      const index = browsers.findIndex((b) => b.id === browser.id)
 
-    browser.url =
-      e.target.value.includes('http://') || e.target.value.includes('https://')
-        ? e.target.value
-        : `http://${e.target.value}`
+      browser.url =
+        e.target.value.includes('http://') ||
+        e.target.value.includes('https://')
+          ? e.target.value
+          : `http://${e.target.value}`
 
-    const updatedBrowsers = [...browsers]
-    updatedBrowsers[index] = browser
+      const updatedBrowsers = [...browsers]
+      updatedBrowsers[index] = browser
 
-    setBrowsers(updatedBrowsers)
-    helpers.setValue(updatedBrowsers)
-  }
+      setBrowsers(updatedBrowsers)
+      helpers.setValue(updatedBrowsers)
+    },
+    [browsers, helpers]
+  )
 
-  const renderError = (message: string) => (
-    <p className="text-xs text-red-500">{message}</p>
+  const renderError = useCallback(
+    (message: string) => <p className="text-xs text-red-500">{message}</p>,
+    []
   )
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useMemo } from 'react'
 import moment from 'moment'
 
 import { useContextMenu } from 'react-contexify'
@@ -35,33 +35,40 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
     id: workspace.id,
   })
 
-  const onLaunch = () => {
+  const onLaunch = useCallback(() => {
     ipcRenderer.sendMessage('workspaces.open', workspace)
-  }
+  }, [workspace])
 
-  const onClickEdit = () => {
+  const onClickEdit = useCallback(() => {
     return onEdit && onEdit(workspace)
-  }
+  }, [workspace, onEdit])
 
-  const onClickFavorite = () => {
+  const onClickFavorite = useCallback(() => {
     return onFavorite && onFavorite(workspace)
-  }
+  }, [workspace, onFavorite])
 
-  const onClickSetFolder = (
-    workspaceParam: Workspace,
-    folder: Folder | undefined
-  ) => {
-    return onSetFolder && onSetFolder(workspaceParam, folder)
-  }
+  const onClickSetFolder = useCallback(
+    (workspaceParam: Workspace, folder: Folder | undefined) => {
+      return onSetFolder && onSetFolder(workspaceParam, folder)
+    },
+    [onSetFolder]
+  )
 
-  const lastOpened = moment(workspace.opened_at, 'YYYY-MM-DD HH:mm:ss')
-  const classes = classNames({
-    'flex flex-col group rounded border border-[#353535] hover:border-indigo-600 p-3 transition ease-in-out duration-200':
-      true,
-    '!border-[#857000]': workspace.favorite,
-  })
+  const lastOpened = useMemo(
+    () => moment(workspace.opened_at, 'YYYY-MM-DD HH:mm:ss'),
+    [workspace]
+  )
+  const classes = useMemo(
+    () =>
+      classNames({
+        'flex flex-col group rounded border border-[#353535] hover:border-indigo-600 p-3 transition ease-in-out duration-200':
+          true,
+        '!border-[#857000]': workspace.favorite,
+      }),
+    [workspace]
+  )
 
-  const renderDate = () => {
+  const renderDate = useCallback(() => {
     if (!lastOpened.isValid()) {
       return <>Never opened</>
     }
@@ -87,13 +94,14 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
     })
 
     return result
-  }
+  }, [lastOpened])
 
-  function handleContextMenu(
-    event: React.MouseEventHandler<HTMLDivElement, MouseEvent>
-  ) {
-    showContextMenu({ event })
-  }
+  const handleContextMenu = useCallback(
+    (event: React.MouseEventHandler<HTMLDivElement, MouseEvent>) => {
+      showContextMenu({ event })
+    },
+    [showContextMenu]
+  )
 
   return (
     <>
