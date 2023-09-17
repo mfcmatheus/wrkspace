@@ -264,7 +264,7 @@ export const onOpenDirectory = async (
 
 export const onContainersGet = async (event: IpcMainEvent) => {
   const process = runScript(
-    `/usr/local/bin/docker container ls -a --format '{{json .}}'`,
+    `/usr/local/bin/docker container ls -a --format '{"ID":"{{.ID}}","Names":"{{.Names}}"}'`,
     [''],
     () => ({})
   )
