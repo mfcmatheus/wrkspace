@@ -46,7 +46,8 @@ const openEditor = (
 const openBrowser = (browser: Browser): Promise<void> =>
   new Promise((resolve, reject) => {
     const process = runScript(
-      `open -g -a '/Applications/${browser.application}.app' '${browser.url}'`,
+      // `open -g -a '/Applications/${browser.application}.app' '${browser.url}'`,
+      `open -g '${browser.url}'`,
       [''],
       () => ({})
     )
