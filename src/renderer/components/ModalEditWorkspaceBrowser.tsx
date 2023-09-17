@@ -97,6 +97,8 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
           ? e.target.value
           : `http://${e.target.value}`
 
+      browser.url = browser.url.replace('localhost', '127.0.0.1')
+
       const updatedBrowsers = [...browsers]
       updatedBrowsers[index] = browser
 
