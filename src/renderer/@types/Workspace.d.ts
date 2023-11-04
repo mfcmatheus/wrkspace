@@ -19,5 +19,5 @@ export default interface Workspace {
   containers?: Container[]
   loading?: boolean
   created_at: string
-  opened_at?: string
+  opened_at?: string | number
 }

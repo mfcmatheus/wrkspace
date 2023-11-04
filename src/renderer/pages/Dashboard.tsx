@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import _ from 'lodash'
 
 import moment from 'moment'
 import TopBar from 'renderer/components/TopBar'
@@ -97,22 +98,26 @@ function Dashboard() {
   }, [settings?.currentFolder])
 
   const filteredWorkspaces = useMemo(() => {
-    return workspaces
-      .filter((workspace) => {
-        return settings?.currentFolder
-          ? workspace.folder?.id === settings?.currentFolder?.id
-          : true
-      })
-      .sort((a, b) => (a.name.toLowerCase() <= b.name.toLowerCase() ? -1 : 1))
-      .sort((a) => (a.opened_at ? -1 : 1))
-      .sort((a, b) =>
-        moment(a.opened_at ?? '1999-01-01').isBefore(
-          moment(b.opened_at ?? '1999-01-01')
-        )
-          ? 1
-          : -1
-      )
-      .sort((a) => (a.favorite ? -1 : 1))
+    let data = workspaces.filter((workspace) => {
+      return settings?.currentFolder
+        ? workspace.folder?.id === settings?.currentFolder?.id
+        : true
+    })
+
+    data = _.orderBy(
+      data,
+      [
+        (w) => !!w.favorite,
+        (w) =>
+          w.opened_at
+            ? moment(w.opened_at, 'YYYY-MM-DD HH:mm:ss').format('x')
+            : '',
+        'name',
+      ],
+      ['desc', 'desc', 'asc']
+    )
+
+    return data
   }, [workspaces, settings?.currentFolder]) as Workspace[]
 
   useEffect(() => {
