@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useCallback, useMemo } from 'react'
 import moment from 'moment'
 
 import { useContextMenu } from 'react-contexify'
+import classNames from 'classnames'
 import WorkspaceListItemName from 'renderer/components/WorkspaceListItemName'
 import WorkspaceListItemLastOpened from 'renderer/components/WorkspaceListItemLastOpened'
 import WorkspaceListItemLaunch from 'renderer/components/WorkspaceListItemLaunch'
@@ -10,35 +11,65 @@ import WorkspaceListItemFeatures from 'renderer/components/WorkspaceListItemFeat
 
 import Workspace from 'renderer/@types/Workspace'
 import { ipcRenderer } from 'renderer/hooks/useIpc'
-import WorkspaceListItemContext from './WorkspaceListItemContext'
+import Folder from 'renderer/@types/Folder'
+import ShadowMain from 'renderer/base-components/ShadowMain'
+import WorkspaceListItemContext from 'renderer/components/WorkspaceListItemContext'
 
 interface WorkspaceListItemProps {
   workspace: Workspace
+  folders: Folder[]
   onEdit?: (workspace: Workspace) => void
+  onFavorite?: (workspace: Workspace) => void
+  onSetFolder?: (workspace: Workspace, folder: Folder | undefined) => void
 }
 
 const defaultProps = {
-  onEdit: () => {},
+  onEdit: null,
+  onFavorite: null,
+  onSetFolder: null,
 }
 
 function WorkspaceListItem(props: WorkspaceListItemProps) {
-  const { workspace, onEdit } = props
+  const { workspace, folders, onEdit, onFavorite, onSetFolder } = props
 
   const { show: showContextMenu } = useContextMenu({
     id: workspace.id,
   })
 
-  const onLaunch = () => {
+  const onLaunch = useCallback(() => {
     ipcRenderer.sendMessage('workspaces.open', workspace)
-  }
+  }, [workspace])
 
-  const onClickEdit = () => {
+  const onClickEdit = useCallback(() => {
     return onEdit && onEdit(workspace)
-  }
+  }, [workspace, onEdit])
 
-  const lastOpened = moment(workspace.opened_at, 'YYYY-MM-DD HH:mm:ss')
+  const onClickFavorite = useCallback(() => {
+    return onFavorite && onFavorite(workspace)
+  }, [workspace, onFavorite])
 
-  const renderDate = () => {
+  const onClickSetFolder = useCallback(
+    (workspaceParam: Workspace, folder: Folder | undefined) => {
+      return onSetFolder && onSetFolder(workspaceParam, folder)
+    },
+    [onSetFolder]
+  )
+
+  const lastOpened = useMemo(
+    () => moment(workspace.opened_at, 'YYYY-MM-DD HH:mm:ss'),
+    [workspace]
+  )
+  const classes = useMemo(
+    () =>
+      classNames({
+        'flex flex-col group rounded border border-transparent p-3 transition ease-in-out duration-200':
+          true,
+        '!border-[#353535] hover:!border-primary': !workspace.favorite,
+      }),
+    [workspace]
+  )
+
+  const renderDate = useCallback(() => {
     if (!lastOpened.isValid()) {
       return <>Never opened</>
     }
@@ -64,20 +95,26 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
     })
 
     return result
-  }
+  }, [lastOpened])
 
-  function handleContextMenu(
-    event: React.MouseEventHandler<HTMLDivElement, MouseEvent>
-  ) {
-    showContextMenu({ event })
-  }
+  const handleContextMenu = useCallback(
+    (event: React.MouseEventHandler<HTMLDivElement, MouseEvent>) => {
+      showContextMenu({ event })
+    },
+    [showContextMenu]
+  )
+
+  const Element = useMemo(() => {
+    return workspace.favorite ? ShadowMain : 'div'
+  }, [workspace.favorite])
 
   return (
-    <>
-      <div
-        onContextMenu={handleContextMenu}
-        className="flex flex-col group rounded border border-[#353535] hover:border-indigo-600 p-3 transition ease-in-out duration-200"
-      >
+    <Element
+      className="rounded"
+      shadowClassName="!rounded"
+      wrapperClassName="rounded"
+    >
+      <div onContextMenu={handleContextMenu} className={classes}>
         <div className="flex items-center h-[20px]">
           <WorkspaceListItemFeatures workspace={workspace} />
           {/* <WorkspaceListItemEdit onClick={onClickEdit} /> */}
@@ -91,10 +128,13 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
       <WorkspaceListItemContext
         id={workspace.id}
         workspace={workspace}
+        folders={folders}
         onEdit={onClickEdit}
         onLaunch={onLaunch}
+        onFavorite={onClickFavorite}
+        onSetFolder={onClickSetFolder}
       />
-    </>
+    </Element>
   )
 }
 

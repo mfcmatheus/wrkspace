@@ -30,6 +30,7 @@
     ]
   },
   "dependencies": {
+    "@types/lodash": "^4.14.200",
     "classnames": "^2.3.2",
     "electron-debug": "^3.2.0",
     "electron-log": "^4.4.8",
@@ -37,6 +38,7 @@
     "electron-updater": "^5.3.0",
     "formik": "^2.4.3",
     "fs": "^0.0.1-security",
+    "lodash": "^4.17.21",
     "lucide-react": "^0.263.1",
     "moment": "^2.29.4",
     "react": "^18.2.0",

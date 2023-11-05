@@ -46,7 +46,8 @@ const openEditor = (
 const openBrowser = (browser: Browser): Promise<void> =>
   new Promise((resolve, reject) => {
     const process = runScript(
-      `open -g -a '/Applications/${browser.application}.app' '${browser.url}'`,
+      // `open -g -a '/Applications/${browser.application}.app' '${browser.url}'`,
+      `open -g '${browser.url}'`,
       [''],
       () => ({})
     )
@@ -264,7 +265,7 @@ export const onOpenDirectory = async (
 
 export const onContainersGet = async (event: IpcMainEvent) => {
   const process = runScript(
-    `/usr/local/bin/docker container ls -a --format '{{json .}}'`,
+    `/usr/local/bin/docker container ls -a --format '{"ID":"{{.ID}}","Names":"{{.Names}}"}'`,
     [''],
     () => ({})
   )

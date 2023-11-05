@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Field } from 'formik'
 import classNames from 'classnames'
 
@@ -45,15 +45,20 @@ function CheckboxMain(props: CheckboxMainProps) {
     checked,
   } = props
 
-  const classes = classNames({
-    'font-thin text-white': as === 'default',
-    'font-thin text-white cursor-pointer flex-1 text-center': as === 'button',
-    'bg-zinc-800 text-white peer-checked/checkbox:bg-indigo-600':
-      as === 'button' && primary,
-    'opacity-50 cursor-not-allowed': disabled,
-    'p-2 text-sm': !sm,
-    'p-1 text-xs': sm,
-  })
+  const classes = useMemo(
+    () =>
+      classNames({
+        'font-thin text-white': as === 'default',
+        'font-thin text-white cursor-pointer flex-1 text-center':
+          as === 'button',
+        'bg-zinc-800 text-white peer-checked/checkbox:bg-primary':
+          as === 'button' && primary,
+        'opacity-50 cursor-not-allowed': disabled,
+        'p-2 text-sm': !sm,
+        'p-1 text-xs': sm,
+      }),
+    [as, primary, disabled, sm]
+  )
 
   return (
     <label className={['flex items-center gap-x-2', className].join(' ')}>
@@ -62,8 +67,7 @@ function CheckboxMain(props: CheckboxMainProps) {
         name={name}
         disabled={disabled}
         className={classNames({
-          'peer/checkbox form-checkbox rounded text-indigo-500':
-            as === 'default',
+          'peer/checkbox form-checkbox rounded text-primary': as === 'default',
           'peer/checkbox hidden': as === 'button',
         })}
         {...(checked ? { checked } : {})}

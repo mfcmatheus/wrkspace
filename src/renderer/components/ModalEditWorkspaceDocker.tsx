@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useField } from 'formik'
 
 import classNames from 'classnames'
@@ -16,29 +16,32 @@ function ModalEditWorkspaceDocker() {
   const [containers, setContainers] = useState<Container[]>([])
   const [isDockerRunning, setIsDockerRunning] = useState<boolean>(false)
 
-  const onSelectContainer = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    container: Container
-  ) => {
-    if (e.target.checked) {
-      helpersContainers.setValue([
-        ...(fieldContainers.value ?? []),
-        container.ID,
-      ])
-    } else {
-      helpersContainers.setValue(
-        fieldContainers.value?.filter((item: string) => item !== container.ID)
-      )
-    }
-  }
+  const onSelectContainer = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>, container: Container) => {
+      if (e.target.checked) {
+        helpersContainers.setValue([
+          ...(fieldContainers.value ?? []),
+          container.ID,
+        ])
+      } else {
+        helpersContainers.setValue(
+          fieldContainers.value?.filter((item: string) => item !== container.ID)
+        )
+      }
+    },
+    [fieldContainers, helpersContainers]
+  )
 
-  const isSelectedContainer = (container: Container) => {
-    return (
-      fieldContainers.value?.findIndex(
-        (item: string) => item === container.ID
-      ) > -1
-    )
-  }
+  const isSelectedContainer = useCallback(
+    (container: Container) => {
+      return (
+        fieldContainers.value?.findIndex(
+          (item: string) => item === container.ID
+        ) > -1
+      )
+    },
+    [fieldContainers]
+  )
 
   useEffect(() => {
     ipcRenderer.sendMessage('containers.get')

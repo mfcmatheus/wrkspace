@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { ErrorMessage, useField } from 'formik'
 
 import Terminal from 'renderer/@types/Terminal'
@@ -21,40 +21,44 @@ function ModalEditWorkspaceTerminal(props: ModalEditWorkspaceTerminalProps) {
     field.value ?? workspace.terminals ?? []
   )
 
-  const onClickAddTerminal = () => {
+  const onClickAddTerminal = useCallback(() => {
     const terminal = { id: fakeId(), command: '' } as Terminal
     const updatedTerminals = [...terminals, terminal] as Terminal[]
 
     setTerminals(updatedTerminals)
     helpers.setValue(updatedTerminals)
-  }
+  }, [terminals, helpers])
 
-  const onClickRemoveTerminal = (terminal: Terminal) => {
-    const updatedTerminals = terminals.filter((t) => t.id !== terminal.id)
-    setTerminals(updatedTerminals)
-    helpers.setValue(updatedTerminals)
-  }
-
-  const renderError = (message: string) => (
-    <p className="text-xs text-red-500">{message}</p>
+  const onClickRemoveTerminal = useCallback(
+    (terminal: Terminal) => {
+      const updatedTerminals = terminals.filter((t) => t.id !== terminal.id)
+      setTerminals(updatedTerminals)
+      helpers.setValue(updatedTerminals)
+    },
+    [terminals, helpers]
   )
 
-  const onChangeCommand = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    terminal: Terminal
-  ) => {
-    const updatedTerminal = terminals.find(
-      (t) => t.id === terminal.id
-    ) as Terminal
-    const terminalIndex = terminals.findIndex((t) => t.id === terminal.id)
-    updatedTerminal.command = e.target.value
+  const renderError = useCallback(
+    (message: string) => <p className="text-xs text-red-500">{message}</p>,
+    []
+  )
 
-    const updatedTerminals = [...terminals]
-    updatedTerminals[terminalIndex] = updatedTerminal
+  const onChangeCommand = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>, terminal: Terminal) => {
+      const updatedTerminal = terminals.find(
+        (t) => t.id === terminal.id
+      ) as Terminal
+      const terminalIndex = terminals.findIndex((t) => t.id === terminal.id)
+      updatedTerminal.command = e.target.value
 
-    setTerminals(updatedTerminals)
-    helpers.setValue(updatedTerminals)
-  }
+      const updatedTerminals = [...terminals]
+      updatedTerminals[terminalIndex] = updatedTerminal
+
+      setTerminals(updatedTerminals)
+      helpers.setValue(updatedTerminals)
+    },
+    [terminals, helpers]
+  )
 
   useEffect(() => {
     if (!field.value && !workspace.terminals?.length) return
@@ -66,7 +70,10 @@ function ModalEditWorkspaceTerminal(props: ModalEditWorkspaceTerminalProps) {
     <div className="flex flex-col gap-y-5 flex-grow basis-0 overflow-auto p-3">
       <div className="flex">
         <ButtonMain
-          className="text-white border border-indigo-600 !text-xs ml-auto"
+          sm
+          bordered
+          primary
+          className="ml-auto"
           onClick={onClickAddTerminal}
         >
           New terminal
@@ -89,7 +96,7 @@ function ModalEditWorkspaceTerminal(props: ModalEditWorkspaceTerminalProps) {
           <div className="flex">
             <ButtonMain
               sm
-              danger
+              primary
               bordered
               className="mt-3"
               onClick={() => onClickRemoveTerminal(terminal)}

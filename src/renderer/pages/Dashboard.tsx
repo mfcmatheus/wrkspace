@@ -1,5 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import _ from 'lodash'
 
+import moment from 'moment'
 import TopBar from 'renderer/components/TopBar'
 import WorkspaceList from 'renderer/components/WorkspaceList'
 import ModalEditWorkspace from 'renderer/components/ModalEditWorkspace'
@@ -16,6 +18,7 @@ import Setting from 'renderer/@types/Setting'
 import Lucide from 'renderer/base-components/lucide'
 import ModalSettings from 'renderer/components/ModalSettings'
 import Logo from 'renderer/base-components/Logo'
+import ShadowMain from 'renderer/base-components/ShadowMain'
 
 function Dashboard() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
@@ -28,62 +31,94 @@ function Dashboard() {
     {} as Workspace
   )
 
-  const onEditWorkspace = (workspace: Workspace) => {
+  const onEditWorkspace = useCallback((workspace: Workspace) => {
     setSelectedWorkspace(workspace)
     setIsModalEditOpen(true)
-  }
+  }, [])
 
-  const onClickCreate = () => {
+  const onClickCreate = useCallback(() => {
     setSelectedWorkspace({} as Workspace)
     setIsModalEditOpen(true)
-  }
+  }, [])
 
-  const onSave = (workspace: Workspace) => {
+  const onSave = useCallback((workspace: Workspace) => {
     ipcRenderer.sendMessage('workspaces.update', workspace)
     setIsModalEditOpen(false)
-  }
+  }, [])
 
-  const onDelete = (workspace: Workspace) => {
+  const onDelete = useCallback((workspace: Workspace) => {
     ipcRenderer.sendMessage('workspaces.delete', workspace)
     setIsModalEditOpen(false)
-  }
+  }, [])
 
-  const onCreate = (workspace: Workspace) => {
+  const onCreate = useCallback((workspace: Workspace) => {
     ipcRenderer.sendMessage('workspaces.create', workspace)
     setIsModalEditOpen(false)
-  }
+  }, [])
 
-  const onCreateFolder = (folder: Folder) => {
+  const onFavorite = useCallback(
+    (workspace: Workspace) => {
+      return onSave({ ...workspace, favorite: !workspace.favorite })
+    },
+    [onSave]
+  )
+
+  const onSetFolder = useCallback(
+    (workspace: Workspace, folder: Folder | undefined) => {
+      return onSave({ ...workspace, folder })
+    },
+    [onSave]
+  )
+
+  const onCreateFolder = useCallback((folder: Folder) => {
     ipcRenderer.sendMessage('folders.create', folder)
     setIsModalCreateFolderOpen(false)
-  }
+  }, [])
 
-  const onClickFolder = (folder: Folder) => {
-    const currentFolder = settings?.currentFolder
+  const onClickFolder = useCallback(
+    (folder: Folder) => {
+      const currentFolder = settings?.currentFolder
 
-    ipcRenderer.sendMessage('settings.update', {
-      currentFolder: currentFolder?.id === folder.id ? null : folder,
-    } as Setting)
-  }
+      ipcRenderer.sendMessage('settings.update', {
+        currentFolder: currentFolder?.id === folder.id ? null : folder,
+      } as Setting)
+    },
+    [settings]
+  )
 
-  const onSaveSettings = (setting: Setting) => {
+  const onSaveSettings = useCallback((setting: Setting) => {
     const { folders: updatedFolders } = setting
 
     ipcRenderer.sendMessage('folders.set', updatedFolders)
 
     setIsModalSettingsOpen(false)
-  }
+  }, [])
 
   const title = useMemo(() => {
     return settings?.currentFolder?.name ?? 'Dashboard'
   }, [settings?.currentFolder])
 
   const filteredWorkspaces = useMemo(() => {
-    return workspaces.filter((workspace) => {
+    let data = workspaces.filter((workspace) => {
       return settings?.currentFolder
         ? workspace.folder?.id === settings?.currentFolder?.id
         : true
     })
+
+    data = _.orderBy(
+      data,
+      [
+        (w) => !!w.favorite,
+        (w) =>
+          w.opened_at
+            ? moment(w.opened_at, 'YYYY-MM-DD HH:mm:ss').format('x')
+            : '',
+        'name',
+      ],
+      ['desc', 'desc', 'asc']
+    )
+
+    return data
   }, [workspaces, settings?.currentFolder]) as Workspace[]
 
   useEffect(() => {
@@ -112,8 +147,14 @@ function Dashboard() {
           <div className="flex flex-col flex-1 p-4 relative">
             <div className="flex mb-4">
               <h2 className="text-medium text-[#f0f0f0] text-xl">{title}</h2>
-              <ButtonMain primary className="ml-auto" onClick={onClickCreate}>
-                Create
+              <ButtonMain
+                sm
+                bordered
+                secondary
+                className="ml-auto"
+                onClick={onClickCreate}
+              >
+                Create Workspace
               </ButtonMain>
             </div>
             <WorkspaceList>
@@ -121,7 +162,10 @@ function Dashboard() {
                 <WorkspaceListItem
                   key={workspace.id}
                   workspace={workspace}
+                  folders={folders}
                   onEdit={onEditWorkspace}
+                  onFavorite={onFavorite}
+                  onSetFolder={onSetFolder}
                 />
               ))}
             </WorkspaceList>
@@ -134,9 +178,16 @@ function Dashboard() {
             <p className="text-lg text-[#727272] font-thin">
               No workspaces yet, start using Wrkspace creating one
             </p>
-            <ButtonMain primary className="mt-6" onClick={onClickCreate}>
-              Create workspace
-            </ButtonMain>
+            <ShadowMain
+              shadow
+              wrapperClassName="rounded-[7px] mt-5"
+              shadowClassName="!rounded-[7px]"
+              className="rounded-[7px]"
+            >
+              <ButtonMain highlight bordered sm onClick={onClickCreate}>
+                Create workspace
+              </ButtonMain>
+            </ShadowMain>
           </div>
         )}
         <FolderBar onClickCreate={() => setIsModalCreateFolderOpen(true)}>

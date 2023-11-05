@@ -1,5 +1,5 @@
 import { Form, Formik } from 'formik'
-import React from 'react'
+import React, { useCallback } from 'react'
 import NewFolderFormSchema from 'renderer/@schemas/NewFolderFormSchema'
 import Folder from 'renderer/@types/Folder'
 import ButtonMain from 'renderer/base-components/ButtonMain'
@@ -14,8 +14,11 @@ interface ModalCreateFolderProps {
 function ModalCreateFolder(props: ModalCreateFolderProps) {
   const { onClose, onSave } = props
 
-  const onClickClose = () => onClose && onClose()
-  const onSubmit = (data: Folder) => onSave && onSave(data)
+  const onClickClose = useCallback(() => onClose && onClose(), [onClose])
+  const onSubmit = useCallback(
+    (data: Folder) => onSave && onSave(data),
+    [onSave]
+  )
 
   return (
     <div className="flex absolute inset-0 w-screen h-screen">
@@ -33,7 +36,13 @@ function ModalCreateFolder(props: ModalCreateFolderProps) {
         >
           <Form className="flex flex-col">
             <InputMain className="mt-2" name="name" placeholder="Folder name" />
-            <ButtonMain primary className="mt-6 mx-auto" type="submit">
+            <ButtonMain
+              sm
+              bordered
+              secondary
+              className="mt-6 mx-auto"
+              type="submit"
+            >
               Create
             </ButtonMain>
           </Form>

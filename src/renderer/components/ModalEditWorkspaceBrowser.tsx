@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ErrorMessage, useField } from 'formik'
 
 import Browser from 'renderer/@types/Browser'
@@ -32,7 +32,7 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
     )
   }, [applications])
 
-  const onClickAddPage = () => {
+  const onClickAddPage = useCallback(() => {
     const browser = {
       id: fakeId(),
       application: Browsers.CHROME,
@@ -42,68 +42,75 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
 
     setBrowsers(updatedBrowsers)
     helpers.setValue(updatedBrowsers)
-  }
+  }, [browsers, helpers])
 
-  const onClickRemove = (browser: Browser) => {
-    const index = browsers.findIndex((b) => b.id === browser.id)
-    const updatedBrowsers = [...browsers]
+  const onClickRemove = useCallback(
+    (browser: Browser) => {
+      const index = browsers.findIndex((b) => b.id === browser.id)
+      const updatedBrowsers = [...browsers]
 
-    updatedBrowsers.splice(index, 1)
+      updatedBrowsers.splice(index, 1)
 
-    setBrowsers(updatedBrowsers)
-    helpers.setValue(updatedBrowsers)
-  }
+      setBrowsers(updatedBrowsers)
+      helpers.setValue(updatedBrowsers)
+    },
+    [browsers, helpers]
+  )
 
-  const onChangeApp = (
-    e: React.ChangeEvent<HTMLSelectElement>,
-    browser: Browser
-  ) => {
-    const index = browsers.findIndex((b) => b.id === browser.id)
+  const onChangeApp = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>, browser: Browser) => {
+      const index = browsers.findIndex((b) => b.id === browser.id)
 
-    browser.application = e.target.value
+      browser.application = e.target.value
 
-    const updatedBrowsers = [...browsers]
-    updatedBrowsers[index] = browser
+      const updatedBrowsers = [...browsers]
+      updatedBrowsers[index] = browser
 
-    setBrowsers(updatedBrowsers)
-    helpers.setValue(updatedBrowsers)
-  }
+      setBrowsers(updatedBrowsers)
+      helpers.setValue(updatedBrowsers)
+    },
+    [browsers, helpers]
+  )
 
-  const onChangeUrl = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    browser: Browser
-  ) => {
-    const index = browsers.findIndex((b) => b.id === browser.id)
+  const onChangeUrl = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>, browser: Browser) => {
+      const index = browsers.findIndex((b) => b.id === browser.id)
 
-    browser.url = e.target.value
+      browser.url = e.target.value
 
-    const updatedBrowsers = [...browsers]
-    updatedBrowsers[index] = browser
+      const updatedBrowsers = [...browsers]
+      updatedBrowsers[index] = browser
 
-    setBrowsers(updatedBrowsers)
-    helpers.setValue(updatedBrowsers)
-  }
+      setBrowsers(updatedBrowsers)
+      helpers.setValue(updatedBrowsers)
+    },
+    [browsers, helpers]
+  )
 
-  const onBlurUrl = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    browser: Browser
-  ) => {
-    const index = browsers.findIndex((b) => b.id === browser.id)
+  const onBlurUrl = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>, browser: Browser) => {
+      const index = browsers.findIndex((b) => b.id === browser.id)
 
-    browser.url =
-      e.target.value.includes('http://') || e.target.value.includes('https://')
-        ? e.target.value
-        : `http://${e.target.value}`
+      browser.url =
+        e.target.value.includes('http://') ||
+        e.target.value.includes('https://')
+          ? e.target.value
+          : `http://${e.target.value}`
 
-    const updatedBrowsers = [...browsers]
-    updatedBrowsers[index] = browser
+      browser.url = browser.url.replace('localhost', '127.0.0.1')
 
-    setBrowsers(updatedBrowsers)
-    helpers.setValue(updatedBrowsers)
-  }
+      const updatedBrowsers = [...browsers]
+      updatedBrowsers[index] = browser
 
-  const renderError = (message: string) => (
-    <p className="text-xs text-red-500">{message}</p>
+      setBrowsers(updatedBrowsers)
+      helpers.setValue(updatedBrowsers)
+    },
+    [browsers, helpers]
+  )
+
+  const renderError = useCallback(
+    (message: string) => <p className="text-xs text-red-500">{message}</p>,
+    []
   )
 
   useEffect(() => {
@@ -124,7 +131,10 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
     <div className="flex flex-col gap-y-3 flex-grow basis-0 overflow-auto p-3">
       <div className="flex">
         <ButtonMain
-          className="text-white border border-indigo-600 !text-xs ml-auto"
+          sm
+          bordered
+          primary
+          className="ml-auto"
           onClick={onClickAddPage}
         >
           New page
@@ -147,20 +157,26 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
               </option>
             ))}
           </select> */}
-          <InputMain
-            className="col-span-11"
-            placeholder="https://example.com"
-            name={`browsers[${index}].url`}
-            value={browser.url}
-            defaultValue={browser.url}
-            onChange={(e) => onChangeUrl(e, browser)}
-            onBlur={(e) => onBlurUrl(e, browser)}
-          />
-          <div className="col-span-1 flex justify-center">
-            <button type="button" onClick={() => onClickRemove(browser)}>
-              <Lucide icon="Trash" size={20} color="#dc2626" />
-            </button>
+          <div className="col-span-12 flex">
+            <InputMain
+              containerClasses="!rounded-r-none"
+              placeholder="https://example.com"
+              name={`browsers[${index}].url`}
+              value={browser.url}
+              defaultValue={browser.url}
+              onChange={(e) => onChangeUrl(e, browser)}
+              onBlur={(e) => onBlurUrl(e, browser)}
+            />
+            <ButtonMain
+              secondary
+              bordered
+              className="bg-primary rounded-none px-3 font-thin rounded-r-[8px]"
+              onClick={() => onClickRemove(browser)}
+            >
+              <Lucide icon="Trash" size={20} color="#000" />
+            </ButtonMain>
           </div>
+
           <div className="col-span-12">
             <ErrorMessage
               name={`browsers[${index}].url`}

@@ -1,5 +1,4 @@
 import React from 'react'
-import GitHubButton from 'react-github-btn'
 
 import Logo from 'renderer/base-components/Logo'
 
@@ -12,17 +11,7 @@ function ModalSettingsAbout() {
       <span className="text-[2rem] uppercase tracking-[.4rem] text-white">
         Wrkspace
       </span>
-      <span className="text-[#d2d2d2]">Version 0.8.2</span>
-      <div className="flex mt-2">
-        <GitHubButton
-          href="https://github.com/mfcmatheus/wrkspace"
-          data-color-scheme="no-preference: dark; light: dark; dark: dark;"
-          data-show-count="true"
-          aria-label="Star mfcmatheus/wrkspace on GitHub"
-        >
-          Star
-        </GitHubButton>
-      </div>
+      <span className="text-[#d2d2d2]">Version 1.0.0</span>
     </div>
   )
 }

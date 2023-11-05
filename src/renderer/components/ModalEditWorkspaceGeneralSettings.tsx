@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { ErrorMessage, Field, useField } from 'formik'
 
 import ButtonMain from 'renderer/base-components/ButtonMain'
 import InputMain from 'renderer/base-components/InputMain'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import SwitchMain from 'renderer/base-components/SwitchMain'
+import SelectMain from 'renderer/base-components/SelectMain'
+import Lucide from 'renderer/base-components/lucide'
 
 function ModalEditWorkspaceGeneralSettings() {
   const pathFieldHelpers = useField('path')[2]
@@ -12,12 +14,13 @@ function ModalEditWorkspaceGeneralSettings() {
 
   const [applications, setApplications] = useState<string[]>([])
 
-  const onClickSearch = () => {
+  const onClickSearch = useCallback(() => {
     ipcRenderer.sendMessage('dialog:openDirectory')
-  }
+  }, [])
 
-  const renderError = (message: string) => (
-    <p className="text-xs text-red-500">{message}</p>
+  const renderError = useCallback(
+    (message: string) => <p className="text-xs text-red-500">{message}</p>,
+    []
   )
 
   useIpc('dialog:openDirectory', (path: string) => {
@@ -45,9 +48,19 @@ function ModalEditWorkspaceGeneralSettings() {
         <label htmlFor="path" className="flex flex-col">
           <span className="text-white font-thin mb-2">Workspace folder</span>
           <div className="flex">
-            <InputMain name="path" id="path" placeholder="Workspace path" />
-            <ButtonMain primary onClick={onClickSearch}>
-              SEARCH
+            <InputMain
+              name="path"
+              id="path"
+              placeholder="Workspace path"
+              containerClasses="!rounded-r-none"
+            />
+            <ButtonMain
+              secondary
+              bordered
+              className="bg-primary rounded-none px-3 font-thin rounded-r-[8px]"
+              onClick={onClickSearch}
+            >
+              <Lucide icon="Search" size={20} color="#000" />
             </ButtonMain>
           </div>
         </label>
@@ -57,17 +70,13 @@ function ModalEditWorkspaceGeneralSettings() {
         <label htmlFor="enableEditor" className="flex flex-col">
           <span className="text-white font-thin mb-2">Open with editor</span>
           <div className="flex gap-x-2">
-            <Field
-              name="editor"
-              as="select"
-              disabled={!enableEditorField.value}
-            >
+            <SelectMain name="editor" disabled={!enableEditorField.value}>
               {applications.map((app) => (
                 <option key={app} value={app}>
                   {app}
                 </option>
               ))}
-            </Field>
+            </SelectMain>
             <SwitchMain sm primary name="enableEditor" id="enableEditor" />
           </div>
         </label>

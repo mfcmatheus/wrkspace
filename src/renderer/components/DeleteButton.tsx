@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import ButtonMain from 'renderer/base-components/ButtonMain'
 import useDebounce from 'renderer/hooks/useDebounce'
 
@@ -22,21 +22,21 @@ function DeleteButton(props: DeleteButtonProps) {
     return firstClick ? children : 'Are you sure?'
   }, [firstClick, children])
 
-  const handleOnClick = () => {
+  const handleOnClick = useCallback(() => {
     if (!firstClick) {
       onClick?.()
       setFirstClick(true)
     }
 
     setFirstClick(false)
-  }
+  }, [firstClick, onClick])
 
   useEffect(() => {
     setFirstClick(true)
   }, [debounce])
 
   return (
-    <ButtonMain danger bordered onClick={handleOnClick}>
+    <ButtonMain sm primary bordered onClick={handleOnClick}>
       {buttonTitle}
     </ButtonMain>
   )
