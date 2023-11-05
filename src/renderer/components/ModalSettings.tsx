@@ -73,10 +73,10 @@ function ModalSettings(props: ModalSettingsProps) {
     <div className="flex absolute inset-0 w-screen h-screen">
       <div
         aria-hidden="true"
-        className="absolute z-1 inset-0 opacity-[60%] bg-[#000000]"
+        className="absolute z-[3] inset-0 opacity-[60%] bg-[#000000]"
         onClick={onClickClose}
       />
-      <div className="flex relative z-2 m-auto bg-[#202020] rounded-lg h-[80vh] w-[60vw] shadow">
+      <div className="flex relative z-[4] m-auto bg-[#202020] rounded-lg h-[80vh] w-[60vw] shadow">
         <ModalSettingsSidebar>
           {sidebarItems.map((item) => (
             <ModalSettingsSidebarItem
@@ -112,7 +112,13 @@ function ModalSettings(props: ModalSettingsProps) {
                 )}
                 {isAboutPage && <ModalSettingsAbout />}
                 <div className="flex p-3">
-                  <ButtonMain type="submit" primary className="ml-auto">
+                  <ButtonMain
+                    sm
+                    bordered
+                    secondary
+                    type="submit"
+                    className="ml-auto"
+                  >
                     Save
                   </ButtonMain>
                 </div>

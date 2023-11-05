@@ -20,7 +20,7 @@ function FolderBar(props: FolderBarProps) {
           <Lucide icon="Plus" size={24} color="#6f6f6f" />
         </button>
       </div>
-      <div className="flex flex-col flex-grow basis-0 relative overflow-auto gap-y-3">
+      <div className="flex flex-col flex-grow basis-0 relative overflow-auto gap-y-3 items-center">
         {children}
       </div>
     </div>

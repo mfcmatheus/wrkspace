@@ -18,6 +18,7 @@ import Setting from 'renderer/@types/Setting'
 import Lucide from 'renderer/base-components/lucide'
 import ModalSettings from 'renderer/components/ModalSettings'
 import Logo from 'renderer/base-components/Logo'
+import ShadowMain from 'renderer/base-components/ShadowMain'
 
 function Dashboard() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
@@ -146,8 +147,14 @@ function Dashboard() {
           <div className="flex flex-col flex-1 p-4 relative">
             <div className="flex mb-4">
               <h2 className="text-medium text-[#f0f0f0] text-xl">{title}</h2>
-              <ButtonMain primary className="ml-auto" onClick={onClickCreate}>
-                Create
+              <ButtonMain
+                sm
+                bordered
+                secondary
+                className="ml-auto"
+                onClick={onClickCreate}
+              >
+                Create Workspace
               </ButtonMain>
             </div>
             <WorkspaceList>
@@ -171,9 +178,16 @@ function Dashboard() {
             <p className="text-lg text-[#727272] font-thin">
               No workspaces yet, start using Wrkspace creating one
             </p>
-            <ButtonMain primary className="mt-6" onClick={onClickCreate}>
-              Create workspace
-            </ButtonMain>
+            <ShadowMain
+              shadow
+              wrapperClassName="rounded-[7px] mt-5"
+              shadowClassName="!rounded-[7px]"
+              className="rounded-[7px]"
+            >
+              <ButtonMain highlight bordered sm onClick={onClickCreate}>
+                Create workspace
+              </ButtonMain>
+            </ShadowMain>
           </div>
         )}
         <FolderBar onClickCreate={() => setIsModalCreateFolderOpen(true)}>

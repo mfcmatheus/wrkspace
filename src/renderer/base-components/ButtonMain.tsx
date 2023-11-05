@@ -4,8 +4,12 @@ import React, { useMemo } from 'react'
 interface ButtonMainProps {
   children: React.ReactNode
   primary?: boolean
+  secondary?: boolean
+  highlight?: boolean
   danger?: boolean
   sm?: boolean
+  md?: boolean
+  lg?: boolean
   bordered?: boolean
   className?: string
   type?: 'button' | 'submit' | 'reset' | undefined
@@ -14,8 +18,12 @@ interface ButtonMainProps {
 
 const defaultProps = {
   primary: false,
+  secondary: false,
+  highlight: false,
   danger: false,
   sm: false,
+  md: false,
+  lg: false,
   bordered: false,
   className: '',
   type: 'button',
@@ -23,22 +31,37 @@ const defaultProps = {
 }
 
 function ButtonMain(props: ButtonMainProps) {
-  const { children, primary, danger, className, onClick, type, sm, bordered } =
-    props
+  const {
+    children,
+    primary,
+    secondary,
+    highlight,
+    danger,
+    className,
+    onClick,
+    type,
+    sm,
+    md,
+    lg,
+    bordered,
+  } = props
 
   const classes = useMemo(
     () =>
       classNames({
-        'uppercase shadow font-thin transition-all duration-200 ease-in-out':
+        'flex items-center justify-between gap-x-3 rounded-[6px] transition-all ease-in-out duration-200 disabled:opacity-75':
           true,
-        'py-2 px-6 text-sm': !sm,
-        'py-1 px-3 text-xs': sm,
-        'text-white bg-indigo-600': !bordered && primary,
-        'text-white bg-red-600': !bordered && danger,
-        'text-indigo-600 border border-indigo-600': bordered && primary,
-        'text-red-600 border border-red-600': bordered && danger,
+        'px-[12px] py-[6px]': sm,
+        'px-[24px] py-[12px] text-lg': md,
+        'px-[36px] py-[18px] text-xl': lg,
+        'bg-white text-black hover:bg-gray-300': secondary,
+        'shadow-[0_0_0_1px_hsla(0,0%,100%,.14)] text-white hover:bg-[hsla(0,0%,100%,.14)] disabled:hover:bg-transparent':
+          bordered && primary,
+        'text-white hover:bg-gradient-to-r from-primary to-secondary':
+          highlight,
+        [className!]: !!className,
       }),
-    [primary, danger, sm, bordered]
+    [sm, md, lg, bordered, primary, secondary, className, highlight]
   )
 
   return (

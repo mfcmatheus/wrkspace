@@ -36,7 +36,7 @@ function DeleteButton(props: DeleteButtonProps) {
   }, [debounce])
 
   return (
-    <ButtonMain danger bordered onClick={handleOnClick}>
+    <ButtonMain sm primary bordered onClick={handleOnClick}>
       {buttonTitle}
     </ButtonMain>
   )

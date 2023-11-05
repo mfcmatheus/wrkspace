@@ -12,7 +12,8 @@ import WorkspaceListItemFeatures from 'renderer/components/WorkspaceListItemFeat
 import Workspace from 'renderer/@types/Workspace'
 import { ipcRenderer } from 'renderer/hooks/useIpc'
 import Folder from 'renderer/@types/Folder'
-import WorkspaceListItemContext from './WorkspaceListItemContext'
+import ShadowMain from 'renderer/base-components/ShadowMain'
+import WorkspaceListItemContext from 'renderer/components/WorkspaceListItemContext'
 
 interface WorkspaceListItemProps {
   workspace: Workspace
@@ -61,9 +62,9 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
   const classes = useMemo(
     () =>
       classNames({
-        'flex flex-col group rounded border border-[#353535] hover:border-indigo-600 p-3 transition ease-in-out duration-200':
+        'flex flex-col group rounded border border-transparent p-3 transition ease-in-out duration-200':
           true,
-        '!border-[#857000]': workspace.favorite,
+        '!border-[#353535] hover:!border-primary': !workspace.favorite,
       }),
     [workspace]
   )
@@ -103,8 +104,16 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
     [showContextMenu]
   )
 
+  const Element = useMemo(() => {
+    return workspace.favorite ? ShadowMain : 'div'
+  }, [workspace.favorite])
+
   return (
-    <>
+    <Element
+      className="rounded"
+      shadowClassName="!rounded"
+      wrapperClassName="rounded"
+    >
       <div onContextMenu={handleContextMenu} className={classes}>
         <div className="flex items-center h-[20px]">
           <WorkspaceListItemFeatures workspace={workspace} />
@@ -125,7 +134,7 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
         onFavorite={onClickFavorite}
         onSetFolder={onClickSetFolder}
       />
-    </>
+    </Element>
   )
 }
 

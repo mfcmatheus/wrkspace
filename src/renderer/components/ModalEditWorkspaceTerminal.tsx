@@ -70,7 +70,10 @@ function ModalEditWorkspaceTerminal(props: ModalEditWorkspaceTerminalProps) {
     <div className="flex flex-col gap-y-5 flex-grow basis-0 overflow-auto p-3">
       <div className="flex">
         <ButtonMain
-          className="text-white border border-indigo-600 !text-xs ml-auto"
+          sm
+          bordered
+          primary
+          className="ml-auto"
           onClick={onClickAddTerminal}
         >
           New terminal
@@ -93,7 +96,7 @@ function ModalEditWorkspaceTerminal(props: ModalEditWorkspaceTerminalProps) {
           <div className="flex">
             <ButtonMain
               sm
-              danger
+              primary
               bordered
               className="mt-3"
               onClick={() => onClickRemoveTerminal(terminal)}

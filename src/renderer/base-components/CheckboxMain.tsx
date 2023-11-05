@@ -51,7 +51,7 @@ function CheckboxMain(props: CheckboxMainProps) {
         'font-thin text-white': as === 'default',
         'font-thin text-white cursor-pointer flex-1 text-center':
           as === 'button',
-        'bg-zinc-800 text-white peer-checked/checkbox:bg-indigo-600':
+        'bg-zinc-800 text-white peer-checked/checkbox:bg-primary':
           as === 'button' && primary,
         'opacity-50 cursor-not-allowed': disabled,
         'p-2 text-sm': !sm,
@@ -67,8 +67,7 @@ function CheckboxMain(props: CheckboxMainProps) {
         name={name}
         disabled={disabled}
         className={classNames({
-          'peer/checkbox form-checkbox rounded text-indigo-500':
-            as === 'default',
+          'peer/checkbox form-checkbox rounded text-primary': as === 'default',
           'peer/checkbox hidden': as === 'button',
         })}
         {...(checked ? { checked } : {})}

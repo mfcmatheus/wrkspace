@@ -1,7 +1,8 @@
 import classNames from 'classnames'
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import Folder from 'renderer/@types/Folder'
+import ShadowMain from 'renderer/base-components/ShadowMain'
 import initials from 'renderer/helpers/initials'
 
 interface FolderBarItemProps {
@@ -15,19 +16,31 @@ function FolderBarItem(props: FolderBarItemProps) {
 
   const nameInitials = initials(folder.name, 3)
 
+  const Element = useMemo(() => {
+    return current ? ShadowMain : 'div'
+  }, [current])
+
   return (
-    <button
-      title={folder.name}
-      type="button"
-      className={classNames({
-        'border border-[#6f6f6f] text-[#6f6f6f] rounded-full h-12 w-12 flex items-center justify-center uppercase font-extrabold hover:border-indigo-600 hover:text-indigo-600 transition ease-in-out duration-200':
-          true,
-        'border-indigo-600 text-indigo-600': current,
-      })}
-      onClick={() => onClick?.(folder)}
+    <Element
+      shadowClassName="!rounded-full"
+      wrapperClassName="rounded-full"
+      className="rounded-full"
     >
-      {nameInitials}
-    </button>
+      <button
+        title={folder.name}
+        type="button"
+        className={classNames({
+          'border border-transparent text-[#6f6f6f] rounded-full h-12 w-12 flex items-center justify-center uppercase font-extrabold transition ease-in-out duration-200':
+            true,
+          'text-secondary': current,
+          '!border-[#6f6f6f] hover:!border-primary hover:text-primary':
+            !current,
+        })}
+        onClick={() => onClick?.(folder)}
+      >
+        {nameInitials}
+      </button>
+    </Element>
   )
 }
 

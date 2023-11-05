@@ -33,7 +33,7 @@ function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
       '--contexify-separator-color': '#4c4c4c',
       '--contexify-item-color': '#fff',
       '--contexify-activeItem-color': '#fff',
-      '--contexify-activeItem-bgColor': '#4f46e5',
+      '--contexify-activeItem-bgColor': 'oklch(59.59% 0.24 255.09156059071347)',
       '--contexify-rightSlot-color': '#6f6e77',
       '--contexify-activeRightSlot-color': '#fff',
       '--contexify-arrow-color': '#6f6e77',

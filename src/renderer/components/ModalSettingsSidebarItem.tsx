@@ -23,7 +23,7 @@ function ModalSettingsSidebarItem(props: ModalSettingsSidebarItemProps) {
       classNames({
         'flex items-center py-2 px-3 font-thin text-white divide-y divide-[#353535]':
           true,
-        'bg-indigo-600': current,
+        'bg-gradient-to-r from-primary to-secondary': current,
         'cursor-pointer': !current,
       }),
     [current]

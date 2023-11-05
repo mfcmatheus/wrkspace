@@ -99,10 +99,10 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
     <div className="flex absolute inset-0 w-screen h-screen">
       <div
         aria-hidden="true"
-        className="absolute z-1 inset-0 opacity-[60%] bg-[#000000]"
+        className="absolute z-[3] inset-0 opacity-[60%] bg-[#000000]"
         onClick={onClickClose}
       />
-      <div className="flex relative z-2 m-auto bg-[#202020] rounded-lg h-[80vh] w-[60vw] shadow">
+      <div className="flex relative z-[4] m-auto bg-[#202020] rounded-lg h-[80vh] w-[60vw] shadow">
         <ModalEditWorkspaceSidebar>
           {sidebarItems.map((item) => (
             <ModalEditWorkspaceSidebarItem
@@ -148,7 +148,13 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
                 {isEditing && (
                   <DeleteButton onClick={onClickDelete}>Delete</DeleteButton>
                 )}
-                <ButtonMain type="submit" primary className="ml-auto">
+                <ButtonMain
+                  type="submit"
+                  sm
+                  bordered
+                  secondary
+                  className="ml-auto"
+                >
                   Save
                 </ButtonMain>
               </div>

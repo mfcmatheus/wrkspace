@@ -131,7 +131,10 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
     <div className="flex flex-col gap-y-3 flex-grow basis-0 overflow-auto p-3">
       <div className="flex">
         <ButtonMain
-          className="text-white border border-indigo-600 !text-xs ml-auto"
+          sm
+          bordered
+          primary
+          className="ml-auto"
           onClick={onClickAddPage}
         >
           New page
@@ -154,20 +157,26 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
               </option>
             ))}
           </select> */}
-          <InputMain
-            className="col-span-11"
-            placeholder="https://example.com"
-            name={`browsers[${index}].url`}
-            value={browser.url}
-            defaultValue={browser.url}
-            onChange={(e) => onChangeUrl(e, browser)}
-            onBlur={(e) => onBlurUrl(e, browser)}
-          />
-          <div className="col-span-1 flex justify-center">
-            <button type="button" onClick={() => onClickRemove(browser)}>
-              <Lucide icon="Trash" size={20} color="#dc2626" />
-            </button>
+          <div className="col-span-12 flex">
+            <InputMain
+              containerClasses="!rounded-r-none"
+              placeholder="https://example.com"
+              name={`browsers[${index}].url`}
+              value={browser.url}
+              defaultValue={browser.url}
+              onChange={(e) => onChangeUrl(e, browser)}
+              onBlur={(e) => onBlurUrl(e, browser)}
+            />
+            <ButtonMain
+              secondary
+              bordered
+              className="bg-primary rounded-none px-3 font-thin rounded-r-[8px]"
+              onClick={() => onClickRemove(browser)}
+            >
+              <Lucide icon="Trash" size={20} color="#000" />
+            </ButtonMain>
           </div>
+
           <div className="col-span-12">
             <ErrorMessage
               name={`browsers[${index}].url`}

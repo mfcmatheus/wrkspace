@@ -25,7 +25,7 @@ function SwitchMain(props: SwitchMainProps) {
       classNames({
         'slider flex items-center rounded-full p-1 duration-200 bg-[#CCCCCE]':
           true,
-        '!bg-indigo-600': isChecked && primary,
+        '!bg-gradient-to-r from-primary to-secondary': isChecked && primary,
         'w-[36px] h-6': sm,
         'w-[48px] h-7': md,
         'w-[60px] h-8': lg,

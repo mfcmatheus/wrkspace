@@ -36,7 +36,13 @@ function ModalCreateFolder(props: ModalCreateFolderProps) {
         >
           <Form className="flex flex-col">
             <InputMain className="mt-2" name="name" placeholder="Folder name" />
-            <ButtonMain primary className="mt-6 mx-auto" type="submit">
+            <ButtonMain
+              sm
+              bordered
+              secondary
+              className="mt-6 mx-auto"
+              type="submit"
+            >
               Create
             </ButtonMain>
           </Form>
