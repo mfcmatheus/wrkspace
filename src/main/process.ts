@@ -104,7 +104,7 @@ const startDockerCompose = (
   workspace: Workspace
 ): Promise<boolean> =>
   new Promise((resolve, reject) => {
-    if (!workspace.enableDocker || !workspace.enableDockerCompose) {
+    if (!workspace.enableDocker || !workspace.dockerOptions?.enableComposer) {
       reject(new Error('Docker is not enabled'))
 
       return
@@ -119,6 +119,11 @@ const startDockerCompose = (
     )
 
     process.stdout.on('data', (data) => {
+      console.log('stdout', data.toString())
+      event.reply('workspaces.open.status', data.toString())
+    })
+    process.stderr.on('data', (data) => {
+      console.log('stderr', data.toString())
       event.reply('workspaces.open.status', data.toString())
     })
 
@@ -154,8 +159,8 @@ const startDockerContainers = async (
 ) => {
   if (
     !workspace.enableDocker ||
-    !workspace.enableDockerContainers ||
-    !workspace.containers?.length
+    !workspace.dockerOptions?.enableContainers ||
+    !workspace.dockerOptions?.containers?.length
   ) {
     return
   }
@@ -163,7 +168,7 @@ const startDockerContainers = async (
   event.reply('workspaces.open.status', 'Starting docker containers ...')
 
   // eslint-disable-next-line no-restricted-syntax
-  for (const container of workspace.containers ?? []) {
+  for (const container of workspace.dockerOptions?.containers ?? []) {
     // eslint-disable-next-line no-await-in-loop
     await startDockerContainer(event, container)
   }

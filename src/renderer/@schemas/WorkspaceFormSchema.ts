@@ -18,15 +18,19 @@ export const BrowserSchema = Yup.object().shape({
     }),
 })
 
+export const DockerSchema = Yup.object().shape({
+  enableComposer: Yup.boolean().nullable(),
+  enableContainers: Yup.boolean().nullable(),
+  enableSail: Yup.boolean().nullable(),
+})
+
 export default Yup.object({
   name: Yup.string().required(),
   path: Yup.string().required(),
   editor: Yup.string().nullable(),
   enableEditor: Yup.boolean().nullable(),
   enableDocker: Yup.boolean().nullable(),
-  enableDockerCompose: Yup.boolean().nullable(),
-  enableDockerContainers: Yup.boolean().nullable(),
-  containers: Yup.array().of(Yup.string()).nullable(),
+  dockerOptions: DockerSchema,
   terminals: Yup.array().of(TerminalSchema).nullable(),
   browsers: Yup.array().of(BrowserSchema).nullable(),
 })

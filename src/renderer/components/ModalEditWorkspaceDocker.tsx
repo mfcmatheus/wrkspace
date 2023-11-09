@@ -8,10 +8,11 @@ import Container from 'renderer/@types/Container'
 import Lucide from 'renderer/base-components/lucide'
 
 function ModalEditWorkspaceDocker() {
-  const [fieldContainers, metaContainers, helpersContainers] =
-    useField('containers')
+  const [fieldContainers, metaContainers, helpersContainers] = useField(
+    'dockerOptions.containers'
+  )
   const [fieldCheckbox] = useField('enableDocker')
-  const [fieldCheckboxContainers] = useField('enableDockerContainers')
+  const [fieldCheckboxContainers] = useField('dockerOptions.enableContainers')
 
   const [containers, setContainers] = useState<Container[]>([])
   const [isDockerRunning, setIsDockerRunning] = useState<boolean>(false)
@@ -88,7 +89,7 @@ function ModalEditWorkspaceDocker() {
           <CheckboxMain
             as="button"
             primary
-            name="enableDockerCompose"
+            name="dockerOptions.enableComposer"
             className="w-full"
           >
             Enable Composer
@@ -96,7 +97,7 @@ function ModalEditWorkspaceDocker() {
           <CheckboxMain
             as="button"
             primary
-            name="enableDockerContainers"
+            name="dockerOptions.enableContainers"
             className="w-full"
           >
             Enable Containers
@@ -121,7 +122,7 @@ function ModalEditWorkspaceDocker() {
                     sm
                     as="button"
                     primary
-                    name="containers[]"
+                    name="dockerOptions.containers[]"
                     labelClassName="px-4"
                     value={container.ID}
                     checked={isSelectedContainer(container)}

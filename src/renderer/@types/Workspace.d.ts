@@ -14,9 +14,12 @@ export default interface Workspace {
   browsers?: Browser[]
   enableEditor?: boolean
   enableDocker?: boolean
-  enableDockerCompose?: boolean
-  enableDockerContainers?: boolean
-  containers?: Container[]
+  dockerOptions?: {
+    enableComposer?: boolean
+    enableContainers?: boolean
+    enableSail?: boolean
+    containers?: Container[]
+  }
   loading?: boolean
   created_at: string
   opened_at?: string | number
