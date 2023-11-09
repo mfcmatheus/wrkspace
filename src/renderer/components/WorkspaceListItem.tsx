@@ -74,23 +74,17 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
       return <>Never opened</>
     }
 
-    const keys = [
-      'years',
-      'months',
-      'weeks',
-      'days',
-      'hours',
-      'minutes',
-      'seconds',
-    ]
+    const keys = ['year', 'month', 'week', 'day', 'hour', 'minute', 'second']
 
     let result = ''
 
     keys.forEach((key) => {
+      let correctKey = key
       const diff = moment().diff(lastOpened, key)
 
       if (!result && diff) {
-        result = `Opened ${diff} ${key} ago`
+        if (diff > 1) correctKey += 's'
+        result = `Opened ${diff} ${correctKey} ago`
       }
     })
 
