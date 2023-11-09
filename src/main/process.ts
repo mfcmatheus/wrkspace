@@ -112,8 +112,12 @@ const startDockerCompose = (
 
     event.reply('workspaces.open.status', 'Starting docker compose ...')
 
+    const command = workspace.dockerOptions?.enableSail
+      ? `./vendor/bin/sail up -d`
+      : `/usr/local/bin/docker compose up -d`
+
     const process = runScript(
-      `cd '${workspace.path}' && /usr/local/bin/docker compose up -d`,
+      `cd '${workspace.path}' && ${command}`,
       [''],
       () => ({})
     )
