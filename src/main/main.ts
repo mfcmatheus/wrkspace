@@ -31,11 +31,15 @@ import {
   onWorkspaceUpdate,
 } from './process'
 
+const server = 'https://updater.wrkspace.co/'
+const url = `${server}/update/${process.platform}/${app.getVersion()}`
 class AppUpdater {
   constructor() {
+    autoUpdater.setFeedURL({ url })
     log.transports.file.level = 'info'
     autoUpdater.logger = log
     autoUpdater.checkForUpdatesAndNotify()
+    autoUpdater.allowPrerelease = true
   }
 }
 
