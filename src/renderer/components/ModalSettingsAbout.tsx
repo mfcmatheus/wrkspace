@@ -11,7 +11,7 @@ function ModalSettingsAbout() {
       <span className="text-[2rem] uppercase tracking-[.4rem] text-white">
         Wrkspace
       </span>
-      <span className="text-[#d2d2d2]">Version 1.0.0</span>
+      <span className="text-[#d2d2d2]">Version 1.1.0</span>
     </div>
   )
 }

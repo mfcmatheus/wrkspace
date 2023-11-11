@@ -24,7 +24,10 @@ const openEditor = (
       return
     }
 
-    event.reply('workspaces.open.status', 'Opening with editor ...')
+    event.reply('workspaces.open.status', {
+      workspace,
+      message: 'Opening with editor ...',
+    })
 
     const process = runScript(
       `open -g -a '${workspace.editor}' '${workspace.path}'`,
@@ -33,11 +36,14 @@ const openEditor = (
     )
 
     process.stdout.on('data', (data) => {
-      event.reply('workspaces.open.status', data.toString())
+      event.reply('workspaces.open.status', {
+        workspace,
+        message: data.toString(),
+      })
     })
 
     process.on('close', () => {
-      event.reply('workspaces.open.status', 'Success')
+      event.reply('workspaces.open.status', { workspace, message: 'Success' })
       resolve(true)
     })
     process.on('error', reject)
@@ -57,7 +63,12 @@ const openBrowser = (browser: Browser): Promise<void> =>
   })
 
 const openBrowsers = async (event: IpcMainEvent, workspace: Workspace) => {
-  event.reply('workspaces.open.status', 'Opening browsers ...')
+  if (!workspace.browsers?.length) return
+
+  event.reply('workspaces.open.status', {
+    workspace,
+    message: 'Opening browsers ...',
+  })
 
   // eslint-disable-next-line no-restricted-syntax
   for (const browser of workspace.browsers ?? []) {
@@ -65,7 +76,7 @@ const openBrowsers = async (event: IpcMainEvent, workspace: Workspace) => {
     await openBrowser(browser)
   }
 
-  event.reply('workspaces.open.status', 'Success')
+  event.reply('workspaces.open.status', { workspace, message: 'Success' })
 }
 
 const executeTerminalCommand = (
@@ -88,7 +99,12 @@ const executeTerminalCommands = async (
   event: IpcMainEvent,
   workspace: Workspace
 ) => {
-  event.reply('workspaces.open.status', 'Executing terminal commands ...')
+  if (!workspace.terminals?.length) return
+
+  event.reply('workspaces.open.status', {
+    workspace,
+    message: 'Executing terminal commands ...',
+  })
 
   // eslint-disable-next-line no-restricted-syntax
   for (const terminal of workspace.terminals ?? []) {
@@ -96,7 +112,7 @@ const executeTerminalCommands = async (
     await executeTerminalCommand(workspace, terminal)
   }
 
-  event.reply('workspaces.open.status', 'Success')
+  event.reply('workspaces.open.status', { workspace, message: 'Success' })
 }
 
 const startDockerCompose = (
@@ -104,26 +120,42 @@ const startDockerCompose = (
   workspace: Workspace
 ): Promise<boolean> =>
   new Promise((resolve, reject) => {
-    if (!workspace.enableDocker || !workspace.enableDockerCompose) {
+    if (!workspace.enableDocker || !workspace.dockerOptions?.enableComposer) {
       reject(new Error('Docker is not enabled'))
 
       return
     }
 
-    event.reply('workspaces.open.status', 'Starting docker compose ...')
+    event.reply('workspaces.open.status', {
+      workspace,
+      message: 'Starting docker compose ...',
+    })
+
+    const command = workspace.dockerOptions?.enableSail
+      ? `./vendor/bin/sail up -d`
+      : `/usr/local/bin/docker compose up -d`
 
     const process = runScript(
-      `cd '${workspace.path}' && /usr/local/bin/docker compose up -d`,
+      `cd '${workspace.path}' && ${command}`,
       [''],
       () => ({})
     )
 
     process.stdout.on('data', (data) => {
-      event.reply('workspaces.open.status', data.toString())
+      event.reply('workspaces.open.status', {
+        workspace,
+        message: data.toString(),
+      })
+    })
+    process.stderr.on('data', (data) => {
+      event.reply('workspaces.open.status', {
+        workspace,
+        message: data.toString(),
+      })
     })
 
     process.on('close', () => {
-      event.reply('workspaces.open.status', 'Success')
+      event.reply('workspaces.open.status', { workspace, message: 'Success' })
       resolve(true)
     })
     process.on('error', reject)
@@ -131,7 +163,8 @@ const startDockerCompose = (
 
 const startDockerContainer = (
   event: IpcMainEvent,
-  container: Container
+  container: Container,
+  workspace: Workspace
 ): Promise<boolean> =>
   new Promise((resolve, reject) => {
     const process = runScript(
@@ -141,7 +174,10 @@ const startDockerContainer = (
     )
 
     process.stdout.on('data', (data) => {
-      event.reply('workspaces.open.status', data.toString())
+      event.reply('workspaces.open.status', {
+        workspace,
+        message: data.toString(),
+      })
     })
 
     process.on('close', () => resolve(true))
@@ -154,21 +190,24 @@ const startDockerContainers = async (
 ) => {
   if (
     !workspace.enableDocker ||
-    !workspace.enableDockerContainers ||
-    !workspace.containers?.length
+    !workspace.dockerOptions?.enableContainers ||
+    !workspace.dockerOptions?.containers?.length
   ) {
     return
   }
 
-  event.reply('workspaces.open.status', 'Starting docker containers ...')
+  event.reply('workspaces.open.status', {
+    workspace,
+    message: 'Starting docker containers ...',
+  })
 
   // eslint-disable-next-line no-restricted-syntax
-  for (const container of workspace.containers ?? []) {
+  for (const container of workspace.dockerOptions?.containers ?? []) {
     // eslint-disable-next-line no-await-in-loop
-    await startDockerContainer(event, container)
+    await startDockerContainer(event, container, workspace)
   }
 
-  event.reply('workspaces.open.status', 'Success')
+  event.reply('workspaces.open.status', { workspace, message: 'Success' })
 }
 
 export const onWorkspaceOpen = async (
@@ -184,6 +223,7 @@ export const onWorkspaceOpen = async (
   workspaces[index].loading = true
 
   store.set('workspaces', workspaces)
+  event.reply('workspaces.open.status', { workspace, message: false })
 
   // Open with editor
   await openEditor(event, workspace).catch(() => {})

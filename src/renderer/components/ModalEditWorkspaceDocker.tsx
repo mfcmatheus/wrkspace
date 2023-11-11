@@ -6,15 +6,21 @@ import CheckboxMain from 'renderer/base-components/CheckboxMain'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import Container from 'renderer/@types/Container'
 import Lucide from 'renderer/base-components/lucide'
+import CollapseMain from 'renderer/base-components/CollapseMain'
+import SwitchMain from 'renderer/base-components/SwitchMain'
 
 function ModalEditWorkspaceDocker() {
-  const [fieldContainers, metaContainers, helpersContainers] =
-    useField('containers')
+  const [fieldContainers, metaContainers, helpersContainers] = useField(
+    'dockerOptions.containers'
+  )
   const [fieldCheckbox] = useField('enableDocker')
-  const [fieldCheckboxContainers] = useField('enableDockerContainers')
+  const [fieldCheckboxComposer] = useField('dockerOptions.enableComposer')
+  const [fieldCheckboxContainers] = useField('dockerOptions.enableContainers')
+  const [fieldUseSail] = useField('dockerOptions.enableSail')
 
   const [containers, setContainers] = useState<Container[]>([])
   const [isDockerRunning, setIsDockerRunning] = useState<boolean>(false)
+  const [isOptionsExpanded, setIsOptionsExpanded] = useState<boolean>(false)
 
   const onSelectContainer = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>, container: Container) => {
@@ -42,6 +48,12 @@ function ModalEditWorkspaceDocker() {
     },
     [fieldContainers]
   )
+
+  useEffect(() => {
+    if (fieldUseSail.value) {
+      setIsOptionsExpanded(true)
+    }
+  }, [])
 
   useEffect(() => {
     ipcRenderer.sendMessage('containers.get')
@@ -88,7 +100,7 @@ function ModalEditWorkspaceDocker() {
           <CheckboxMain
             as="button"
             primary
-            name="enableDockerCompose"
+            name="dockerOptions.enableComposer"
             className="w-full"
           >
             Enable Composer
@@ -96,12 +108,34 @@ function ModalEditWorkspaceDocker() {
           <CheckboxMain
             as="button"
             primary
-            name="enableDockerContainers"
+            name="dockerOptions.enableContainers"
             className="w-full"
           >
             Enable Containers
           </CheckboxMain>
         </div>
+        <CollapseMain
+          className="mt-3"
+          label="Options"
+          open={isOptionsExpanded}
+          setOpen={setIsOptionsExpanded}
+        >
+          <div className="grid grid-cols-2 my-3">
+            <label
+              htmlFor="enableSail"
+              className="flex items-center text-[#d2d2d2] font-thin text-sm"
+            >
+              <SwitchMain
+                sm
+                primary
+                name="dockerOptions.enableSail"
+                id="enableSail"
+                disabled={!fieldCheckboxComposer.value}
+              />
+              <span className="ml-2">Use Laravel Sail</span>
+            </label>
+          </div>
+        </CollapseMain>
         {fieldCheckboxContainers.value && (
           <div className="flex flex-col gap-y-2 mt-6">
             {containers &&
@@ -121,7 +155,7 @@ function ModalEditWorkspaceDocker() {
                     sm
                     as="button"
                     primary
-                    name="containers[]"
+                    name="dockerOptions.containers[]"
                     labelClassName="px-4"
                     value={container.ID}
                     checked={isSelectedContainer(container)}

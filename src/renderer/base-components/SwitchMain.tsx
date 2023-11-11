@@ -20,6 +20,15 @@ function SwitchMain(props: SwitchMainProps) {
 
   const isChecked = useMemo(() => fieldCheckbox.value, [fieldCheckbox.value])
 
+  const wrapperClasses = useMemo(
+    () =>
+      classNames({
+        'relative inline-flex cursor-pointer select-none items-center': true,
+        'opacity-50': disabled,
+      }),
+    [disabled]
+  )
+
   const switchClasses = useMemo(
     () =>
       classNames({
@@ -48,7 +57,7 @@ function SwitchMain(props: SwitchMainProps) {
   )
 
   return (
-    <label className="relative inline-flex cursor-pointer select-none items-center">
+    <label className={wrapperClasses}>
       <Field
         name={name}
         id={id}

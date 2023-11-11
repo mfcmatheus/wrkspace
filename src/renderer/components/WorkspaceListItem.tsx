@@ -74,23 +74,17 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
       return <>Never opened</>
     }
 
-    const keys = [
-      'years',
-      'months',
-      'weeks',
-      'days',
-      'hours',
-      'minutes',
-      'seconds',
-    ]
+    const keys = ['year', 'month', 'week', 'day', 'hour', 'minute', 'second']
 
     let result = ''
 
     keys.forEach((key) => {
+      let correctKey = key
       const diff = moment().diff(lastOpened, key)
 
       if (!result && diff) {
-        result = `Opened ${diff} ${key} ago`
+        if (diff > 1) correctKey += 's'
+        result = `Opened ${diff} ${correctKey} ago`
       }
     })
 
@@ -109,22 +103,24 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
   }, [workspace.favorite])
 
   return (
-    <Element
-      className="rounded"
-      shadowClassName="!rounded"
-      wrapperClassName="rounded"
-    >
-      <div onContextMenu={handleContextMenu} className={classes}>
-        <div className="flex items-center h-[20px]">
-          <WorkspaceListItemFeatures workspace={workspace} />
-          {/* <WorkspaceListItemEdit onClick={onClickEdit} /> */}
+    <>
+      <Element
+        className="rounded"
+        shadowClassName="!rounded"
+        wrapperClassName="rounded"
+      >
+        <div onContextMenu={handleContextMenu} className={classes}>
+          <div className="flex items-center h-[20px]">
+            <WorkspaceListItemFeatures workspace={workspace} />
+            {/* <WorkspaceListItemEdit onClick={onClickEdit} /> */}
+          </div>
+          <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
+          <WorkspaceListItemLastOpened>
+            {renderDate()}
+          </WorkspaceListItemLastOpened>
+          <WorkspaceListItemLaunch workspace={workspace} onClick={onLaunch} />
         </div>
-        <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
-        <WorkspaceListItemLastOpened>
-          {renderDate()}
-        </WorkspaceListItemLastOpened>
-        <WorkspaceListItemLaunch workspace={workspace} onClick={onLaunch} />
-      </div>
+      </Element>
       <WorkspaceListItemContext
         id={workspace.id}
         workspace={workspace}
@@ -134,7 +130,7 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
         onFavorite={onClickFavorite}
         onSetFolder={onClickSetFolder}
       />
-    </Element>
+    </>
   )
 }
 
