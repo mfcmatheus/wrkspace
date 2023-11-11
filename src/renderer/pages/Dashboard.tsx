@@ -19,6 +19,7 @@ import Lucide from 'renderer/base-components/lucide'
 import ModalSettings from 'renderer/components/ModalSettings'
 import Logo from 'renderer/base-components/Logo'
 import ShadowMain from 'renderer/base-components/ShadowMain'
+import LogsMain from 'renderer/components/LogsMain'
 
 function Dashboard() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
@@ -143,53 +144,56 @@ function Dashboard() {
     <>
       <TopBar />
       <div className="flex flex-1">
-        {filteredWorkspaces?.length ? (
-          <div className="flex flex-col flex-1 p-4 relative">
-            <div className="flex mb-4">
-              <h2 className="text-medium text-[#f0f0f0] text-xl">{title}</h2>
-              <ButtonMain
-                sm
-                bordered
-                secondary
-                className="ml-auto"
-                onClick={onClickCreate}
+        <div className="flex flex-col flex-1">
+          {filteredWorkspaces?.length ? (
+            <div className="flex flex-col flex-1 p-4 relative">
+              <div className="flex mb-4">
+                <h2 className="text-medium text-[#f0f0f0] text-xl">{title}</h2>
+                <ButtonMain
+                  sm
+                  bordered
+                  secondary
+                  className="ml-auto"
+                  onClick={onClickCreate}
+                >
+                  Create Workspace
+                </ButtonMain>
+              </div>
+              <WorkspaceList>
+                {filteredWorkspaces.map((workspace) => (
+                  <WorkspaceListItem
+                    key={workspace.id}
+                    workspace={workspace}
+                    folders={folders}
+                    onEdit={onEditWorkspace}
+                    onFavorite={onFavorite}
+                    onSetFolder={onSetFolder}
+                  />
+                ))}
+              </WorkspaceList>
+              <div className="flex flex-col items-center justify-center absolute top-[50%] left-[50%] z-[-1] h-[20rem] w-[20rem] transform translate-x-[-50%] translate-y-[-50%]">
+                <Logo color="#252525" />
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col flex-1 items-center h-full justify-center">
+              <p className="text-lg text-[#727272] font-thin">
+                No workspaces yet, start using Wrkspace creating one
+              </p>
+              <ShadowMain
+                shadow
+                wrapperClassName="rounded-[7px] mt-5"
+                shadowClassName="!rounded-[7px]"
+                className="rounded-[7px]"
               >
-                Create Workspace
-              </ButtonMain>
+                <ButtonMain highlight bordered sm onClick={onClickCreate}>
+                  Create workspace
+                </ButtonMain>
+              </ShadowMain>
             </div>
-            <WorkspaceList>
-              {filteredWorkspaces.map((workspace) => (
-                <WorkspaceListItem
-                  key={workspace.id}
-                  workspace={workspace}
-                  folders={folders}
-                  onEdit={onEditWorkspace}
-                  onFavorite={onFavorite}
-                  onSetFolder={onSetFolder}
-                />
-              ))}
-            </WorkspaceList>
-            <div className="flex flex-col items-center justify-center absolute top-[50%] left-[50%] z-[-1] h-[20rem] w-[20rem] transform translate-x-[-50%] translate-y-[-50%]">
-              <Logo color="#252525" />
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col flex-1 items-center h-full justify-center">
-            <p className="text-lg text-[#727272] font-thin">
-              No workspaces yet, start using Wrkspace creating one
-            </p>
-            <ShadowMain
-              shadow
-              wrapperClassName="rounded-[7px] mt-5"
-              shadowClassName="!rounded-[7px]"
-              className="rounded-[7px]"
-            >
-              <ButtonMain highlight bordered sm onClick={onClickCreate}>
-                Create workspace
-              </ButtonMain>
-            </ShadowMain>
-          </div>
-        )}
+          )}
+          <LogsMain />
+        </div>
         <FolderBar onClickCreate={() => setIsModalCreateFolderOpen(true)}>
           {folders.map((folder) => (
             <FolderBarItem
@@ -210,7 +214,6 @@ function Dashboard() {
           </div>
         </FolderBar>
       </div>
-      <StatusBar />
 
       {isModalEditOpen && (
         <ModalEditWorkspace
