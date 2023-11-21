@@ -121,6 +121,7 @@
     "webpack-merge": "^5.9.0"
   },
   "build": {
+    "appId": "D7ZSWZ7KMM",
     "productName": "wrkspace",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
@@ -146,6 +147,9 @@
       "extendInfo": {
         "com.apple.developer.devicecheck.appattest-environment": true,
         "com.apple.security.automation.apple-events": true
+      },
+      "notarize": {
+        "teamId": "D7ZSWZ7KMM"
       }
     },
     "dmg": {
