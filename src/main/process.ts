@@ -132,7 +132,7 @@ const startDockerCompose = (
     })
 
     const command = workspace.dockerOptions?.enableSail
-      ? `./vendor/bin/sail up -d`
+      ? `WWWGROUP=1000 WWWUSER=1000 /usr/local/bin/docker compose up -d`
       : `/usr/local/bin/docker compose up -d`
 
     const process = runScript(

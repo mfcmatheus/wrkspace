@@ -39,7 +39,7 @@ class AppUpdater {
     log.transports.file.level = 'info'
     autoUpdater.logger = log
     autoUpdater.checkForUpdatesAndNotify()
-    autoUpdater.allowPrerelease = true
+    // autoUpdater.allowPrerelease = true
   }
 }
 
