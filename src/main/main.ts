@@ -9,7 +9,8 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path'
-import { app, BrowserWindow, shell, ipcMain } from 'electron'
+import nodePath from 'node:path'
+import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
 import MenuBuilder from './menu'
@@ -31,12 +32,9 @@ import {
   onWorkspaceUpdate,
 } from './process'
 
-const server = 'https://updater.wrkspace.co/'
-const url = `${server}/update/${process.platform}/${app.getVersion()}`
 class AppUpdater {
   constructor() {
-    autoUpdater.setFeedURL({ url })
-    log.transports.file.level = 'info'
+    log.transports.file.level = 'debug'
     autoUpdater.logger = log
     autoUpdater.checkForUpdatesAndNotify()
     // autoUpdater.allowPrerelease = true
@@ -79,6 +77,16 @@ const isDebug =
 
 if (isDebug) {
   require('electron-debug')()
+}
+
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient('wrkspace', process.execPath, [
+      nodePath.resolve(process.argv[1]),
+    ])
+  }
+} else {
+  app.setAsDefaultProtocolClient('wrkspace')
 }
 
 const installExtensions = async () => {
@@ -163,6 +171,10 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+app.on('open-url', (event, url) => {
+  dialog.showErrorBox('Welcome Back', `You arrived from: ${url}`)
 })
 
 app

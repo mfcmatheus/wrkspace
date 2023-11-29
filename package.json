@@ -14,6 +14,8 @@
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
     "test": "jest"
   },
+  "repository": "https://github.com/mfcmatheus/wrkspace",
+  "private": true,
   "browserslist": [],
   "prettier": {
     "singleQuote": true,
@@ -184,7 +186,13 @@
     },
     "extraResources": [
       "./assets/**"
-    ]
+    ],
+    "protocols": {
+      "name": "Wrkspace",
+      "schemes": [
+        "wrkspace"
+      ]
+    }
   },
   "devEngines": {
     "node": ">=18.x",
