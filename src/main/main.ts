@@ -10,9 +10,11 @@
  */
 import path from 'path'
 import nodePath from 'node:path'
-import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron'
+import { app, BrowserWindow, shell, ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
+import Store from 'electron-store'
+import { loadErrorMessages, loadDevMessages } from '@apollo/client/dev'
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
 import {
@@ -22,15 +24,20 @@ import {
   onFoldersGet,
   onFoldersSet,
   onOpenDirectory,
+  onProcess,
   onServicesDocker,
   onSettingsGet,
   onSettingsUpdate,
+  onUserGet,
+  onUserSet,
   onWorkspaceCreate,
   onWorkspaceDelete,
   onWorkspaceGet,
   onWorkspaceOpen,
   onWorkspaceUpdate,
 } from './process'
+
+const store = new Store()
 
 class AppUpdater {
   constructor() {
@@ -66,6 +73,9 @@ ipcMain.on('folders.set', onFoldersSet)
 ipcMain.on('settings.get', onSettingsGet)
 ipcMain.on('settings.update', onSettingsUpdate)
 ipcMain.on('applications.get', onApplicationsGet)
+ipcMain.on('process', onProcess)
+ipcMain.on('user.get', onUserGet)
+ipcMain.on('user.set', onUserSet)
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support')
@@ -77,6 +87,9 @@ const isDebug =
 
 if (isDebug) {
   require('electron-debug')()
+
+  loadDevMessages()
+  loadErrorMessages()
 }
 
 if (process.defaultApp) {
@@ -141,6 +154,8 @@ const createWindow = async () => {
     } else {
       mainWindow.show()
     }
+
+    mainWindow.webContents.send('user.check', store.get('user.token'))
   })
 
   mainWindow.on('closed', () => {
@@ -174,7 +189,18 @@ app.on('window-all-closed', () => {
 })
 
 app.on('open-url', (event, url) => {
-  dialog.showErrorBox('Welcome Back', `You arrived from: ${url}`)
+  const mappedUrl = new URL(url)
+
+  const action = url.match(/wrkspace:\/\/(.*?)\?/)?.[1]
+  const params = new URLSearchParams(mappedUrl.search)
+
+  if (action === 'authorize') {
+    const token = params.get('token')
+    store.set('user.token', token)
+    mainWindow?.webContents.send('user.check', token)
+  }
+
+  // dialog.showErrorBox('Welcome Back', mappedUrl.search ?? '')
 })
 
 app

@@ -17,6 +17,9 @@ export type Channels =
   | 'settings.get'
   | 'settings.update'
   | 'applications.get'
+  | 'process'
+  | 'user.get'
+  | 'user.set'
 
 const electronHandler = {
   ipcRenderer: {

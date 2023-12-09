@@ -10,6 +10,7 @@ import Folder from 'renderer/@types/Folder'
 import Setting from 'renderer/@types/Setting'
 import Browser from 'renderer/@types/Browser'
 import { fakeId, runScript } from './util'
+import User from 'renderer/@types/User'
 
 const store = new Store()
 
@@ -362,6 +363,20 @@ export const onApplicationsGet = async (event: IpcMainEvent) => {
   event.reply('applications.get', applications)
 }
 
+export const onProcess = (event: IpcMainEvent) => {
+  const { NODE_ENV } = process.env
+  event.reply('process', { NODE_ENV })
+}
+
+export const onUserGet = (event: IpcMainEvent) => {
+  const user = store.get('user') ?? null
+  event.reply('user.get', user)
+}
+
+export const onUserSet = (event: IpcMainEvent, user: User) => {
+  store.set('user', user)
+}
+
 export default {
   onWorkspaceOpen,
   onWorkspaceGet,
@@ -377,4 +392,7 @@ export default {
   onSettingsGet,
   onSettingsUpdate,
   onApplicationsGet,
+  onProcess,
+  onUserGet,
+  onUserSet,
 }
