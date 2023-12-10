@@ -385,6 +385,7 @@ export const onUserAuthenticate = async (event: IpcMainEvent) => {
 export const onUserLogout = async (event: IpcMainEvent) => {
   store.delete('user')
   store.delete('token')
+  event.reply('user.logout')
 }
 
 export default {

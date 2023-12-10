@@ -23,6 +23,10 @@ export default function App() {
     setToken(data)
   })
 
+  useIpc('user.logout', () => {
+    setToken(null)
+  })
+
   if (!token) return <Routes />
 
   return (
