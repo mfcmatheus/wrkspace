@@ -374,11 +374,17 @@ export const onUserGet = (event: IpcMainEvent) => {
 }
 
 export const onUserSet = (event: IpcMainEvent, user: User) => {
+  if (!user) return
   store.set('user', user)
 }
 
 export const onUserAuthenticate = async (event: IpcMainEvent) => {
   runScript(`open '${process.env.APP_URL}/authorize'`, [''], () => ({}))
+}
+
+export const onUserLogout = async (event: IpcMainEvent) => {
+  store.delete('user')
+  store.delete('token')
 }
 
 export default {
@@ -400,4 +406,5 @@ export default {
   onUserGet,
   onUserSet,
   onUserAuthenticate,
+  onUserLogout,
 }

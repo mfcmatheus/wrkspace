@@ -5,26 +5,40 @@ import { UserContext } from 'renderer/contexts/UserContext'
 import { ipcRenderer } from 'renderer/hooks/useIpc'
 
 export default function FolderBarAuth() {
-  const { user } = useContext(UserContext)
+  const { user, resetUser } = useContext(UserContext)
 
   const onClickAccount = useCallback(() => {
     ipcRenderer.sendMessage('user.authenticate')
   }, [])
 
+  const onClickLogout = useCallback(() => {
+    ipcRenderer.sendMessage('user.logout')
+    localStorage.removeItem('token')
+    resetUser()
+  }, [resetUser])
+
   const tooltipLogged = () => (
     <div className="flex flex-col text-center">
       <span className="font-thin text-sm">You're logged as</span>
       <span>{user?.name}</span>
-      <a href="#" className="text-primary mt-1 font-thin">
+      <button
+        type="button"
+        className="text-primary mt-1 font-thin"
+        onClick={onClickLogout}
+      >
         Log out
-      </a>
+      </button>
     </div>
   )
 
   const tooltipGuest = () => (
-    <a href="#" className="text-primary mt-1 font-thin">
+    <button
+      type="button"
+      className="text-primary mt-1 font-thin"
+      onClick={onClickAccount}
+    >
       Sign in
-    </a>
+    </button>
   )
 
   return (
@@ -33,7 +47,7 @@ export default function FolderBarAuth() {
         id="auth-button"
         type="button"
         className="flex h-12 w-12 justify-center items-center"
-        onClick={onClickAccount}
+        onClick={() => !user && onClickAccount()}
       >
         <Lucide icon="UserCircle2" size={32} color="#6f6f6f" strokeWidth={1} />
       </button>

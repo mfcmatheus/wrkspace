@@ -36,6 +36,7 @@ import {
   onWorkspaceGet,
   onWorkspaceOpen,
   onWorkspaceUpdate,
+  onUserLogout,
 } from './process'
 
 const store = new Store()
@@ -78,6 +79,7 @@ ipcMain.on('process', onProcess)
 ipcMain.on('user.get', onUserGet)
 ipcMain.on('user.set', onUserSet)
 ipcMain.on('user.authenticate', onUserAuthenticate)
+ipcMain.on('user.logout', onUserLogout)
 
 process.env.APP_URL = 'http://localhost:3000'
 

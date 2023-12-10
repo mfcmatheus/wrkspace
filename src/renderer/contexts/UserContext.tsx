@@ -29,6 +29,8 @@ export function UserProvider(props: props) {
     fetchPolicy: 'no-cache',
   })
 
+  const resetUser = useCallback(() => setUser(null), [])
+
   const userCallback = useCallback(async () => {
     const { data } = await getUser()
     ipcRenderer.sendMessage('user.set', data?.Me as User)
@@ -39,8 +41,9 @@ export function UserProvider(props: props) {
     () => ({
       user,
       token,
+      resetUser,
     }),
-    [user, token]
+    [user, token, resetUser]
   )
 
   useEffect(() => {

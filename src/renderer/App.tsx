@@ -19,8 +19,8 @@ export default function App() {
   })
 
   useIpc('user.check', (data) => {
-    setToken(data)
     localStorage.setItem('token', data)
+    setToken(data)
   })
 
   if (!token) return <Routes />

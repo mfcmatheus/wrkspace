@@ -21,6 +21,7 @@ export type Channels =
   | 'user.get'
   | 'user.set'
   | 'user.authenticate'
+  | 'user.logout'
 
 const electronHandler = {
   ipcRenderer: {

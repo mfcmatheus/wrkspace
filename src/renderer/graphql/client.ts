@@ -7,7 +7,6 @@ import {
 import { setContext } from '@apollo/client/link/context'
 
 const env = JSON.parse(localStorage.getItem('env') || '{}')
-const token = localStorage.getItem('token')
 
 const httpLink = (endpoint: string = '') =>
   new HttpLink({
@@ -22,6 +21,8 @@ const httpLink = (endpoint: string = '') =>
   })
 
 const authLink = setContext((_, { headers }) => {
+  const token = localStorage.getItem('token')
+
   return {
     headers: {
       ...headers,
@@ -33,6 +34,7 @@ const authLink = setContext((_, { headers }) => {
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers':
         'Content-Type, Authorization, Content-Length, X-Requested-With',
+      Accept: 'application/json',
       Authorization: token ? `Bearer ${token}` : '',
     },
   }
