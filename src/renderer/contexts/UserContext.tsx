@@ -24,6 +24,7 @@ const apolloClient = client('/user')
 export function UserProvider(props: props) {
   const { token, children } = props
   const [user, setUser] = useState<User | null>(null)
+  const [gettingUser, setGettingUser] = useState<boolean>(false)
   const [getUser] = useLazyQuery<User>(MeQuery, {
     client: apolloClient,
     fetchPolicy: 'no-cache',
@@ -32,9 +33,13 @@ export function UserProvider(props: props) {
   const resetUser = useCallback(() => setUser(null), [])
 
   const userCallback = useCallback(async () => {
+    setGettingUser(true)
+
     const { data } = await getUser()
     ipcRenderer.sendMessage('user.set', data?.Me as User)
     setUser(data?.Me as User)
+
+    setGettingUser(false)
   }, [getUser])
 
   const providerValue = useMemo(
@@ -42,8 +47,9 @@ export function UserProvider(props: props) {
       user,
       token,
       resetUser,
+      gettingUser,
     }),
-    [user, token, resetUser]
+    [user, token, resetUser, gettingUser]
   )
 
   useEffect(() => {

@@ -1,11 +1,12 @@
 import React, { useCallback, useContext } from 'react'
 import { Tooltip } from 'react-tooltip'
+import LoadingIcon from 'renderer/base-components/LoadingIcon'
 import Lucide from 'renderer/base-components/lucide'
 import { UserContext } from 'renderer/contexts/UserContext'
 import { ipcRenderer } from 'renderer/hooks/useIpc'
 
 export default function FolderBarAuth() {
-  const { user, resetUser } = useContext(UserContext)
+  const { user, resetUser, gettingUser } = useContext(UserContext)
 
   const onClickAccount = useCallback(() => {
     ipcRenderer.sendMessage('user.authenticate')
@@ -49,7 +50,16 @@ export default function FolderBarAuth() {
         className="flex h-12 w-12 justify-center items-center"
         onClick={() => !user && onClickAccount()}
       >
-        <Lucide icon="UserCircle2" size={32} color="#6f6f6f" strokeWidth={1} />
+        {gettingUser ? (
+          <LoadingIcon icon="oval" color="#f0f0f0" />
+        ) : (
+          <Lucide
+            icon="UserCircle2"
+            size={32}
+            color="#6f6f6f"
+            strokeWidth={1}
+          />
+        )}
       </button>
 
       <Tooltip
