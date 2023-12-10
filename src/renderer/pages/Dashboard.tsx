@@ -9,7 +9,6 @@ import WorkspaceListItem from 'renderer/components/WorkspaceListItem'
 import Workspace from 'renderer/@types/Workspace'
 import ButtonMain from 'renderer/base-components/ButtonMain'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
-import StatusBar from 'renderer/components/StatusBar'
 import FolderBar from 'renderer/components/FolderBar'
 import ModalCreateFolder from 'renderer/components/ModalCreateFolder'
 import Folder from 'renderer/@types/Folder'
@@ -20,6 +19,7 @@ import ModalSettings from 'renderer/components/ModalSettings'
 import Logo from 'renderer/base-components/Logo'
 import ShadowMain from 'renderer/base-components/ShadowMain'
 import LogsMain from 'renderer/components/LogsMain'
+import FolderBarAuth from 'renderer/components/FolderBarAuth'
 
 function Dashboard() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
@@ -195,21 +195,29 @@ function Dashboard() {
           <LogsMain />
         </div>
         <FolderBar onClickCreate={() => setIsModalCreateFolderOpen(true)}>
-          {folders.map((folder) => (
-            <FolderBarItem
-              key={folder.id}
-              folder={folder}
-              current={settings?.currentFolder?.id === folder.id}
-              onClick={onClickFolder}
-            />
-          ))}
-          <div className="flex mt-auto border-t border-[#353535] pt-2">
+          <div className="flex flex-col flex-grow basis-0 relative overflow-auto gap-y-3 items-center">
+            {folders.map((folder) => (
+              <FolderBarItem
+                key={folder.id}
+                folder={folder}
+                current={settings?.currentFolder?.id === folder.id}
+                onClick={onClickFolder}
+              />
+            ))}
+          </div>
+          <div className="flex flex-col items-center mt-auto border-t border-[#353535] pt-2 relative">
+            <FolderBarAuth />
             <button
               type="button"
               className="flex h-12 w-12 justify-center items-center"
               onClick={() => setIsModalSettingsOpen(true)}
             >
-              <Lucide icon="Settings" size={26} color="#6f6f6f" />
+              <Lucide
+                icon="Settings"
+                size={32}
+                color="#6f6f6f"
+                strokeWidth={1}
+              />
             </button>
           </div>
         </FolderBar>

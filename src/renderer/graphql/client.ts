@@ -1,8 +1,13 @@
-import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client'
+import {
+  ApolloClient,
+  DefaultOptions,
+  HttpLink,
+  InMemoryCache,
+} from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
 
 const env = JSON.parse(localStorage.getItem('env') || '{}')
-const token = localStorage.getItem('user.token')
+const token = localStorage.getItem('token')
 
 const httpLink = (endpoint: string = '') =>
   new HttpLink({
@@ -33,8 +38,22 @@ const authLink = setContext((_, { headers }) => {
   }
 })
 
+const defaultOptions = {
+  watchQuery: {
+    fetchPolicy: 'no-cache',
+  },
+  query: {
+    fetchPolicy: 'no-cache',
+    errorPolicy: 'all',
+  },
+  mutate: {
+    errorPolicy: 'all',
+  },
+} as DefaultOptions
+
 export default (endpoint: string = '') =>
   new ApolloClient({
     link: authLink.concat(httpLink(endpoint)),
     cache: new InMemoryCache(),
+    // defaultOptions,
   })

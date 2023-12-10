@@ -30,6 +30,7 @@ import {
   onSettingsUpdate,
   onUserGet,
   onUserSet,
+  onUserAuthenticate,
   onWorkspaceCreate,
   onWorkspaceDelete,
   onWorkspaceGet,
@@ -76,10 +77,15 @@ ipcMain.on('applications.get', onApplicationsGet)
 ipcMain.on('process', onProcess)
 ipcMain.on('user.get', onUserGet)
 ipcMain.on('user.set', onUserSet)
+ipcMain.on('user.authenticate', onUserAuthenticate)
+
+process.env.APP_URL = 'http://localhost:3000'
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support')
   sourceMapSupport.install()
+
+  process.env.APP_URL = 'https://wrkspace.co'
 }
 
 const isDebug =
@@ -155,7 +161,7 @@ const createWindow = async () => {
       mainWindow.show()
     }
 
-    mainWindow.webContents.send('user.check', store.get('user.token'))
+    mainWindow.webContents.send('user.check', store.get('token'))
   })
 
   mainWindow.on('closed', () => {
@@ -196,7 +202,7 @@ app.on('open-url', (event, url) => {
 
   if (action === 'authorize') {
     const token = params.get('token')
-    store.set('user.token', token)
+    store.set('token', token)
     mainWindow?.webContents.send('user.check', token)
   }
 

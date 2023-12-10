@@ -50,6 +50,7 @@
     "react-dom": "^18.2.0",
     "react-github-btn": "^1.4.0",
     "react-router-dom": "^6.11.2",
+    "react-tooltip": "^5.25.0",
     "yup": "^1.2.0"
   },
   "devDependencies": {

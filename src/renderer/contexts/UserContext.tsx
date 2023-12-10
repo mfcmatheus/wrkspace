@@ -10,7 +10,7 @@ import { useLazyQuery } from '@apollo/client'
 import User from 'renderer/@types/User'
 import MeQuery from 'renderer/graphql/queries/MeQuery'
 import client from 'renderer/graphql/client'
-import { ipcRenderer } from 'renderer/hooks/useIpc'
+import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 
 export const UserContext = createContext({})
 
@@ -19,11 +19,14 @@ export interface props {
   token?: string | null
 }
 
+const apolloClient = client('/user')
+
 export function UserProvider(props: props) {
   const { token, children } = props
   const [user, setUser] = useState<User | null>(null)
   const [getUser] = useLazyQuery<User>(MeQuery, {
-    client: client('/user'),
+    client: apolloClient,
+    fetchPolicy: 'no-cache',
   })
 
   const userCallback = useCallback(async () => {
@@ -44,6 +47,12 @@ export function UserProvider(props: props) {
     if (!token) return
     userCallback()
   }, [token, userCallback])
+
+  useEffect(() => {
+    ipcRenderer.sendMessage('user.get')
+  }, [])
+
+  useIpc('user.get', (data: User) => setUser(data))
 
   return (
     <UserContext.Provider value={providerValue}>

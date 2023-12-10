@@ -9,8 +9,8 @@ import Container from 'renderer/@types/Container'
 import Folder from 'renderer/@types/Folder'
 import Setting from 'renderer/@types/Setting'
 import Browser from 'renderer/@types/Browser'
-import { fakeId, runScript } from './util'
 import User from 'renderer/@types/User'
+import { fakeId, runScript } from './util'
 
 const store = new Store()
 
@@ -377,6 +377,10 @@ export const onUserSet = (event: IpcMainEvent, user: User) => {
   store.set('user', user)
 }
 
+export const onUserAuthenticate = async (event: IpcMainEvent) => {
+  runScript(`open '${process.env.APP_URL}/authorize'`, [''], () => ({}))
+}
+
 export default {
   onWorkspaceOpen,
   onWorkspaceGet,
@@ -395,4 +399,5 @@ export default {
   onProcess,
   onUserGet,
   onUserSet,
+  onUserAuthenticate,
 }

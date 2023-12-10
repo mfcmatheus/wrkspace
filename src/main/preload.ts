@@ -20,6 +20,7 @@ export type Channels =
   | 'process'
   | 'user.get'
   | 'user.set'
+  | 'user.authenticate'
 
 const electronHandler = {
   ipcRenderer: {
