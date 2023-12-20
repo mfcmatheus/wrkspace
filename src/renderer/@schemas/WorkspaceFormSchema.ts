@@ -24,13 +24,17 @@ export const DockerSchema = Yup.object().shape({
   enableSail: Yup.boolean().nullable(),
 })
 
+export const FeaturesSchema = Yup.object().shape({
+  enableEditor: Yup.boolean().nullable(),
+  enableDocker: Yup.boolean().nullable(),
+})
+
 export default Yup.object({
   name: Yup.string().required(),
   path: Yup.string().required(),
   editor: Yup.string().nullable(),
-  enableEditor: Yup.boolean().nullable(),
-  enableDocker: Yup.boolean().nullable(),
-  dockerOptions: DockerSchema,
+  docker: DockerSchema,
   terminals: Yup.array().of(TerminalSchema).nullable(),
   browsers: Yup.array().of(BrowserSchema).nullable(),
+  features: FeaturesSchema,
 })

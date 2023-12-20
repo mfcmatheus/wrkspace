@@ -10,7 +10,7 @@ import Lucide from 'renderer/base-components/lucide'
 
 function ModalEditWorkspaceGeneralSettings() {
   const pathFieldHelpers = useField('path')[2]
-  const [enableEditorField] = useField('enableEditor')
+  const [enableEditorField] = useField('features.enableEditor')
 
   const [applications, setApplications] = useState<string[]>([])
 
@@ -77,7 +77,12 @@ function ModalEditWorkspaceGeneralSettings() {
                 </option>
               ))}
             </SelectMain>
-            <SwitchMain sm primary name="enableEditor" id="enableEditor" />
+            <SwitchMain
+              sm
+              primary
+              name="features.enableEditor"
+              id="enableEditor"
+            />
           </div>
         </label>
         <ErrorMessage name="editor" render={renderError} />

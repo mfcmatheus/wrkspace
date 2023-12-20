@@ -19,7 +19,7 @@ const openEditor = (
   workspace: Workspace
 ): Promise<boolean> =>
   new Promise((resolve, reject) => {
-    if (!workspace.enableEditor || !workspace.editor) {
+    if (!workspace.features?.enableEditor || !workspace.editor) {
       reject(new Error('Editor is not enabled'))
 
       return
@@ -121,7 +121,10 @@ const startDockerCompose = (
   workspace: Workspace
 ): Promise<boolean> =>
   new Promise((resolve, reject) => {
-    if (!workspace.enableDocker || !workspace.dockerOptions?.enableComposer) {
+    if (
+      !workspace.features?.enableDocker ||
+      !workspace.docker?.enableComposer
+    ) {
       reject(new Error('Docker is not enabled'))
 
       return
@@ -132,7 +135,7 @@ const startDockerCompose = (
       message: 'Starting docker compose ...',
     })
 
-    const command = workspace.dockerOptions?.enableSail
+    const command = workspace.docker?.enableSail
       ? `WWWGROUP=1000 WWWUSER=1000 /usr/local/bin/docker compose up -d`
       : `/usr/local/bin/docker compose up -d`
 
@@ -190,9 +193,9 @@ const startDockerContainers = async (
   workspace: Workspace
 ) => {
   if (
-    !workspace.enableDocker ||
-    !workspace.dockerOptions?.enableContainers ||
-    !workspace.dockerOptions?.containers?.length
+    !workspace.features?.enableDocker ||
+    !workspace.docker?.enableContainers ||
+    !workspace.docker?.containers?.length
   ) {
     return
   }
@@ -203,7 +206,7 @@ const startDockerContainers = async (
   })
 
   // eslint-disable-next-line no-restricted-syntax
-  for (const container of workspace.dockerOptions?.containers ?? []) {
+  for (const container of workspace.docker?.containers ?? []) {
     // eslint-disable-next-line no-await-in-loop
     await startDockerContainer(event, container, workspace)
   }

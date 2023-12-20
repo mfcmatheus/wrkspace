@@ -10,13 +10,12 @@ import CollapseMain from 'renderer/base-components/CollapseMain'
 import SwitchMain from 'renderer/base-components/SwitchMain'
 
 function ModalEditWorkspaceDocker() {
-  const [fieldContainers, metaContainers, helpersContainers] = useField(
-    'dockerOptions.containers'
-  )
-  const [fieldCheckbox] = useField('enableDocker')
-  const [fieldCheckboxComposer] = useField('dockerOptions.enableComposer')
-  const [fieldCheckboxContainers] = useField('dockerOptions.enableContainers')
-  const [fieldUseSail] = useField('dockerOptions.enableSail')
+  const [fieldContainers, metaContainers, helpersContainers] =
+    useField('docker.containers')
+  const [fieldCheckbox] = useField('features.enableDocker')
+  const [fieldCheckboxComposer] = useField('docker.enableComposer')
+  const [fieldCheckboxContainers] = useField('docker.enableContainers')
+  const [fieldUseSail] = useField('docker.enableSail')
 
   const [containers, setContainers] = useState<Container[]>([])
   const [isDockerRunning, setIsDockerRunning] = useState<boolean>(false)
@@ -79,7 +78,7 @@ function ModalEditWorkspaceDocker() {
   return (
     <div className="flex flex-col gap-y-3 flex-grow basis-0 overflow-auto p-3">
       <div className="flex items-center">
-        <CheckboxMain name="enableDocker">Enable Docker</CheckboxMain>
+        <CheckboxMain name="features.enableDocker">Enable Docker</CheckboxMain>
 
         <div className="flex items-center text-[#d2d2d2] text-xs gap-x-1 font-thin ml-auto">
           <div
@@ -100,7 +99,7 @@ function ModalEditWorkspaceDocker() {
           <CheckboxMain
             as="button"
             primary
-            name="dockerOptions.enableComposer"
+            name="docker.enableComposer"
             className="w-full"
           >
             Enable Composer
@@ -108,7 +107,7 @@ function ModalEditWorkspaceDocker() {
           <CheckboxMain
             as="button"
             primary
-            name="dockerOptions.enableContainers"
+            name="docker.enableContainers"
             className="w-full"
           >
             Enable Containers
@@ -128,7 +127,7 @@ function ModalEditWorkspaceDocker() {
               <SwitchMain
                 sm
                 primary
-                name="dockerOptions.enableSail"
+                name="docker.enableSail"
                 id="enableSail"
                 disabled={!fieldCheckboxComposer.value}
               />
@@ -155,7 +154,7 @@ function ModalEditWorkspaceDocker() {
                     sm
                     as="button"
                     primary
-                    name="dockerOptions.containers[]"
+                    name="docker.containers[]"
                     labelClassName="px-4"
                     value={container.ID}
                     checked={isSelectedContainer(container)}

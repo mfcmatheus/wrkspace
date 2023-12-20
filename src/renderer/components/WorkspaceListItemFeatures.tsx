@@ -12,13 +12,13 @@ function WorkspaceListItemFeatures(props: WorkspaceListItemFeaturesProps) {
 
   return (
     <div className="flex gap-x-1">
-      {!!workspace.enableEditor && (
+      {!!workspace.features?.enableEditor && (
         <Lucide icon="AlignLeft" size={14} color="#d2d2d2" />
       )}
       {!!workspace.terminals?.length && (
         <Lucide icon="TerminalSquare" size={14} color="#d2d2d2" />
       )}
-      {workspace.enableDocker && (
+      {workspace.features?.enableDocker && (
         <Lucide icon="Container" size={14} color="#d2d2d2" />
       )}
       {!!workspace.browsers?.length && (

@@ -12,9 +12,11 @@ export default interface Workspace {
   editor?: string
   terminals?: Terminal[]
   browsers?: Browser[]
-  enableEditor?: boolean
-  enableDocker?: boolean
-  dockerOptions?: {
+  features?: {
+    enableEditor?: boolean
+    enableDocker?: boolean
+  }
+  docker?: {
     enableComposer?: boolean
     enableContainers?: boolean
     enableSail?: boolean
