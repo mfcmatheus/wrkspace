@@ -15,6 +15,7 @@ import { ModalEditWorkspacePages } from 'renderer/@enums/ModalEditWorkspacePages
 import WorkspaceFormSchema from 'renderer/@schemas/WorkspaceFormSchema'
 import Setting from 'renderer/@types/Setting'
 import DeleteButton from './DeleteButton'
+import moment from 'moment'
 
 interface ModalEditWorkspaceProps {
   workspace: Workspace
@@ -86,6 +87,7 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
   const onSubmit = useCallback(
     (data: Workspace) => {
       data.folder = settings.currentFolder
+      data.updated_at = moment().format('YYYY-MM-DD HH:mm:ss')
       return isEditing ? onSave && onSave(data) : onCreate && onCreate(data)
     },
     [isEditing, onSave, onCreate, settings]

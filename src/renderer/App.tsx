@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import 'tailwindcss/tailwind.css'
 import { ApolloProvider } from '@apollo/client'
 
@@ -6,6 +6,7 @@ import Routes from 'renderer/routes'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import client from 'renderer/graphql/client'
 import { UserProvider } from './contexts/UserContext'
+import { CloudSyncProvider } from './contexts/CloudSyncContext'
 
 export default function App() {
   const [token, setToken] = useState<string | null>(null)
@@ -32,7 +33,9 @@ export default function App() {
   return (
     <ApolloProvider client={client()}>
       <UserProvider token={token}>
-        <Routes />
+        <CloudSyncProvider>
+          <Routes />
+        </CloudSyncProvider>
       </UserProvider>
     </ApolloProvider>
   )

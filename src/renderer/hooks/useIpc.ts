@@ -24,10 +24,12 @@ export const useIpc = (
     const eventHandler = (event: any, rest: any) =>
       savedHandler.current && savedHandler.current(event, rest)
 
-    ipcRenderer.on(channel, eventHandler)
+    ipcRenderer.on(channel, (event, rest) => {
+      eventHandler(event, rest)
+    })
 
     return () => {
-      // ipcRenderer.removeListener(channel, eventHandler)
+      ipcRenderer.removeListener(channel, eventHandler)
     }
   }, [channel])
 }

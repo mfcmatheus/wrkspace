@@ -20,6 +20,7 @@ import Logo from 'renderer/base-components/Logo'
 import ShadowMain from 'renderer/base-components/ShadowMain'
 import LogsMain from 'renderer/components/LogsMain'
 import FolderBarAuth from 'renderer/components/FolderBarAuth'
+import CloudSyncIndicator from 'renderer/components/CloudSyncIndicator'
 
 function Dashboard() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
@@ -123,9 +124,13 @@ function Dashboard() {
   }, [workspaces, settings?.currentFolder]) as Workspace[]
 
   useEffect(() => {
-    ipcRenderer.sendMessage('workspaces.get')
     ipcRenderer.sendMessage('folders.get')
     ipcRenderer.sendMessage('settings.get')
+    ipcRenderer.sendMessage('workspaces.get')
+  }, [])
+
+  useIpc('workspaces.reload', (data: Workspace[]) => {
+    setWorkspaces(data)
   })
 
   useIpc('workspaces.get', (data: Workspace[]) => {
@@ -147,17 +152,14 @@ function Dashboard() {
         <div className="flex flex-col flex-1">
           {filteredWorkspaces?.length ? (
             <div className="flex flex-col flex-1 p-4 relative">
-              <div className="flex mb-4">
+              <div className="flex items-center mb-4">
                 <h2 className="text-medium text-[#f0f0f0] text-xl">{title}</h2>
-                <ButtonMain
-                  sm
-                  bordered
-                  secondary
-                  className="ml-auto"
-                  onClick={onClickCreate}
-                >
-                  Create Workspace
-                </ButtonMain>
+                <div className="flex items-center gap-x-3 ml-auto">
+                  <CloudSyncIndicator />
+                  <ButtonMain sm bordered secondary onClick={onClickCreate}>
+                    Create Workspace
+                  </ButtonMain>
+                </div>
               </div>
               <WorkspaceList>
                 {filteredWorkspaces.map((workspace) => (

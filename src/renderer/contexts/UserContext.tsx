@@ -1,6 +1,7 @@
 import React, {
   createContext,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useState,
@@ -12,11 +13,29 @@ import MeQuery from 'renderer/graphql/queries/MeQuery'
 import client from 'renderer/graphql/client'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 
-export const UserContext = createContext({})
-
 export interface props {
   children: React.ReactNode
   token?: string | null
+}
+
+export interface IUserContext {
+  user: User | null
+  token?: string | null
+  resetUser: () => void
+  gettingUser: boolean
+  hasCloudSync: boolean
+}
+
+export const UserContext = createContext<IUserContext>({} as IUserContext)
+
+export const useUser = () => {
+  const context = useContext<IUserContext>(UserContext)
+
+  if (!context) {
+    throw new Error('useUser must be used within a UserProvider')
+  }
+
+  return context
 }
 
 const apolloClient = client('/user')
@@ -42,14 +61,21 @@ export function UserProvider(props: props) {
     setGettingUser(false)
   }, [getUser])
 
+  const hasCloudSync = useMemo(() => {
+    if (!user) return false
+    return true // TODO
+    // return !!user.cloudSync
+  }, [user])
+
   const providerValue = useMemo(
     () => ({
       user,
       token,
       resetUser,
       gettingUser,
+      hasCloudSync,
     }),
-    [user, token, resetUser, gettingUser]
+    [user, token, resetUser, gettingUser, hasCloudSync]
   )
 
   useEffect(() => {
@@ -70,4 +96,4 @@ export function UserProvider(props: props) {
   )
 }
 
-export default { UserProvider, UserContext }
+export default { UserProvider, UserContext, useUser }

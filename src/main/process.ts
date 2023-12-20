@@ -240,6 +240,7 @@ export const onWorkspaceOpen = async (
   workspaces[index].loading = false
 
   store.set('workspaces', workspaces)
+  event.reply('workspaces.reload', workspaces)
 }
 
 export const onWorkspaceGet = async (event: IpcMainEvent) => {
@@ -259,6 +260,7 @@ export const onWorkspaceUpdate = async (
   store.set('workspaces', workspaces)
 
   event.reply('workspaces.update', workspaces)
+  event.reply('workspaces.reload', workspaces)
 }
 
 export const onWorkspaceDelete = async (
@@ -271,6 +273,7 @@ export const onWorkspaceDelete = async (
   store.set('workspaces', workspaces)
 
   event.reply('workspaces.delete', workspaces)
+  event.reply('workspaces.reload', workspaces)
 }
 
 export const onWorkspaceCreate = async (
@@ -286,6 +289,7 @@ export const onWorkspaceCreate = async (
   store.set('workspaces', workspaces)
 
   event.reply('workspaces.create', workspaces)
+  event.reply('workspaces.reload', workspaces)
 }
 
 export const onOpenDirectory = async (

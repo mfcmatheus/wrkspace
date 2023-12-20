@@ -1,12 +1,12 @@
-import React, { useCallback, useContext } from 'react'
+import React, { useCallback } from 'react'
 import { Tooltip } from 'react-tooltip'
 import LoadingIcon from 'renderer/base-components/LoadingIcon'
 import Lucide from 'renderer/base-components/lucide'
-import { UserContext } from 'renderer/contexts/UserContext'
+import { useUser } from 'renderer/contexts/UserContext'
 import { ipcRenderer } from 'renderer/hooks/useIpc'
 
 export default function FolderBarAuth() {
-  const { user, resetUser, gettingUser } = useContext(UserContext)
+  const { user, resetUser, gettingUser } = useUser()
 
   const onClickAccount = useCallback(() => {
     ipcRenderer.sendMessage('user.authenticate')
