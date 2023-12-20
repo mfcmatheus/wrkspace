@@ -283,8 +283,9 @@ export const onWorkspaceCreate = async (
   event: IpcMainEvent,
   workspace: Workspace
 ) => {
-  workspace.id = fakeId()
-  workspace.created_at = moment().format('YYYY-MM-DD HH:mm:ss')
+  workspace.id = workspace.id ?? fakeId()
+  workspace.created_at =
+    workspace.created_at ?? moment().format('YYYY-MM-DD HH:mm:ss')
 
   let workspaces = (store.get('workspaces') ?? []) as Workspace[]
   workspaces = [...workspaces, workspace]

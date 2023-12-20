@@ -12,6 +12,7 @@ import client from 'renderer/graphql/client'
 import WorkspacesIdsQuery from 'renderer/graphql/queries/WorkspacesIdsQuery'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import Workspace from 'renderer/@types/Workspace'
+import WorkspaceQuery from 'renderer/graphql/queries/WorkspaceQuery'
 import { useUser } from './UserContext'
 
 export interface props {
@@ -47,22 +48,29 @@ export function CloudSyncProvider(props: props) {
     client: apolloClient,
     fetchPolicy: 'no-cache',
   })
+  const [getWorkspace] = useLazyQuery(WorkspaceQuery, {
+    client: apolloClient,
+    fetchPolicy: 'no-cache',
+  })
 
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([])
-  const [newData, setNewData] = useState([])
+  const [workspaces, setWorkspaces] = useState<Workspace[] | null>(null)
+  const [newData, setNewData] = useState<object[] | null>(null)
   const [isSyncing, setIsSyncing] = useState(false)
 
-  const progress = useMemo(() => {
-    const value = 0
+  const [downloadProgress, setDownloadProgress] = useState<number>(0)
+  const [uploadProgress, setUploadProgress] = useState<number>(0)
 
-    return value
-  }, [])
+  const progress = useMemo(() => {
+    return ((newData ? 100 : 0) + downloadProgress + uploadProgress) / 3
+  }, [newData, downloadProgress, uploadProgress])
 
   const toDownload = useMemo(() => {
-    if (!workspaces.length || !newData.length) return []
+    if (!newData || !workspaces) return []
 
-    return newData.filter((item) => {
-      const relative = workspaces.find((workspace) => workspace.id === item.id)
+    return (newData ?? []).filter((item) => {
+      const relative = (workspaces ?? []).find(
+        (workspace) => workspace.id === item.id
+      )
 
       return relative
         ? moment(item.updated_at).isAfter(relative.updated_at ?? moment())
@@ -70,10 +78,12 @@ export function CloudSyncProvider(props: props) {
     })
   }, [workspaces, newData])
   const toUpload = useMemo(() => {
-    if (!workspaces.length || !newData.length) return []
+    if (!workspaces || !newData) return []
 
-    return workspaces.filter((item) => {
-      const relative = newData.find((workspace) => workspace.id === item.id)
+    return (workspaces ?? []).filter((item) => {
+      const relative = (newData ?? []).find(
+        (workspace) => workspace.id === item.id
+      )
 
       return relative
         ? moment(item.updated_at ?? moment()).isAfter(relative.updated_at)
@@ -93,8 +103,20 @@ export function CloudSyncProvider(props: props) {
     console.log('handleUpload')
   }, [])
   const handleDownload = useCallback(async () => {
-    console.log('handleDownload')
-  }, [])
+    const progressSlice = toDownload.length / 100
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const workspace of toDownload) {
+      const {
+        data: { Workspace: data },
+        // eslint-disable-next-line no-await-in-loop
+      } = await getWorkspace({ variables: { id: workspace.id } })
+
+      ipcRenderer.sendMessage('workspaces.create', data)
+
+      setDownloadProgress((prev) => prev + progressSlice)
+    }
+  }, [toDownload, getWorkspace])
 
   useEffect(() => {
     if (!hasCloudSync) return
@@ -102,11 +124,15 @@ export function CloudSyncProvider(props: props) {
   }, [hasCloudSync])
 
   useEffect(() => {
+    console.log('toDownload', toDownload)
+    console.log('toUpload', toUpload)
+
     if (toUpload.length) handleUpload()
     if (toDownload.length) handleDownload()
   }, [toDownload, toUpload, handleUpload, handleDownload])
 
   useIpc('workspaces.get', (data: Workspace[]) => {
+    if (!hasCloudSync) return
     setIsSyncing(true)
     setWorkspaces(data)
     getNewData()
