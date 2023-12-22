@@ -6,13 +6,14 @@ import React, {
   useMemo,
   useState,
 } from 'react'
-import { useLazyQuery } from '@apollo/client'
+import { useLazyQuery, useMutation } from '@apollo/client'
 import moment from 'moment'
 import client from 'renderer/graphql/client'
 import WorkspacesIdsQuery from 'renderer/graphql/queries/WorkspacesIdsQuery'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import Workspace from 'renderer/@types/Workspace'
 import WorkspaceQuery from 'renderer/graphql/queries/WorkspaceQuery'
+import WorkspaceMutation from 'renderer/graphql/mutations/WorkspaceMutation'
 import { useUser } from './UserContext'
 
 export interface props {
@@ -49,6 +50,11 @@ export function CloudSyncProvider(props: props) {
     fetchPolicy: 'no-cache',
   })
   const [getWorkspace] = useLazyQuery(WorkspaceQuery, {
+    client: apolloClient,
+    fetchPolicy: 'no-cache',
+  })
+
+  const [saveWorkspace] = useMutation(WorkspaceMutation, {
     client: apolloClient,
     fetchPolicy: 'no-cache',
   })
@@ -100,8 +106,32 @@ export function CloudSyncProvider(props: props) {
   }, [getWorkspacesIds])
 
   const handleUpload = useCallback(async () => {
-    console.log('handleUpload')
-  }, [])
+    const progressSlice = toUpload.length / 100
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const workspace of toUpload) {
+      const { created_at, updated_at, path, ...rest } = workspace
+
+      const {
+        data: { Workspace: newW },
+        // eslint-disable-next-line no-await-in-loop
+      } = await saveWorkspace({
+        variables: { workspace: { ...rest, id: `${rest.id}` } },
+      })
+
+      delete newW.__typename
+
+      // Update current workspace id
+      ipcRenderer.sendMessage('workspaces.delete', workspace)
+      ipcRenderer.sendMessage('workspaces.create', {
+        ...workspace,
+        ...newW,
+      })
+
+      setUploadProgress((prev) => prev + progressSlice)
+    }
+  }, [toUpload, saveWorkspace])
+
   const handleDownload = useCallback(async () => {
     const progressSlice = toDownload.length / 100
 
@@ -128,7 +158,7 @@ export function CloudSyncProvider(props: props) {
     console.log('toUpload', toUpload)
 
     if (toUpload.length) handleUpload()
-    if (toDownload.length) handleDownload()
+    // if (toDownload.length) handleDownload()
   }, [toDownload, toUpload, handleUpload, handleDownload])
 
   useIpc('workspaces.get', (data: Workspace[]) => {
