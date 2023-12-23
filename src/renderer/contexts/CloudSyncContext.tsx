@@ -23,6 +23,7 @@ export interface props {
 export interface ICloudSyncContext {
   isSyncing: boolean
   progress: number
+  workspaces: Workspace[]
 }
 
 export const CloudSyncContext = createContext<ICloudSyncContext>(
@@ -47,16 +48,13 @@ export function CloudSyncProvider(props: props) {
 
   const [getWorkspacesIds] = useLazyQuery(WorkspacesIdsQuery, {
     client: apolloClient,
-    fetchPolicy: 'no-cache',
   })
   const [getWorkspace] = useLazyQuery(WorkspaceQuery, {
     client: apolloClient,
-    fetchPolicy: 'no-cache',
   })
 
   const [saveWorkspace] = useMutation(WorkspaceMutation, {
     client: apolloClient,
-    fetchPolicy: 'no-cache',
   })
 
   const [workspaces, setWorkspaces] = useState<Workspace[] | null>(null)
@@ -172,8 +170,9 @@ export function CloudSyncProvider(props: props) {
     () => ({
       isSyncing,
       progress,
+      workspaces: toDownload as Workspace[],
     }),
-    [isSyncing, progress]
+    [isSyncing, progress, toDownload]
   )
 
   return (

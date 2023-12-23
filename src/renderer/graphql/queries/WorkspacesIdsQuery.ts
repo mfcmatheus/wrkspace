@@ -4,6 +4,7 @@ export default gql`
   query WorkspacesIds {
     Workspaces {
       id
+      name
       updated_at
     }
   }

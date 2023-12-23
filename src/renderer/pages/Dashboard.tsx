@@ -21,6 +21,7 @@ import ShadowMain from 'renderer/base-components/ShadowMain'
 import LogsMain from 'renderer/components/LogsMain'
 import FolderBarAuth from 'renderer/components/FolderBarAuth'
 import CloudSyncIndicator from 'renderer/components/CloudSyncIndicator'
+import { useCloudSync } from 'renderer/contexts/CloudSyncContext'
 
 function Dashboard() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
@@ -32,6 +33,8 @@ function Dashboard() {
   const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(
     {} as Workspace
   )
+
+  const { workspaces: toInstall } = useCloudSync()
 
   const onEditWorkspace = useCallback((workspace: Workspace) => {
     setSelectedWorkspace(workspace)
@@ -120,8 +123,12 @@ function Dashboard() {
       ['desc', 'desc', 'asc']
     )
 
+    if (toInstall?.length) {
+      data = data.concat(toInstall)
+    }
+
     return data
-  }, [workspaces, settings?.currentFolder]) as Workspace[]
+  }, [workspaces, settings?.currentFolder, toInstall]) as Workspace[]
 
   useEffect(() => {
     ipcRenderer.sendMessage('folders.get')

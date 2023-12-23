@@ -14,6 +14,7 @@ import { ipcRenderer } from 'renderer/hooks/useIpc'
 import Folder from 'renderer/@types/Folder'
 import ShadowMain from 'renderer/base-components/ShadowMain'
 import WorkspaceListItemContext from 'renderer/components/WorkspaceListItemContext'
+import Lucide from 'renderer/base-components/lucide'
 
 interface WorkspaceListItemProps {
   workspace: Workspace
@@ -59,14 +60,20 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
     () => moment(workspace.opened_at, 'YYYY-MM-DD HH:mm:ss'),
     [workspace]
   )
+
+  const isInstalled = useMemo(() => {
+    return !!workspace.path
+  }, [workspace])
+
   const classes = useMemo(
     () =>
       classNames({
         'flex flex-col group rounded border border-transparent p-3 transition ease-in-out duration-200':
           true,
         '!border-[#353535] hover:!border-primary': !workspace.favorite,
+        'bg-[#353535]/25': !isInstalled,
       }),
-    [workspace]
+    [workspace, isInstalled]
   )
 
   const renderDate = useCallback(() => {
@@ -101,6 +108,29 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
   const Element = useMemo(() => {
     return workspace.favorite ? ShadowMain : 'div'
   }, [workspace.favorite])
+
+  if (!isInstalled) {
+    return (
+      <Element
+        className="rounded"
+        shadowClassName="!rounded"
+        wrapperClassName="rounded"
+      >
+        <div className={classes}>
+          <div className="flex items-center h-[20px]" />
+          <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
+          <button type="button" className="flex mx-auto">
+            <Lucide
+              icon="DownloadCloud"
+              size={38}
+              color="#6f6f6f"
+              strokeWidth={1}
+            />
+          </button>
+        </div>
+      </Element>
+    )
+  }
 
   return (
     <>
