@@ -3,4 +3,5 @@ export enum ModalEditWorkspacePages {
   Terminal = 2,
   Docker = 3,
   Browser = 4,
+  Cloud = 5,
 }

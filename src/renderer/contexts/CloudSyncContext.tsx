@@ -155,7 +155,7 @@ export function CloudSyncProvider(props: props) {
     console.log('toDownload', toDownload)
     console.log('toUpload', toUpload)
 
-    if (toUpload.length) handleUpload()
+    // if (toUpload.length) handleUpload()
     // if (toDownload.length) handleDownload()
   }, [toDownload, toUpload, handleUpload, handleDownload])
 

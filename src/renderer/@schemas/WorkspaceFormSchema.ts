@@ -29,6 +29,22 @@ export const FeaturesSchema = Yup.object().shape({
   enableDocker: Yup.boolean().nullable(),
 })
 
+export const InstallationEnvVarSchema = Yup.object().shape({
+  id: Yup.string().required(),
+  key: Yup.string().required(),
+  value: Yup.string().required(),
+})
+
+export const InstallationCommandSchema = Yup.object().shape({
+  id: Yup.string().required(),
+  command: Yup.string().required(),
+})
+
+export const InstallationSchema = Yup.object().shape({
+  commands: Yup.array().of(InstallationCommandSchema).nullable(),
+  variables: Yup.array().of(InstallationEnvVarSchema).nullable(),
+})
+
 export default Yup.object({
   name: Yup.string().required(),
   path: Yup.string().required(),
@@ -37,4 +53,15 @@ export default Yup.object({
   terminals: Yup.array().of(TerminalSchema).nullable(),
   browsers: Yup.array().of(BrowserSchema).nullable(),
   features: FeaturesSchema,
+  installation: InstallationSchema,
+  repo: Yup.string()
+    .nullable()
+    .test(
+      'is-valid-url',
+      'Invalid URL format',
+      (value: string | null | undefined) => {
+        if (!value) return false
+        return validURL(value)
+      }
+    ),
 })

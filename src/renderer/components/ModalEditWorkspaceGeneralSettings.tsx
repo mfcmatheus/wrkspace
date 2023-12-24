@@ -53,6 +53,7 @@ function ModalEditWorkspaceGeneralSettings() {
               id="path"
               placeholder="Workspace path"
               containerClasses="!rounded-r-none"
+              readOnly
             />
             <ButtonMain
               secondary

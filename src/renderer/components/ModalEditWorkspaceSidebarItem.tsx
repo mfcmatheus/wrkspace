@@ -22,12 +22,12 @@ function ModalEditWorkspaceSidebarItem(
   const classes = useMemo(
     () =>
       classNames({
-        'flex items-center py-2 px-3 font-thin text-white divide-y divide-[#353535]':
-          true,
+        'flex items-center py-2 px-3 font-thin text-white': true,
         'bg-gradient-to-r from-primary to-secondary font-normal': current,
         'cursor-pointer': !current,
+        'border-t border-[#353535]': page === ModalEditWorkspacePages.Browser,
       }),
-    [current]
+    [current, page]
   )
 
   return (
