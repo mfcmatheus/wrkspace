@@ -296,6 +296,26 @@ export const onWorkspaceCreate = async (
   event.reply('workspaces.reload', workspaces)
 }
 
+export const onWorkspaceUninstall = async (
+  event: IpcMainEvent,
+  workspace: Workspace
+) => {
+  if (!workspace.repo || !workspace.path) return
+
+  await fs.rmSync(workspace.path, { recursive: true, force: true })
+
+  const workspaces = store.get('workspaces') as Workspace[]
+  const index = workspaces.findIndex(
+    (target: Workspace) => target.id === workspace.id
+  )
+
+  workspaces[index].path = null
+  store.set('workspaces', workspaces)
+
+  event.reply('workspaces.uninstall', workspaces)
+  event.reply('workspaces.reload', workspaces)
+}
+
 export const onOpenDirectory = async (
   mainWindow: BrowserWindow,
   event: IpcMainEvent
@@ -402,6 +422,7 @@ export default {
   onWorkspaceUpdate,
   onWorkspaceDelete,
   onWorkspaceCreate,
+  onWorkspaceUninstall,
   onOpenDirectory,
   onContainersGet,
   onServicesDocker,

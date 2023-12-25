@@ -2,6 +2,7 @@ import React from 'react'
 
 import Workspace from 'renderer/@types/Workspace'
 import Lucide from 'renderer/base-components/lucide'
+import useWorkspace from 'renderer/hooks/useWorkspace'
 
 interface WorkspaceListItemFeaturesProps {
   workspace: Workspace
@@ -10,8 +11,10 @@ interface WorkspaceListItemFeaturesProps {
 function WorkspaceListItemFeatures(props: WorkspaceListItemFeaturesProps) {
   const { workspace } = props
 
+  const { hasSyncEnabled } = useWorkspace(workspace)
+
   return (
-    <div className="flex gap-x-1">
+    <div className="flex flex-1 gap-x-1">
       {!!workspace.features?.enableEditor && (
         <Lucide icon="AlignLeft" size={14} color="#d2d2d2" />
       )}
@@ -23,6 +26,9 @@ function WorkspaceListItemFeatures(props: WorkspaceListItemFeaturesProps) {
       )}
       {!!workspace.browsers?.length && (
         <Lucide icon="Globe" size={14} color="#d2d2d2" />
+      )}
+      {!!hasSyncEnabled && (
+        <Lucide icon="Cloud" className="ml-auto" size={14} color="#d2d2d2" />
       )}
     </div>
   )

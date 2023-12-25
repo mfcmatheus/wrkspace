@@ -37,6 +37,7 @@ import {
   onWorkspaceOpen,
   onWorkspaceUpdate,
   onUserLogout,
+  onWorkspaceUninstall,
 } from './process'
 
 const store = new Store()
@@ -68,6 +69,7 @@ ipcMain.on('workspaces.get', onWorkspaceGet)
 ipcMain.on('workspaces.create', onWorkspaceCreate)
 ipcMain.on('workspaces.update', onWorkspaceUpdate)
 ipcMain.on('workspaces.delete', onWorkspaceDelete)
+ipcMain.on('workspaces.uninstall', onWorkspaceUninstall)
 ipcMain.on('services.docker', onServicesDocker)
 ipcMain.on('folders.get', onFoldersGet)
 ipcMain.on('folders.create', onFoldersCreate)

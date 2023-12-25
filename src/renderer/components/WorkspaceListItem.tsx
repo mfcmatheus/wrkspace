@@ -6,7 +6,6 @@ import classNames from 'classnames'
 import WorkspaceListItemName from 'renderer/components/WorkspaceListItemName'
 import WorkspaceListItemLastOpened from 'renderer/components/WorkspaceListItemLastOpened'
 import WorkspaceListItemLaunch from 'renderer/components/WorkspaceListItemLaunch'
-import WorkspaceListItemEdit from 'renderer/components/WorkspaceListItemEdit'
 import WorkspaceListItemFeatures from 'renderer/components/WorkspaceListItemFeatures'
 
 import Workspace from 'renderer/@types/Workspace'
@@ -55,6 +54,10 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
     },
     [onSetFolder]
   )
+
+  const onClickUninstall = useCallback(() => {
+    ipcRenderer.sendMessage('workspaces.uninstall', workspace)
+  }, [workspace])
 
   const lastOpened = useMemo(
     () => moment(workspace.opened_at, 'YYYY-MM-DD HH:mm:ss'),
@@ -142,7 +145,6 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
         <div onContextMenu={handleContextMenu} className={classes}>
           <div className="flex items-center h-[20px]">
             <WorkspaceListItemFeatures workspace={workspace} />
-            {/* <WorkspaceListItemEdit onClick={onClickEdit} /> */}
           </div>
           <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
           <WorkspaceListItemLastOpened>
@@ -159,6 +161,7 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
         onLaunch={onLaunch}
         onFavorite={onClickFavorite}
         onSetFolder={onClickSetFolder}
+        onUninstall={onClickUninstall}
       />
     </>
   )

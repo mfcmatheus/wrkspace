@@ -14,6 +14,7 @@ interface WorkspaceListItemContextProps {
   onLaunch?: (workspace: Workspace) => void
   onFavorite?: (workspace: Workspace) => void
   onSetFolder?: (workspace: Workspace, folder: Folder | undefined) => void
+  onUninstall?: (workspace: Workspace) => void
 }
 
 const defaultProps = {
@@ -21,11 +22,20 @@ const defaultProps = {
   onLaunch: null,
   onFavorite: null,
   onSetFolder: null,
+  onUninstall: null,
 }
 
 function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
-  const { id, workspace, folders, onEdit, onLaunch, onFavorite, onSetFolder } =
-    props
+  const {
+    id,
+    workspace,
+    folders,
+    onEdit,
+    onLaunch,
+    onFavorite,
+    onSetFolder,
+    onUninstall,
+  } = props
 
   const styles: React.CSSProperties = useMemo(
     () => ({
@@ -65,6 +75,10 @@ function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
     [workspace, onSetFolder]
   )
 
+  const onClickUninstall = useCallback(() => {
+    return onUninstall?.(workspace)
+  }, [workspace, onUninstall])
+
   const matchShortcutEdit = useCallback(
     (e: KeyboardEvent) => e.metaKey && e.key === 'e',
     []
@@ -101,6 +115,13 @@ function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
       <Separator />
       <Item id="edit" onClick={onClickEdit} keyMatcher={matchShortcutEdit}>
         Edit <RightSlot>⌘E</RightSlot>
+      </Item>
+      <Item
+        id="uninstall"
+        onClick={onClickUninstall}
+        className="bg-red-700 rounded"
+      >
+        Uninstall
       </Item>
     </Menu>
   )
