@@ -1,4 +1,5 @@
 import fs from 'fs'
+import { spawn } from 'child_process'
 import { IpcMainEvent, BrowserWindow, dialog } from 'electron'
 import Store from 'electron-store'
 import moment from 'moment'
@@ -10,7 +11,9 @@ import Folder from 'renderer/@types/Folder'
 import Setting from 'renderer/@types/Setting'
 import Browser from 'renderer/@types/Browser'
 import User from 'renderer/@types/User'
-import { fakeId, runScript } from './util'
+import EnvVar from 'renderer/@types/EnvVar'
+import Command from 'renderer/@types/Command'
+import { fakeId, runScript, resolveString } from './util'
 
 const store = new Store()
 
@@ -316,6 +319,206 @@ export const onWorkspaceUninstall = async (
   event.reply('workspaces.reload', workspaces)
 }
 
+const workspaceExists = (workspace: Workspace): boolean => {
+  const workspaces = (store.get('workspaces') ?? []) as Workspace[]
+  return !!workspaces.find((target: Workspace) => target.id === workspace.id)
+}
+
+const cloneProject = async (
+  event: IpcMainEvent,
+  workspace: Workspace
+): Promise<any> =>
+  new Promise((resolve, reject) => {
+    const gitPath = runScript(`which git`, [''], () => ({}))
+
+    gitPath.stdout.on('data', (path) => {
+      event.reply('workspaces.open.status', {
+        workspace,
+        message: `Git located at ${path.toString()}`,
+      })
+
+      // TODO: Default path
+      const gitClone = runScript(
+        `cd /Users/trusty/Desktop/personal && ${path
+          .toString()
+          .trim()} clone --depth=1 ${workspace.repo} ${resolveString(
+          workspace.name.toLowerCase()
+        )}`,
+        [''],
+        () => ({})
+      )
+
+      gitClone.stdout.on('data', (data) => {
+        event.reply('workspaces.open.status', {
+          workspace,
+          message: data.toString(),
+        })
+      })
+
+      gitClone.stderr.on('data', (data) => {
+        event.reply('workspaces.open.status', {
+          workspace,
+          message: data.toString(),
+        })
+      })
+
+      gitClone.on('error', (data) => {
+        event.reply('workspaces.open.status', {
+          workspace,
+          message: data.toString(),
+        })
+
+        reject(data)
+      })
+
+      gitClone.on('close', async () => {
+        event.reply('workspaces.open.status', {
+          workspace,
+          message: 'Cloned successfully',
+        })
+
+        // TODO: Default path
+        workspace.path = `/Users/trusty/Desktop/personal/${resolveString(
+          workspace.name.toLowerCase()
+        )}`
+
+        workspaceExists(workspace)
+          ? await onWorkspaceUpdate(event, workspace)
+          : await onWorkspaceCreate(event, workspace)
+
+        resolve(true)
+      })
+    })
+  })
+
+const createEnvFile = async (
+  event: IpcMainEvent,
+  workspace: Workspace
+): Promise<any> =>
+  new Promise((resolve, reject) => {
+    if (!workspace.installation?.variables?.length) return
+
+    const envFile = `${workspace.path}/.env`
+    const envExample = `${workspace.path}/.env.example`
+
+    if (fs.existsSync(envFile)) return
+
+    if (fs.existsSync(envExample)) {
+      const data = fs
+        .readFileSync(envExample, 'utf8')
+        .split('\n')
+        .reduce((accumulator: string, line: string) => {
+          const variable = workspace.installation?.variables?.find(
+            (target: EnvVar) => target.key === line.split('=')[0]
+          )
+
+          if (variable) {
+            accumulator += `${variable.key}=${variable.value}\n`
+          } else {
+            accumulator += `${line}\n`
+          }
+
+          return accumulator
+        })
+
+      fs.writeFileSync(envFile, data)
+
+      event.reply('workspaces.open.status', {
+        workspace,
+        message: `Updated ${envFile}`,
+      })
+    } else {
+      const data = workspace.installation?.variables.reduce(
+        (accumulator: string, variable: EnvVar) => {
+          accumulator += `${variable.key}=${variable.value}\n`
+          return accumulator
+        },
+        ''
+      )
+
+      fs.writeFileSync(envFile, data)
+
+      event.reply('workspaces.open.status', {
+        workspace,
+        message: `Created ${envFile}`,
+      })
+    }
+
+    resolve(true)
+  })
+
+export const runCommand = async (
+  event: IpcMainEvent,
+  workspace: Workspace,
+  command: Command
+): Promise<any> =>
+  new Promise((resolve, reject) => {
+    if (!workspace.path) return
+
+    event.reply('workspaces.open.status', {
+      workspace,
+      message: `Running command ${command.command} ...`,
+    })
+
+    const escapedPath = workspace.path.replace("'", "'\\''")
+    const escapedCommand = command.command.replace(/(["\\$`])/g, '\\$1')
+
+    // TODO: Find a way to output logs directly on application
+    const osascriptCommand = `
+      osascript -e 'tell app "Terminal" to do script "cd ${escapedPath} && ${escapedCommand}"' \
+      -e 'tell application "Terminal" to set myWin to window 1' \
+      -e 'tell application "Terminal" to repeat' \
+      -e 'delay 1' \
+      -e 'if not busy of myWin then exit repeat' \
+      -e 'end repeat' \
+      -e 'close myWin'`
+
+    const process = spawn(osascriptCommand, [], {
+      shell: true,
+    })
+
+    process.on('close', () => {
+      event.reply('workspaces.open.status', { workspace, message: 'Finished' })
+      resolve(true)
+    })
+
+    process.on('error', reject)
+  })
+
+export const runCommands = async (
+  event: IpcMainEvent,
+  workspace: Workspace
+): Promise<any> =>
+  new Promise(async (resolve, reject) => {
+    if (!workspace.installation?.commands?.length) return
+
+    event.reply('workspaces.open.status', {
+      workspace,
+      message: 'Running commands ...',
+    })
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const command of workspace.installation?.commands ?? []) {
+      // eslint-disable-next-line no-await-in-loop
+      await runCommand(event, workspace, command).catch(reject)
+    }
+
+    event.reply('workspaces.open.status', { workspace, message: 'Success' })
+
+    resolve(true)
+  })
+
+export const onWorkspaceInstall = async (
+  event: IpcMainEvent,
+  workspace: Workspace
+) => {
+  event.reply('workspaces.open.status', { workspace, message: false })
+
+  await cloneProject(event, workspace)
+  await createEnvFile(event, workspace)
+  await runCommands(event, workspace)
+}
+
 export const onOpenDirectory = async (
   mainWindow: BrowserWindow,
   event: IpcMainEvent
@@ -423,6 +626,7 @@ export default {
   onWorkspaceDelete,
   onWorkspaceCreate,
   onWorkspaceUninstall,
+  onWorkspaceInstall,
   onOpenDirectory,
   onContainersGet,
   onServicesDocker,

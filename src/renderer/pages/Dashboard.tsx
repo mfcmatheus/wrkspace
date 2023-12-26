@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import _ from 'lodash'
 
 import moment from 'moment'
+import { useLazyQuery } from '@apollo/client'
 import TopBar from 'renderer/components/TopBar'
 import WorkspaceList from 'renderer/components/WorkspaceList'
 import ModalEditWorkspace from 'renderer/components/ModalEditWorkspace'
@@ -22,6 +23,10 @@ import LogsMain from 'renderer/components/LogsMain'
 import FolderBarAuth from 'renderer/components/FolderBarAuth'
 import CloudSyncIndicator from 'renderer/components/CloudSyncIndicator'
 import { useCloudSync } from 'renderer/contexts/CloudSyncContext'
+import client from 'renderer/graphql/client'
+import WorkspaceQuery from 'renderer/graphql/queries/WorkspaceQuery'
+
+const apolloClient = client('/user')
 
 function Dashboard() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
@@ -35,6 +40,10 @@ function Dashboard() {
   )
 
   const { workspaces: toInstall } = useCloudSync()
+
+  const [getWorkspace] = useLazyQuery(WorkspaceQuery, {
+    client: apolloClient,
+  })
 
   const onEditWorkspace = useCallback((workspace: Workspace) => {
     setSelectedWorkspace(workspace)
@@ -60,6 +69,16 @@ function Dashboard() {
     ipcRenderer.sendMessage('workspaces.create', workspace)
     setIsModalEditOpen(false)
   }, [])
+
+  const onInstall = useCallback(
+    async (workspace: Workspace) => {
+      const { data } = await getWorkspace({ variables: { id: workspace.id } })
+      const { __typename, ...newData } = data.Workspace
+
+      ipcRenderer.sendMessage('workspaces.install', newData)
+    },
+    [getWorkspace]
+  )
 
   const onFavorite = useCallback(
     (workspace: Workspace) => {
@@ -124,7 +143,7 @@ function Dashboard() {
     )
 
     if (toInstall?.length) {
-      data = data.concat(toInstall)
+      data = data.concat(_.orderBy(toInstall, ['name'], ['asc']))
     }
 
     return data
@@ -177,6 +196,7 @@ function Dashboard() {
                     onEdit={onEditWorkspace}
                     onFavorite={onFavorite}
                     onSetFolder={onSetFolder}
+                    onInstall={onInstall}
                   />
                 ))}
               </WorkspaceList>

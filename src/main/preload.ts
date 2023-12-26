@@ -9,6 +9,7 @@ export type Channels =
   | 'workspaces.create'
   | 'workspaces.open'
   | 'workspaces.uninstall'
+  | 'workspaces.install'
   | 'dialog:openDirectory'
   | 'containers.get'
   | 'services.docker'

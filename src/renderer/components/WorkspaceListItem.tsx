@@ -21,16 +21,19 @@ interface WorkspaceListItemProps {
   onEdit?: (workspace: Workspace) => void
   onFavorite?: (workspace: Workspace) => void
   onSetFolder?: (workspace: Workspace, folder: Folder | undefined) => void
+  onInstall?: (workspace: Workspace) => void
 }
 
 const defaultProps = {
   onEdit: null,
   onFavorite: null,
   onSetFolder: null,
+  onInstall: null,
 }
 
 function WorkspaceListItem(props: WorkspaceListItemProps) {
-  const { workspace, folders, onEdit, onFavorite, onSetFolder } = props
+  const { workspace, folders, onEdit, onFavorite, onSetFolder, onInstall } =
+    props
 
   const { show: showContextMenu } = useContextMenu({
     id: workspace.id,
@@ -41,16 +44,16 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
   }, [workspace])
 
   const onClickEdit = useCallback(() => {
-    return onEdit && onEdit(workspace)
+    return onEdit?.(workspace)
   }, [workspace, onEdit])
 
   const onClickFavorite = useCallback(() => {
-    return onFavorite && onFavorite(workspace)
+    return onFavorite?.(workspace)
   }, [workspace, onFavorite])
 
   const onClickSetFolder = useCallback(
     (workspaceParam: Workspace, folder: Folder | undefined) => {
-      return onSetFolder && onSetFolder(workspaceParam, folder)
+      return onSetFolder?.(workspaceParam, folder)
     },
     [onSetFolder]
   )
@@ -58,6 +61,10 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
   const onClickUninstall = useCallback(() => {
     ipcRenderer.sendMessage('workspaces.uninstall', workspace)
   }, [workspace])
+
+  const onClickInstall = useCallback(() => {
+    return onInstall?.(workspace)
+  }, [workspace, onInstall])
 
   const lastOpened = useMemo(
     () => moment(workspace.opened_at, 'YYYY-MM-DD HH:mm:ss'),
@@ -122,7 +129,11 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
         <div className={classes}>
           <div className="flex items-center h-[20px]" />
           <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
-          <button type="button" className="flex mx-auto">
+          <button
+            type="button"
+            className="flex mx-auto"
+            onClick={onClickInstall}
+          >
             <Lucide
               icon="DownloadCloud"
               size={38}

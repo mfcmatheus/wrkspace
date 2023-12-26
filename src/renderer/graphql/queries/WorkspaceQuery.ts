@@ -5,6 +5,7 @@ export default gql`
     Workspace(id: $id) {
       id
       name
+      repo
       editor
       favorite
       folder {
@@ -27,6 +28,17 @@ export default gql`
       terminals {
         id
         command
+      }
+      installation {
+        variables {
+          id
+          key
+          value
+        }
+        commands {
+          id
+          command
+        }
       }
       created_at
       updated_at
