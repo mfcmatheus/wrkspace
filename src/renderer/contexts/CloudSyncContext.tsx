@@ -159,11 +159,14 @@ export function CloudSyncProvider(props: props) {
     // if (toDownload.length) handleDownload()
   }, [toDownload, toUpload, handleUpload, handleDownload])
 
-  useIpc('workspaces.get', (data: Workspace[]) => {
+  useIpc('workspaces.get', async (data: Workspace[]) => {
     if (!hasCloudSync) return
     setIsSyncing(true)
+
     setWorkspaces(data)
-    getNewData()
+    await getNewData()
+
+    setIsSyncing(false)
   })
 
   const providerValue = useMemo(

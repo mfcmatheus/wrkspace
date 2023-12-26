@@ -1,15 +1,22 @@
 import React from 'react'
 import { Tooltip } from 'react-tooltip'
+import LoadingIcon from 'renderer/base-components/LoadingIcon'
 
 import Lucide from 'renderer/base-components/lucide'
+import { useCloudSync } from 'renderer/contexts/CloudSyncContext'
 import { useUser } from 'renderer/contexts/UserContext'
 import useNetwork from 'renderer/hooks/useNetwork'
 
 function CloudSyncIndicator() {
   const { isOnline } = useNetwork()
-  const { hasCloudSync } = useUser()
+  const { hasCloudSync, gettingUser } = useUser()
+  const { isSyncing } = useCloudSync()
 
-  if (!hasCloudSync) return null
+  if (!hasCloudSync || gettingUser) return null
+
+  if (isSyncing) {
+    return <LoadingIcon icon="oval" color="#f0f0f0" />
+  }
 
   if (!isOnline)
     return (
