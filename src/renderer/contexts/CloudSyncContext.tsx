@@ -24,6 +24,7 @@ export interface ICloudSyncContext {
   isSyncing: boolean
   progress: number
   workspaces: Workspace[]
+  setLoading: (workspace: Workspace) => void
 }
 
 export const CloudSyncContext = createContext<ICloudSyncContext>(
@@ -146,6 +147,20 @@ export function CloudSyncProvider(props: props) {
     }
   }, [toDownload, getWorkspace])
 
+  const setLoading = useCallback(
+    (workspace: Workspace) => {
+      const index = (newData ?? []).findIndex(
+        (item) => item.id === workspace.id
+      )
+
+      const newDataCopy = [...(newData ?? [])]
+      newDataCopy[index] = { ...workspace, loading: true }
+
+      setNewData(newDataCopy)
+    },
+    [newData]
+  )
+
   useEffect(() => {
     if (!hasCloudSync) return
     ipcRenderer.sendMessage('workspaces.get')
@@ -169,13 +184,23 @@ export function CloudSyncProvider(props: props) {
     setIsSyncing(false)
   })
 
+  useIpc('workspaces.cloud.reload', async (data: Workspace[]) => {
+    setIsSyncing(true)
+
+    setWorkspaces(data)
+    await getNewData()
+
+    setIsSyncing(false)
+  })
+
   const providerValue = useMemo(
     () => ({
       isSyncing,
       progress,
       workspaces: toDownload as Workspace[],
+      setLoading,
     }),
-    [isSyncing, progress, toDownload]
+    [isSyncing, progress, toDownload, setLoading]
   )
 
   return (

@@ -14,6 +14,7 @@ import Folder from 'renderer/@types/Folder'
 import ShadowMain from 'renderer/base-components/ShadowMain'
 import WorkspaceListItemContext from 'renderer/components/WorkspaceListItemContext'
 import Lucide from 'renderer/base-components/lucide'
+import LoadingIcon from 'renderer/base-components/LoadingIcon'
 
 interface WorkspaceListItemProps {
   workspace: Workspace
@@ -129,18 +130,26 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
         <div className={classes}>
           <div className="flex items-center h-[20px]" />
           <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
-          <button
-            type="button"
-            className="flex mx-auto"
-            onClick={onClickInstall}
-          >
-            <Lucide
-              icon="DownloadCloud"
-              size={38}
-              color="#6f6f6f"
-              strokeWidth={1}
+          {workspace.loading ? (
+            <LoadingIcon
+              icon="oval"
+              className="w-[2.4rem] mx-auto"
+              color="#f0f0f0"
             />
-          </button>
+          ) : (
+            <button
+              type="button"
+              className="flex mx-auto"
+              onClick={onClickInstall}
+            >
+              <Lucide
+                icon="DownloadCloud"
+                size={38}
+                color="#6f6f6f"
+                strokeWidth={1}
+              />
+            </button>
+          )}
         </div>
       </Element>
     )

@@ -39,7 +39,8 @@ function Dashboard() {
     {} as Workspace
   )
 
-  const { workspaces: toInstall } = useCloudSync()
+  const { workspaces: toInstall, setLoading: setLoadingPreview } =
+    useCloudSync()
 
   const [getWorkspace] = useLazyQuery(WorkspaceQuery, {
     client: apolloClient,
@@ -72,12 +73,14 @@ function Dashboard() {
 
   const onInstall = useCallback(
     async (workspace: Workspace) => {
+      setLoadingPreview(workspace)
+
       const { data } = await getWorkspace({ variables: { id: workspace.id } })
       const { __typename, ...newData } = data.Workspace
 
       ipcRenderer.sendMessage('workspaces.install', newData)
     },
-    [getWorkspace]
+    [getWorkspace, setLoadingPreview]
   )
 
   const onFavorite = useCallback(
@@ -190,7 +193,9 @@ function Dashboard() {
               <WorkspaceList>
                 {filteredWorkspaces.map((workspace) => (
                   <WorkspaceListItem
-                    key={workspace.id}
+                    key={
+                      workspace.path ? workspace.id : `${workspace.id}-preview`
+                    }
                     workspace={workspace}
                     folders={folders}
                     onEdit={onEditWorkspace}

@@ -305,18 +305,15 @@ export const onWorkspaceUninstall = async (
 ) => {
   if (!workspace.repo || !workspace.path) return
 
-  await fs.rmSync(workspace.path, { recursive: true, force: true })
+  fs.rmSync(workspace.path, { recursive: true, force: true })
 
-  const workspaces = store.get('workspaces') as Workspace[]
-  const index = workspaces.findIndex(
-    (target: Workspace) => target.id === workspace.id
-  )
+  onWorkspaceDelete(event, workspace)
 
-  workspaces[index].path = null
-  store.set('workspaces', workspaces)
+  const workspaces = (store.get('workspaces') ?? []) as Workspace[]
 
   event.reply('workspaces.uninstall', workspaces)
   event.reply('workspaces.reload', workspaces)
+  event.reply('workspaces.cloud.reload', workspaces)
 }
 
 const workspaceExists = (workspace: Workspace): boolean => {
@@ -517,6 +514,9 @@ export const onWorkspaceInstall = async (
   await cloneProject(event, workspace)
   await createEnvFile(event, workspace)
   await runCommands(event, workspace)
+
+  const workspaces = (store.get('workspaces') ?? []) as Workspace[]
+  event.reply('workspaces.cloud.reload', workspaces)
 }
 
 export const onOpenDirectory = async (
