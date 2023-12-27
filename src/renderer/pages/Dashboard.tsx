@@ -76,23 +76,30 @@ function Dashboard() {
       setLoadingPreview(workspace)
 
       const { data } = await getWorkspace({ variables: { id: workspace.id } })
-      const { __typename, ...newData } = data.Workspace
 
-      ipcRenderer.sendMessage('workspaces.install', newData)
+      ipcRenderer.sendMessage('workspaces.install', data.Workspace)
     },
     [getWorkspace, setLoadingPreview]
   )
 
   const onFavorite = useCallback(
     (workspace: Workspace) => {
-      return onSave({ ...workspace, favorite: !workspace.favorite })
+      return onSave({
+        ...workspace,
+        favorite: !workspace.favorite,
+        updated_at: moment().format('YYYY-MM-DD HH:mm:ss'),
+      })
     },
     [onSave]
   )
 
   const onSetFolder = useCallback(
     (workspace: Workspace, folder: Folder | undefined) => {
-      return onSave({ ...workspace, folder })
+      return onSave({
+        ...workspace,
+        folder,
+        updated_at: moment().format('YYYY-MM-DD HH:mm:ss'),
+      })
     },
     [onSave]
   )

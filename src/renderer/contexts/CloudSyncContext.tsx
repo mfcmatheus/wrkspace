@@ -15,6 +15,7 @@ import Workspace from 'renderer/@types/Workspace'
 import WorkspaceQuery from 'renderer/graphql/queries/WorkspaceQuery'
 import WorkspaceMutation from 'renderer/graphql/mutations/WorkspaceMutation'
 import { useUser } from './UserContext'
+import { useToast } from './ToastContext'
 
 export interface props {
   children: React.ReactNode
@@ -44,6 +45,7 @@ export const useCloudSync = () => {
 export function CloudSyncProvider(props: props) {
   const { children } = props
   const { hasCloudSync } = useUser()
+  const { showError } = useToast()
 
   const apolloClient = useMemo(() => client('/user'), [])
 
@@ -104,48 +106,55 @@ export function CloudSyncProvider(props: props) {
     setNewData(data)
   }, [getWorkspacesIds])
 
+  const normalizeWorkspace = useCallback((workspace: Workspace) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { created_at, updated_at, path, ...rest } = workspace
+
+    return {
+      ...rest,
+      id: `${rest.id}`,
+      folder: rest.folder ? { ...rest.folder, id: `${rest.folder.id}` } : null,
+      installation: {
+        ...rest.installation,
+        variables: rest.installation?.variables?.map((t) => ({
+          ...t,
+          id: `${t.id}`,
+        })),
+        commands: rest.installation?.commands?.map((t) => ({
+          ...t,
+          id: `${t.id}`,
+        })),
+      },
+    } as Workspace
+  }, [])
+
   const handleUpload = useCallback(async () => {
     const progressSlice = toUpload.length / 100
 
     // eslint-disable-next-line no-restricted-syntax
     for (const workspace of toUpload) {
-      const { created_at, updated_at, path, ...rest } = workspace
+      try {
+        const {
+          data: { Workspace: newW },
+          // eslint-disable-next-line no-await-in-loop
+        } = await saveWorkspace({
+          variables: { workspace: normalizeWorkspace(workspace) },
+        })
 
-      const {
-        data: { Workspace: newW },
-        // eslint-disable-next-line no-await-in-loop
-      } = await saveWorkspace({
-        variables: { workspace: { ...rest, id: `${rest.id}` } },
-      })
+        // Update current workspace id
+        ipcRenderer.sendMessage('workspaces.delete', workspace)
+        ipcRenderer.sendMessage('workspaces.create', {
+          ...workspace,
+          ...newW,
+        })
 
-      delete newW.__typename
-
-      // Update current workspace id
-      ipcRenderer.sendMessage('workspaces.delete', workspace)
-      ipcRenderer.sendMessage('workspaces.create', {
-        ...workspace,
-        ...newW,
-      })
-
-      setUploadProgress((prev) => prev + progressSlice)
+        setUploadProgress((prev) => prev + progressSlice)
+      } catch (error) {
+        console.error(error)
+        showError('Error while uploading workspaces')
+      }
     }
-  }, [toUpload, saveWorkspace])
-
-  const handleDownload = useCallback(async () => {
-    const progressSlice = toDownload.length / 100
-
-    // eslint-disable-next-line no-restricted-syntax
-    for (const workspace of toDownload) {
-      const {
-        data: { Workspace: data },
-        // eslint-disable-next-line no-await-in-loop
-      } = await getWorkspace({ variables: { id: workspace.id } })
-
-      ipcRenderer.sendMessage('workspaces.create', data)
-
-      setDownloadProgress((prev) => prev + progressSlice)
-    }
-  }, [toDownload, getWorkspace])
+  }, [toUpload, saveWorkspace, showError, normalizeWorkspace])
 
   const setLoading = useCallback(
     (workspace: Workspace) => {
@@ -167,12 +176,8 @@ export function CloudSyncProvider(props: props) {
   }, [hasCloudSync])
 
   useEffect(() => {
-    console.log('toDownload', toDownload)
-    console.log('toUpload', toUpload)
-
     if (toUpload.length) handleUpload()
-    // if (toDownload.length) handleDownload()
-  }, [toDownload, toUpload, handleUpload, handleDownload])
+  }, [toUpload, handleUpload])
 
   useIpc('workspaces.get', async (data: Workspace[]) => {
     if (!hasCloudSync) return

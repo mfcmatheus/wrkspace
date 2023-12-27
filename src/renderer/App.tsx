@@ -7,6 +7,7 @@ import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import client from 'renderer/graphql/client'
 import { UserProvider } from './contexts/UserContext'
 import { CloudSyncProvider } from './contexts/CloudSyncContext'
+import { ToastProvider } from './contexts/ToastContext'
 
 export default function App() {
   const [token, setToken] = useState<string | null>(null)
@@ -33,9 +34,11 @@ export default function App() {
   return (
     <ApolloProvider client={client()}>
       <UserProvider token={token}>
-        <CloudSyncProvider>
-          <Routes />
-        </CloudSyncProvider>
+        <ToastProvider>
+          <CloudSyncProvider>
+            <Routes />
+          </CloudSyncProvider>
+        </ToastProvider>
       </UserProvider>
     </ApolloProvider>
   )
