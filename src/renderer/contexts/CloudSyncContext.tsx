@@ -12,7 +12,6 @@ import client from 'renderer/graphql/client'
 import WorkspacesIdsQuery from 'renderer/graphql/queries/WorkspacesIdsQuery'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import Workspace from 'renderer/@types/Workspace'
-import WorkspaceQuery from 'renderer/graphql/queries/WorkspaceQuery'
 import WorkspaceMutation from 'renderer/graphql/mutations/WorkspaceMutation'
 import Folder from 'renderer/@types/Folder'
 import FoldersIdsQuery from 'renderer/graphql/queries/FoldersIdsQuery'
@@ -29,6 +28,7 @@ export interface ICloudSyncContext {
   isSyncing: boolean
   progress: number
   workspaces: Workspace[]
+  lastSync: moment.Moment | null
   setLoading: (workspace: Workspace) => void
 }
 
@@ -78,6 +78,7 @@ export function CloudSyncProvider(props: props) {
   const [newData, setNewData] = useState<object[] | null>(null)
   const [newFoldersData, setNewFoldersData] = useState<object[] | null>(null)
   const [isSyncing, setIsSyncing] = useState(false)
+  const [lastSync, setLastSync] = useState<moment.Moment | null>(null)
 
   const [downloadProgress, setDownloadProgress] = useState<number>(0)
   const [uploadProgress, setUploadProgress] = useState<number>(0)
@@ -289,11 +290,15 @@ export function CloudSyncProvider(props: props) {
 
   useEffect(() => {
     if (toUpload.length) handleUpload()
+
+    setLastSync(moment())
   }, [toUpload, handleUpload])
 
   useEffect(() => {
     if (foldersToUpload.length) handleFolderUpload()
     if (foldersToDownload.length) handleFolderDownload()
+
+    setLastSync(moment())
   }, [
     foldersToUpload,
     foldersToDownload,
@@ -336,8 +341,9 @@ export function CloudSyncProvider(props: props) {
       progress,
       workspaces: toDownload as Workspace[],
       setLoading,
+      lastSync,
     }),
-    [isSyncing, progress, toDownload, setLoading]
+    [isSyncing, progress, toDownload, setLoading, lastSync]
   )
 
   return (

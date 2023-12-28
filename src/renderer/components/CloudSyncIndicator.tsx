@@ -10,7 +10,7 @@ import useNetwork from 'renderer/hooks/useNetwork'
 function CloudSyncIndicator() {
   const { isOnline } = useNetwork()
   const { hasCloudSync, gettingUser } = useUser()
-  const { isSyncing } = useCloudSync()
+  const { isSyncing, lastSync } = useCloudSync()
 
   if (!hasCloudSync || gettingUser) return null
 
@@ -49,7 +49,7 @@ function CloudSyncIndicator() {
         className="flex flex-col text-center font-thin"
       >
         <span>Cloud sync</span>
-        <span className="text-xs">Updated: 12:32</span>
+        <span className="text-xs">Updated: {lastSync?.format('HH:mm')}</span>
       </Tooltip>
     </div>
   )
