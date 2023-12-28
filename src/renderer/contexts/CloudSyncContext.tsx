@@ -316,10 +316,13 @@ export function CloudSyncProvider(props: props) {
     setIsSyncing(false)
   })
 
-  useIpc('workspaces.cloud.reload', async (data: Workspace[]) => {
+  useIpc('cloud.reload', async ({ w, f }: { w: Workspace[]; f: Folder[] }) => {
+    if (!hasCloudSync) return
     setIsSyncing(true)
 
-    setWorkspaces(data)
+    setFolders(f)
+    setWorkspaces(w)
+    await getNewFoldersData()
     await getNewData()
 
     setIsSyncing(false)

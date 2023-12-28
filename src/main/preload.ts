@@ -28,6 +28,7 @@ export type Channels =
   | 'user.set'
   | 'user.authenticate'
   | 'user.logout'
+  | 'cloud.reload'
 
 const electronHandler = {
   ipcRenderer: {

@@ -267,6 +267,9 @@ export const onWorkspaceUpdate = async (
 
   event.reply('workspaces.update', workspaces)
   event.reply('workspaces.reload', workspaces)
+
+  const folders = (store.get('folders') ?? []) as Folder[]
+  event.reply('cloud.reload', { w: workspaces, f: folders })
 }
 
 export const onWorkspaceDelete = async (
@@ -280,6 +283,9 @@ export const onWorkspaceDelete = async (
 
   event.reply('workspaces.delete', workspaces)
   event.reply('workspaces.reload', workspaces)
+
+  const folders = (store.get('folders') ?? []) as Folder[]
+  event.reply('cloud.reload', { w: workspaces, f: folders })
 }
 
 export const onWorkspaceCreate = async (
@@ -297,6 +303,9 @@ export const onWorkspaceCreate = async (
 
   event.reply('workspaces.create', workspaces)
   event.reply('workspaces.reload', workspaces)
+
+  const folders = (store.get('folders') ?? []) as Folder[]
+  event.reply('cloud.reload', { w: workspaces, f: folders })
 }
 
 export const onWorkspaceUninstall = async (
@@ -313,7 +322,9 @@ export const onWorkspaceUninstall = async (
 
   event.reply('workspaces.uninstall', workspaces)
   event.reply('workspaces.reload', workspaces)
-  event.reply('workspaces.cloud.reload', workspaces)
+
+  const folders = (store.get('folders') ?? []) as Folder[]
+  event.reply('cloud.reload', { w: workspaces, f: folders })
 }
 
 const workspaceExists = (workspace: Workspace): boolean => {
@@ -516,7 +527,8 @@ export const onWorkspaceInstall = async (
   await runCommands(event, workspace)
 
   const workspaces = (store.get('workspaces') ?? []) as Workspace[]
-  event.reply('workspaces.cloud.reload', workspaces)
+  const folders = (store.get('folders') ?? []) as Folder[]
+  event.reply('cloud.reload', { w: workspaces, f: folders })
 }
 
 export const onOpenDirectory = async (
@@ -569,6 +581,9 @@ export const onFoldersCreate = async (event: IpcMainEvent, folder: Folder) => {
 
   store.set('folders', folders)
   event.reply('folders.reload', folders)
+
+  const workspaces = (store.get('workspaces') ?? []) as Workspace[]
+  event.reply('cloud.reload', { w: workspaces, f: folders })
 }
 
 export const onFoldersDelete = async (event: IpcMainEvent, folder: Folder) => {
@@ -577,6 +592,9 @@ export const onFoldersDelete = async (event: IpcMainEvent, folder: Folder) => {
 
   store.set('folders', folders)
   event.reply('folders.reload', folders)
+
+  const workspaces = (store.get('workspaces') ?? []) as Workspace[]
+  event.reply('cloud.reload', { w: workspaces, f: folders })
 }
 
 export const onFoldersSet = async (event: IpcMainEvent, folders: Folder[]) => {
