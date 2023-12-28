@@ -39,6 +39,7 @@ import {
   onUserLogout,
   onWorkspaceUninstall,
   onWorkspaceInstall,
+  onFoldersDelete,
 } from './process'
 
 const store = new Store()
@@ -75,6 +76,7 @@ ipcMain.on('workspaces.install', onWorkspaceInstall)
 ipcMain.on('services.docker', onServicesDocker)
 ipcMain.on('folders.get', onFoldersGet)
 ipcMain.on('folders.create', onFoldersCreate)
+ipcMain.on('folders.delete', onFoldersDelete)
 ipcMain.on('folders.set', onFoldersSet)
 ipcMain.on('settings.get', onSettingsGet)
 ipcMain.on('settings.update', onSettingsUpdate)
@@ -105,6 +107,7 @@ if (isDebug) {
 }
 
 // store.delete('workspaces')
+// store.delete('folders')
 
 if (process.defaultApp) {
   if (process.argv.length >= 2) {

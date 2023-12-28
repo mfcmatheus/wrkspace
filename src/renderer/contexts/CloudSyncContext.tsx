@@ -14,6 +14,10 @@ import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import Workspace from 'renderer/@types/Workspace'
 import WorkspaceQuery from 'renderer/graphql/queries/WorkspaceQuery'
 import WorkspaceMutation from 'renderer/graphql/mutations/WorkspaceMutation'
+import Folder from 'renderer/@types/Folder'
+import FoldersIdsQuery from 'renderer/graphql/queries/FoldersIdsQuery'
+import FolderMutation from 'renderer/graphql/mutations/FolderMutation'
+import FolderQuery from 'renderer/graphql/queries/FolderQuery'
 import { useUser } from './UserContext'
 import { useToast } from './ToastContext'
 
@@ -52,7 +56,12 @@ export function CloudSyncProvider(props: props) {
   const [getWorkspacesIds] = useLazyQuery(WorkspacesIdsQuery, {
     client: apolloClient,
   })
-  const [getWorkspace] = useLazyQuery(WorkspaceQuery, {
+
+  const [getFoldersIds] = useLazyQuery(FoldersIdsQuery, {
+    client: apolloClient,
+  })
+
+  const [getFolder] = useLazyQuery(FolderQuery, {
     client: apolloClient,
   })
 
@@ -60,8 +69,14 @@ export function CloudSyncProvider(props: props) {
     client: apolloClient,
   })
 
+  const [saveFolder] = useMutation(FolderMutation, {
+    client: apolloClient,
+  })
+
   const [workspaces, setWorkspaces] = useState<Workspace[] | null>(null)
+  const [folders, setFolders] = useState<Folder[] | null>(null)
   const [newData, setNewData] = useState<object[] | null>(null)
+  const [newFoldersData, setNewFoldersData] = useState<object[] | null>(null)
   const [isSyncing, setIsSyncing] = useState(false)
 
   const [downloadProgress, setDownloadProgress] = useState<number>(0)
@@ -98,6 +113,32 @@ export function CloudSyncProvider(props: props) {
     })
   }, [workspaces, newData])
 
+  const foldersToDownload = useMemo(() => {
+    if (!newFoldersData || !folders) return []
+
+    return (newFoldersData ?? []).filter((item) => {
+      const relative = (folders ?? []).find((folder) => folder.id === item.id)
+
+      return relative
+        ? moment(item.updated_at).isAfter(relative.updated_at ?? moment())
+        : true
+    })
+  }, [folders, newFoldersData])
+
+  const foldersToUpload = useMemo(() => {
+    if (!folders || !newFoldersData) return []
+
+    return (folders ?? []).filter((item) => {
+      const relative = (newFoldersData ?? []).find(
+        (folder) => folder.id === item.id
+      )
+
+      return relative
+        ? moment(item.updated_at ?? moment()).isAfter(relative.updated_at)
+        : true
+    })
+  }, [folders, newFoldersData])
+
   const getNewData = useCallback(async () => {
     const {
       data: { Workspaces: data },
@@ -105,6 +146,14 @@ export function CloudSyncProvider(props: props) {
 
     setNewData(data)
   }, [getWorkspacesIds])
+
+  const getNewFoldersData = useCallback(async () => {
+    const {
+      data: { Folders: data },
+    } = await getFoldersIds()
+
+    setNewFoldersData(data)
+  }, [getFoldersIds])
 
   const normalizeWorkspace = useCallback((workspace: Workspace) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -126,6 +175,16 @@ export function CloudSyncProvider(props: props) {
         })),
       },
     } as Workspace
+  }, [])
+
+  const normalizeFolder = useCallback((folder: Folder) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { created_at, updated_at, ...rest } = folder
+
+    return {
+      ...rest,
+      id: `${rest.id}`,
+    } as Folder
   }, [])
 
   const handleUpload = useCallback(async () => {
@@ -156,6 +215,58 @@ export function CloudSyncProvider(props: props) {
     }
   }, [toUpload, saveWorkspace, showError, normalizeWorkspace])
 
+  const handleFolderDownload = useCallback(async () => {
+    const progressSlice = foldersToDownload.length / 100
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const folder of foldersToDownload) {
+      try {
+        const {
+          data: { Folder: newW },
+          // eslint-disable-next-line no-await-in-loop
+        } = await getFolder({
+          variables: { id: folder.id },
+        })
+
+        // Update current workspace id
+        ipcRenderer.sendMessage('folders.create', newW)
+
+        setDownloadProgress((prev) => prev + progressSlice)
+      } catch (error) {
+        console.error(error)
+        showError('Error while downloading folders')
+      }
+    }
+  }, [foldersToDownload, getFolder, showError])
+
+  const handleFolderUpload = useCallback(async () => {
+    const progressSlice = foldersToUpload.length / 100
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const folder of foldersToUpload) {
+      try {
+        const {
+          data: { Folder: newW },
+          // eslint-disable-next-line no-await-in-loop
+        } = await saveFolder({
+          variables: { folder: normalizeFolder(folder) },
+        })
+
+        // Update current workspace id
+        ipcRenderer.sendMessage('folders.delete', folder)
+        ipcRenderer.sendMessage('folders.create', {
+          ...folder,
+          ...newW,
+        })
+
+        setUploadProgress((prev) => prev + progressSlice)
+      } catch (error) {
+        console.error(error)
+        showError('Error while uploading folders')
+      }
+    }
+  }, [foldersToUpload, saveFolder, showError, normalizeFolder])
+
   const setLoading = useCallback(
     (workspace: Workspace) => {
       const index = (newData ?? []).findIndex(
@@ -172,12 +283,23 @@ export function CloudSyncProvider(props: props) {
 
   useEffect(() => {
     if (!hasCloudSync) return
+    ipcRenderer.sendMessage('folders.get')
     ipcRenderer.sendMessage('workspaces.get')
   }, [hasCloudSync])
 
   useEffect(() => {
     if (toUpload.length) handleUpload()
   }, [toUpload, handleUpload])
+
+  useEffect(() => {
+    if (foldersToUpload.length) handleFolderUpload()
+    if (foldersToDownload.length) handleFolderDownload()
+  }, [
+    foldersToUpload,
+    foldersToDownload,
+    handleFolderDownload,
+    handleFolderUpload,
+  ])
 
   useIpc('workspaces.get', async (data: Workspace[]) => {
     if (!hasCloudSync) return
@@ -194,6 +316,16 @@ export function CloudSyncProvider(props: props) {
 
     setWorkspaces(data)
     await getNewData()
+
+    setIsSyncing(false)
+  })
+
+  useIpc('folders.get', async (data: Folder[]) => {
+    if (!hasCloudSync) return
+    setIsSyncing(true)
+
+    setFolders(data)
+    await getNewFoldersData()
 
     setIsSyncing(false)
   })

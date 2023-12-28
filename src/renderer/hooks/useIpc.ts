@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { Channels } from 'main/preload'
 
 interface handler {
   (event: any, rest: any): void
@@ -7,7 +8,7 @@ interface handler {
 export const ipcRenderer = window.electron.ipcRenderer as any
 
 export const useIpc = (
-  channel: string,
+  channel: Channels,
   listener: (event: any, args: any) => void
 ) => {
   const savedHandler = useRef<handler>()

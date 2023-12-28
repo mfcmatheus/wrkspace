@@ -1,4 +1,5 @@
 import { Form, Formik } from 'formik'
+import moment from 'moment'
 import React, { useCallback } from 'react'
 import NewFolderFormSchema from 'renderer/@schemas/NewFolderFormSchema'
 import Folder from 'renderer/@types/Folder'
@@ -16,7 +17,10 @@ function ModalCreateFolder(props: ModalCreateFolderProps) {
 
   const onClickClose = useCallback(() => onClose && onClose(), [onClose])
   const onSubmit = useCallback(
-    (data: Folder) => onSave && onSave(data),
+    (data: Folder) => {
+      data.updated_at = moment().format('YYYY-MM-DD HH:mm:ss')
+      return onSave?.(data)
+    },
     [onSave]
   )
 

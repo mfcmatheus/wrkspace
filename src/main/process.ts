@@ -565,7 +565,14 @@ export const onFoldersGet = async (event: IpcMainEvent) => {
 export const onFoldersCreate = async (event: IpcMainEvent, folder: Folder) => {
   const folders = (store.get('folders') ?? []) as Folder[]
 
-  folders.push({ id: fakeId(), ...folder } as Folder)
+  folders.push({ ...folder, id: folder.id ?? fakeId() } as Folder)
+
+  store.set('folders', folders)
+}
+
+export const onFoldersDelete = async (event: IpcMainEvent, folder: Folder) => {
+  let folders = (store.get('folders') ?? []) as Folder[]
+  folders = folders.filter((target) => target.id !== folder.id)
 
   store.set('folders', folders)
 }
@@ -632,6 +639,7 @@ export default {
   onServicesDocker,
   onFoldersGet,
   onFoldersCreate,
+  onFoldersDelete,
   onFoldersSet,
   onSettingsGet,
   onSettingsUpdate,
