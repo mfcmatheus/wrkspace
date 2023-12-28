@@ -169,6 +169,10 @@ function Dashboard() {
     setWorkspaces(data)
   })
 
+  useIpc('folders.reload', (data: Folder[]) => {
+    setFolders(data)
+  })
+
   useIpc('workspaces.get', (data: Workspace[]) => {
     setWorkspaces(data)
   })
@@ -178,6 +182,10 @@ function Dashboard() {
   })
 
   useIpc('settings.get', (data: Setting) => {
+    setSettings(data)
+  })
+
+  useIpc('settings.reload', (data: Setting) => {
     setSettings(data)
   })
 

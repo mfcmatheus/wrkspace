@@ -568,6 +568,7 @@ export const onFoldersCreate = async (event: IpcMainEvent, folder: Folder) => {
   folders.push({ ...folder, id: folder.id ?? fakeId() } as Folder)
 
   store.set('folders', folders)
+  event.reply('folders.reload', folders)
 }
 
 export const onFoldersDelete = async (event: IpcMainEvent, folder: Folder) => {
@@ -575,10 +576,12 @@ export const onFoldersDelete = async (event: IpcMainEvent, folder: Folder) => {
   folders = folders.filter((target) => target.id !== folder.id)
 
   store.set('folders', folders)
+  event.reply('folders.reload', folders)
 }
 
 export const onFoldersSet = async (event: IpcMainEvent, folders: Folder[]) => {
   store.set('folders', folders)
+  event.reply('folders.reload', folders)
 }
 
 export const onSettingsGet = async (event: IpcMainEvent) => {
@@ -591,6 +594,7 @@ export const onSettingsUpdate = async (
 ) => {
   const setting = (store.get('settings') ?? {}) as Setting
   store.set('settings', { ...setting, ...settings } as Setting)
+  event.reply('settings.reload', { ...setting, ...settings })
 }
 
 export const onApplicationsGet = async (event: IpcMainEvent) => {
