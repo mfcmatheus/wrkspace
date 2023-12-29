@@ -7,4 +7,5 @@ const folderSchema = Yup.object({
 
 export default Yup.object({
   folders: Yup.array().of(folderSchema).nullable(),
+  defaultPath: Yup.string().required(),
 })

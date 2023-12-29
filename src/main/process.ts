@@ -337,6 +337,7 @@ const cloneProject = async (
   workspace: Workspace
 ): Promise<any> =>
   new Promise((resolve, reject) => {
+    const settings = (store.get('settings') ?? {}) as Setting
     const gitPath = runScript(`which git`, [''], () => ({}))
 
     gitPath.stdout.on('data', (path) => {
@@ -345,9 +346,8 @@ const cloneProject = async (
         message: `Git located at ${path.toString()}`,
       })
 
-      // TODO: Default path
       const gitClone = runScript(
-        `cd /Users/trusty/Desktop/personal && ${path
+        `cd ${settings.defaultPath} && ${path
           .toString()
           .trim()} clone --depth=1 ${workspace.repo} ${resolveString(
           workspace.name.toLowerCase()
@@ -385,8 +385,7 @@ const cloneProject = async (
           message: 'Cloned successfully',
         })
 
-        // TODO: Default path
-        workspace.path = `/Users/trusty/Desktop/personal/${resolveString(
+        workspace.path = `${settings.defaultPath}/${resolveString(
           workspace.name.toLowerCase()
         )}`
 

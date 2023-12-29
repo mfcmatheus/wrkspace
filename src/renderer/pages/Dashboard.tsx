@@ -121,9 +121,10 @@ function Dashboard() {
   )
 
   const onSaveSettings = useCallback((setting: Setting) => {
-    const { folders: updatedFolders } = setting
+    const { folders: updatedFolders, defaultPath } = setting
 
     ipcRenderer.sendMessage('folders.set', updatedFolders)
+    ipcRenderer.sendMessage('settings.update', { defaultPath } as Setting)
 
     setIsModalSettingsOpen(false)
   }, [])
@@ -286,6 +287,7 @@ function Dashboard() {
       {isModalSettingsOpen && (
         <ModalSettings
           folders={folders}
+          settings={settings}
           onClose={() => setIsModalSettingsOpen(false)}
           onSave={onSaveSettings}
         />
