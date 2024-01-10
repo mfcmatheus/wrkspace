@@ -641,6 +641,10 @@ export const onUserAuthenticate = async (event: IpcMainEvent) => {
   runScript(`open '${process.env.APP_URL}/authorize'`, [''], () => ({}))
 }
 
+export const onUserUpgrade = async (event: IpcMainEvent) => {
+  runScript(`open '${process.env.APP_URL}/signup'`, [''], () => ({}))
+}
+
 export const onUserLogout = async (event: IpcMainEvent) => {
   store.delete('user')
   store.delete('token')
@@ -669,5 +673,6 @@ export default {
   onUserGet,
   onUserSet,
   onUserAuthenticate,
+  onUserUpgrade,
   onUserLogout,
 }

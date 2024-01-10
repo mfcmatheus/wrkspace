@@ -43,6 +43,8 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
 
   const { hasCloudSync } = useUser()
 
+  console.log(hasCloudSync)
+
   const isEditing = useMemo(() => !!workspace.id, [workspace])
   const isGeneralPage = useMemo(
     () => currentPage === ModalEditWorkspacePages.General,
@@ -77,7 +79,7 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
           icon: 'Cloud',
           label: 'Installation',
           page: ModalEditWorkspacePages.Cloud,
-          condition: hasCloudSync,
+          condition: !!hasCloudSync,
         },
         {
           icon: 'Globe',

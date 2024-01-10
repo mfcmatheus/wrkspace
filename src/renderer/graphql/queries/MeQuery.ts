@@ -7,6 +7,12 @@ export default gql`
       name
       email
       token
+      plans {
+        personal {
+          ends_at
+          created_at
+        }
+      }
     }
   }
 `

@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react'
 import { Tooltip } from 'react-tooltip'
+import ButtonMain from 'renderer/base-components/ButtonMain'
 import LoadingIcon from 'renderer/base-components/LoadingIcon'
 import Lucide from 'renderer/base-components/lucide'
 import { useUser } from 'renderer/contexts/UserContext'
@@ -22,13 +23,15 @@ export default function FolderBarAuth() {
     <div className="flex flex-col text-center">
       <span className="font-thin text-sm">You're logged as</span>
       <span>{user?.name}</span>
-      <button
-        type="button"
-        className="text-primary mt-1 font-thin"
+      <ButtonMain
+        sm
+        secondary
+        bordered
+        className="mt-2"
         onClick={onClickLogout}
       >
-        Log out
-      </button>
+        <span className="mx-auto">Log out</span>
+      </ButtonMain>
     </div>
   )
 

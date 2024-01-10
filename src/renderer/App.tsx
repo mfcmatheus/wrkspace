@@ -21,8 +21,12 @@ export default function App() {
   })
 
   useIpc('user.check', (data) => {
-    localStorage.setItem('token', data)
-    setToken(data)
+    setToken(null)
+
+    setTimeout(() => {
+      localStorage.setItem('token', data)
+      setToken(data)
+    }, 300)
   })
 
   useIpc('user.logout', () => {

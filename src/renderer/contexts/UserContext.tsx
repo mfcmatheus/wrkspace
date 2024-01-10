@@ -24,6 +24,7 @@ export interface IUserContext {
   resetUser: () => void
   gettingUser: boolean
   hasCloudSync: boolean
+  refetchUser: () => Promise<void>
 }
 
 export const UserContext = createContext<IUserContext>({} as IUserContext)
@@ -63,8 +64,7 @@ export function UserProvider(props: props) {
 
   const hasCloudSync = useMemo(() => {
     if (!user) return false
-    return true // TODO
-    // return !!user.cloudSync
+    return !!user.plans.personal
   }, [user])
 
   const providerValue = useMemo(
@@ -74,8 +74,9 @@ export function UserProvider(props: props) {
       resetUser,
       gettingUser,
       hasCloudSync,
+      refetchUser: userCallback,
     }),
-    [user, token, resetUser, gettingUser, hasCloudSync]
+    [user, token, resetUser, gettingUser, hasCloudSync, userCallback]
   )
 
   useEffect(() => {

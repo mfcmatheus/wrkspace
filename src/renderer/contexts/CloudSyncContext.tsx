@@ -48,7 +48,7 @@ export const useCloudSync = () => {
 
 export function CloudSyncProvider(props: props) {
   const { children } = props
-  const { hasCloudSync } = useUser()
+  const { hasCloudSync, refetchUser } = useUser()
   const { showError } = useToast()
 
   const apolloClient = useMemo(() => client('/user'), [])
@@ -317,7 +317,10 @@ export function CloudSyncProvider(props: props) {
   })
 
   useIpc('cloud.reload', async ({ w, f }: { w: Workspace[]; f: Folder[] }) => {
+    await refetchUser()
+
     if (!hasCloudSync) return
+
     setIsSyncing(true)
 
     setFolders(f)
