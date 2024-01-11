@@ -532,7 +532,8 @@ export const onWorkspaceInstall = async (
 
 export const onOpenDirectory = async (
   mainWindow: BrowserWindow,
-  event: IpcMainEvent
+  event: IpcMainEvent,
+  reference: string | number
 ) => {
   const { canceled, filePaths } = await dialog.showOpenDialog(
     mainWindow as BrowserWindow,
@@ -542,7 +543,7 @@ export const onOpenDirectory = async (
   )
 
   if (!canceled && filePaths.length) {
-    event.reply('dialog:openDirectory', filePaths[0])
+    event.reply('dialog:openDirectory', filePaths[0], reference)
   }
 }
 

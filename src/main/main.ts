@@ -62,8 +62,8 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'))
 })
 
-ipcMain.on('dialog:openDirectory', async (event) =>
-  onOpenDirectory(mainWindow as BrowserWindow, event)
+ipcMain.on('dialog:openDirectory', async (event, reference: string | number) =>
+  onOpenDirectory(mainWindow as BrowserWindow, event, reference)
 )
 
 ipcMain.on('containers.get', onContainersGet)

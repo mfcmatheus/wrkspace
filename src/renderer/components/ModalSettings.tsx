@@ -12,7 +12,7 @@ import ButtonMain from 'renderer/base-components/ButtonMain'
 import Folder from 'renderer/@types/Folder'
 import Setting from 'renderer/@types/Setting'
 import ModalSettingsFolders from 'renderer/components/ModalSettingsFolders'
-import ModalSettingsGeneral from './ModalSettingsGeneral'
+import ModalSettingsGeneral from 'renderer/components/ModalSettingsGeneral'
 
 interface ModalSettingsProps {
   folders: Folder[]
