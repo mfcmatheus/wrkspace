@@ -346,8 +346,10 @@ const cloneProject = async (
         message: `Git located at ${path.toString()}`,
       })
 
+      const clonePath = workspace.folder?.path ?? settings.defaultPath
+
       const gitClone = runScript(
-        `cd ${settings.defaultPath} && ${path
+        `cd ${clonePath} && ${path
           .toString()
           .trim()} clone --depth=1 ${workspace.repo} ${resolveString(
           workspace.name.toLowerCase()
@@ -385,7 +387,7 @@ const cloneProject = async (
           message: 'Cloned successfully',
         })
 
-        workspace.path = `${settings.defaultPath}/${resolveString(
+        workspace.path = `${clonePath}/${resolveString(
           workspace.name.toLowerCase()
         )}`
 
