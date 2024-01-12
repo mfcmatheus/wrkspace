@@ -1,12 +1,21 @@
 import { ErrorMessage, Form, useField, useFormikContext } from 'formik'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
+import Folder from 'renderer/@types/Folder'
 import ButtonMain from 'renderer/base-components/ButtonMain'
 import InputMain from 'renderer/base-components/InputMain'
 import Lucide from 'renderer/base-components/lucide'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 
-export default function ModalCreateFolderForm() {
+interface ModalCreateFolderFormProps {
+  folder?: Folder | null
+}
+
+function ModalCreateFolderForm(props: ModalCreateFolderFormProps) {
+  const { folder } = props
+
   const pathFieldHelpers = useField('path')[2]
+
+  const isEditing = useMemo(() => !!folder, [folder])
 
   const onClickSearch = useCallback(() => {
     ipcRenderer.sendMessage('dialog:openDirectory')
@@ -51,15 +60,15 @@ export default function ModalCreateFolderForm() {
         <ErrorMessage name="path" render={renderError} />
       </label>
 
-      <ButtonMain
-        sm
-        bordered
-        secondary
-        className="mt-6 mx-auto"
-        type="submit"
-      >
-        Create
+      <ButtonMain sm bordered secondary className="mt-6 mx-auto" type="submit">
+        {isEditing ? 'Update' : 'Create'}
       </ButtonMain>
     </Form>
   )
 }
+
+ModalCreateFolderForm.defaultProps = {
+  folder: null,
+}
+
+export default ModalCreateFolderForm

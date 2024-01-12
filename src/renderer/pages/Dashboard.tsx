@@ -31,13 +31,14 @@ const apolloClient = client('/user')
 function Dashboard() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [folders, setFolders] = useState<Folder[]>([])
-  const [settings, setSettings] = useState<Setting>({})
+  const [settings, setSettings] = useState<Setting>({} as Setting)
   const [isModalEditOpen, setIsModalEditOpen] = useState(false)
   const [isModalSettingsOpen, setIsModalSettingsOpen] = useState(false)
   const [isModalCreateFolderOpen, setIsModalCreateFolderOpen] = useState(false)
   const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(
     {} as Workspace
   )
+  const [selectedFolder, setSelectedFolder] = useState<Folder | null>(null)
 
   const { workspaces: toInstall, setLoading: setLoadingPreview } =
     useCloudSync()
@@ -109,6 +110,20 @@ function Dashboard() {
     setIsModalCreateFolderOpen(false)
   }, [])
 
+  const onUpdateFolder = useCallback(
+    (folder: Folder) => {
+      const index = folders.findIndex((f) => f.id === folder.id)
+      const updatedFolders = [...folders]
+      updatedFolders[index] = folder
+
+      ipcRenderer.sendMessage('folders.set', updatedFolders)
+
+      setIsModalCreateFolderOpen(false)
+      setSelectedFolder(null)
+    },
+    [folders]
+  )
+
   const onClickFolder = useCallback(
     (folder: Folder) => {
       const currentFolder = settings?.currentFolder
@@ -127,6 +142,11 @@ function Dashboard() {
     ipcRenderer.sendMessage('settings.update', { defaultPath } as Setting)
 
     setIsModalSettingsOpen(false)
+  }, [])
+
+  const onCloseModalCreateFolder = useCallback(() => {
+    setIsModalCreateFolderOpen(false)
+    setSelectedFolder(null)
   }, [])
 
   const title = useMemo(() => {
@@ -184,10 +204,20 @@ function Dashboard() {
 
   useIpc('settings.get', (data: Setting) => {
     setSettings(data)
+
+    if (data.currentFolder && !data.currentFolder.path) {
+      setIsModalCreateFolderOpen(true)
+      setSelectedFolder(data.currentFolder)
+    }
   })
 
   useIpc('settings.reload', (data: Setting) => {
     setSettings(data)
+
+    if (data.currentFolder && !data.currentFolder.path) {
+      setIsModalCreateFolderOpen(true)
+      setSelectedFolder(data.currentFolder)
+    }
   })
 
   return (
@@ -295,8 +325,10 @@ function Dashboard() {
 
       {isModalCreateFolderOpen && (
         <ModalCreateFolder
-          onSave={onCreateFolder}
-          onClose={() => setIsModalCreateFolderOpen(false)}
+          folder={selectedFolder}
+          onCreate={onCreateFolder}
+          onUpdate={onUpdateFolder}
+          onClose={onCloseModalCreateFolder}
         />
       )}
     </>
