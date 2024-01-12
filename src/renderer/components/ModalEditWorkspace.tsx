@@ -112,7 +112,7 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
     [isEditing, onSave, onCreate, settings]
   )
   const onClickDelete = useCallback(
-    () => onDelete && onDelete(workspace),
+    () => onDelete?.(workspace),
     [onDelete, workspace]
   )
 

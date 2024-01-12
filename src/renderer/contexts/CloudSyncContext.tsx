@@ -17,6 +17,8 @@ import Folder from 'renderer/@types/Folder'
 import FoldersIdsQuery from 'renderer/graphql/queries/FoldersIdsQuery'
 import FolderMutation from 'renderer/graphql/mutations/FolderMutation'
 import FolderQuery from 'renderer/graphql/queries/FolderQuery'
+import WorkspaceDeleteMutation from 'renderer/graphql/mutations/WorkspaceDeleteMutation'
+import fakeId from 'renderer/helpers/fakeId'
 import { useUser } from './UserContext'
 import { useToast } from './ToastContext'
 
@@ -69,6 +71,10 @@ export function CloudSyncProvider(props: props) {
     client: apolloClient,
   })
 
+  const [deleteWorkspace] = useMutation(WorkspaceDeleteMutation, {
+    client: apolloClient,
+  })
+
   const [saveFolder] = useMutation(FolderMutation, {
     client: apolloClient,
   })
@@ -113,6 +119,11 @@ export function CloudSyncProvider(props: props) {
         : true
     })
   }, [workspaces, newData])
+  const toDelete = useMemo(() => {
+    if (!workspaces) return []
+
+    return workspaces.filter((item) => !!item.deleted_at)
+  }, [workspaces])
 
   const foldersToDownload = useMemo(() => {
     if (!newFoldersData || !folders) return []
@@ -216,6 +227,27 @@ export function CloudSyncProvider(props: props) {
     }
   }, [toUpload, saveWorkspace, showError, normalizeWorkspace])
 
+  const handleDelete = useCallback(async () => {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const workspace of toDelete) {
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await deleteWorkspace({
+          variables: { id: workspace.id },
+        })
+
+        // Update current workspace id
+        ipcRenderer.sendMessage('workspaces.delete', {
+          ...workspace,
+          deleted: true,
+        })
+      } catch (error) {
+        console.error(error)
+        showError('Error while deleting workspaces')
+      }
+    }
+  }, [toDelete, showError, deleteWorkspace])
+
   const handleFolderDownload = useCallback(async () => {
     const progressSlice = foldersToDownload.length / 100
 
@@ -295,16 +327,24 @@ export function CloudSyncProvider(props: props) {
   }, [toUpload, handleUpload])
 
   useEffect(() => {
+    if (toDelete.length) handleDelete()
+
+    console.log(toDelete)
+
+    setLastSync(moment())
+  }, [toDelete, handleDelete])
+
+  useEffect(() => {
     if (foldersToUpload.length) handleFolderUpload()
+
+    setLastSync(moment())
+  }, [foldersToUpload, handleFolderUpload])
+
+  useEffect(() => {
     if (foldersToDownload.length) handleFolderDownload()
 
     setLastSync(moment())
-  }, [
-    foldersToUpload,
-    foldersToDownload,
-    handleFolderDownload,
-    handleFolderUpload,
-  ])
+  }, [foldersToDownload, handleFolderDownload])
 
   useIpc('workspaces.get', async (data: Workspace[]) => {
     if (!hasCloudSync) return
@@ -317,18 +357,20 @@ export function CloudSyncProvider(props: props) {
   })
 
   useIpc('cloud.reload', async ({ w, f }: { w: Workspace[]; f: Folder[] }) => {
-    await refetchUser()
+    /* await refetchUser()
+    setWorkspaces(w)
+    console.log(w, toUpload)
 
     if (!hasCloudSync) return
 
     setIsSyncing(true)
 
-    setFolders(f)
     setWorkspaces(w)
+    setFolders(f)
     await getNewFoldersData()
     await getNewData()
 
-    setIsSyncing(false)
+    setIsSyncing(false) */
   })
 
   useIpc('folders.get', async (data: Folder[]) => {

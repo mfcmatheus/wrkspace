@@ -32,5 +32,7 @@ export default interface Workspace {
   loading?: boolean
   updated_at: string
   created_at: string
+  deleted_at?: string
+  deleted?: boolean
   opened_at?: string | number
 }

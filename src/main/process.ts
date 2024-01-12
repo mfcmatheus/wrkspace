@@ -277,7 +277,16 @@ export const onWorkspaceDelete = async (
   workspace: Workspace
 ) => {
   let workspaces = store.get('workspaces') as Workspace[]
-  workspaces = workspaces.filter((target) => target.id !== workspace.id)
+  const index = workspaces.findIndex((target) => target.id === workspace.id)
+  const regex = /^[0-9]+$/
+
+  // Check if workspace is synced on cloud
+  if (regex.test(workspace.id.toString()) && !workspace.deleted) {
+    workspace.deleted_at = moment().format('YYYY-MM-DD HH:mm:ss')
+    workspaces[index] = workspace
+  } else {
+    workspaces = workspaces.filter((target) => target.id !== workspace.id)
+  }
 
   store.set('workspaces', workspaces)
 
@@ -349,11 +358,9 @@ const cloneProject = async (
       const clonePath = workspace.folder?.path ?? settings.defaultPath
 
       const gitClone = runScript(
-        `cd ${clonePath} && ${path
-          .toString()
-          .trim()} clone --depth=1 ${workspace.repo} ${resolveString(
-          workspace.name.toLowerCase()
-        )}`,
+        `cd ${clonePath} && ${path.toString().trim()} clone --depth=1 ${
+          workspace.repo
+        } ${resolveString(workspace.name.toLowerCase())}`,
         [''],
         () => ({})
       )

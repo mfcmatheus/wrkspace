@@ -171,7 +171,7 @@ function Dashboard() {
         'name',
       ],
       ['desc', 'desc', 'asc']
-    )
+    ).filter((w) => !w.deleted_at)
 
     if (toInstall?.length) {
       data = data.concat(_.orderBy(toInstall, ['name'], ['asc']))
