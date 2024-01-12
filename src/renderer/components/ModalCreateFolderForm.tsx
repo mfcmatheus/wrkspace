@@ -44,7 +44,7 @@ function ModalCreateFolderForm(props: ModalCreateFolderFormProps) {
           <InputMain
             name="path"
             id="path"
-            placeholder="Workspace path"
+            placeholder="Folder base path"
             containerClasses="!rounded-r-none"
             readOnly
           />
