@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { ErrorMessage, useField } from 'formik'
+import { ErrorMessage, useField, useFormikContext } from 'formik'
 
+import classNames from 'classnames'
 import Terminal from 'renderer/@types/Terminal'
 import Workspace from 'renderer/@types/Workspace'
 
@@ -15,6 +16,7 @@ interface ModalEditWorkspaceTerminalProps {
 function ModalEditWorkspaceTerminal(props: ModalEditWorkspaceTerminalProps) {
   const { workspace } = props
 
+  const { errors } = useFormikContext()
   const [field, meta, helpers] = useField('terminals')
 
   const [terminals, setTerminals] = useState<Terminal[]>(
@@ -79,14 +81,17 @@ function ModalEditWorkspaceTerminal(props: ModalEditWorkspaceTerminalProps) {
           New terminal
         </ButtonMain>
       </div>
-      {terminals.map((terminal: Terminal) => (
+      {terminals.map((terminal: Terminal, index: number) => (
         <div key={terminal.id} className="bg-[#353535] p-5">
           <div className="flex flex-col gap-y-3">
             <div className="flex">
               <InputMain
-                className="w-11/12"
+                containerClasses={classNames({
+                  'w-11/12': true,
+                  'border border-red-500': errors.terminals?.[index]?.command,
+                })}
                 placeholder="Command"
-                name="terminals[].command"
+                name={`terminals[${index}].command`}
                 value={terminal.command ?? ''}
                 onChange={(e) => onChangeCommand(e, terminal)}
                 onBlur={() => {}}

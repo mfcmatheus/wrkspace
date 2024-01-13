@@ -60,7 +60,7 @@ export default Yup.object({
       'is-valid-url',
       'Invalid URL format',
       (value: string | null | undefined) => {
-        if (!value) return false
+        if (!value) return true
         return validURL(value)
       }
     ),

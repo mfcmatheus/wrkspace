@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { ErrorMessage, useField } from 'formik'
+import { ErrorMessage, useField, useFormikContext } from 'formik'
 
+import classNames from 'classnames'
 import Browser from 'renderer/@types/Browser'
 import Workspace from 'renderer/@types/Workspace'
 import ButtonMain from 'renderer/base-components/ButtonMain'
@@ -16,6 +17,8 @@ interface ModalEditWorkspaceBrowserProps {
 
 function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
   const { workspace } = props
+
+  const { errors } = useFormikContext()
 
   const [field, meta, helpers] = useField('browsers')
 
@@ -159,7 +162,10 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
           </select> */}
           <div className="col-span-12 flex">
             <InputMain
-              containerClasses="!rounded-r-none"
+              containerClasses={classNames({
+                '!rounded-r-none': true,
+                'border border-red-500': errors.browsers?.[index]?.url,
+              })}
               placeholder="https://example.com"
               name={`browsers[${index}].url`}
               value={browser.url}
@@ -175,13 +181,6 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
             >
               <Lucide icon="Trash" size={20} color="#000" />
             </ButtonMain>
-          </div>
-
-          <div className="col-span-12">
-            <ErrorMessage
-              name={`browsers[${index}].url`}
-              render={renderError}
-            />
           </div>
         </div>
       ))}
