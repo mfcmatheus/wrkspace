@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import _ from 'lodash'
-
 import moment from 'moment'
 import { useLazyQuery } from '@apollo/client'
+
 import TopBar from 'renderer/components/TopBar'
 import WorkspaceList from 'renderer/components/WorkspaceList'
 import ModalEditWorkspace from 'renderer/components/ModalEditWorkspace'
@@ -162,14 +162,8 @@ function Dashboard() {
   }, [settings?.currentFolder])
 
   const filteredWorkspaces = useMemo(() => {
-    let data = workspaces.filter((workspace) => {
-      return settings?.currentFolder
-        ? workspace.folder?.id === settings?.currentFolder?.id
-        : true
-    })
-
-    data = _.orderBy(
-      data,
+    let data = _.orderBy(
+      workspaces,
       [
         (w) => !!w.favorite,
         (w) =>
@@ -185,7 +179,11 @@ function Dashboard() {
       data = data.concat(_.orderBy(toInstall, ['name'], ['asc']))
     }
 
-    return data
+    return data.filter((workspace) => {
+      return settings?.currentFolder
+        ? workspace.folder?.id === settings?.currentFolder?.id
+        : true
+    })
   }, [workspaces, settings?.currentFolder, toInstall]) as Workspace[]
 
   useEffect(() => {

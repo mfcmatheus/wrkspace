@@ -6,6 +6,9 @@ export default gql`
       id
       name
       updated_at
+      folder {
+        id
+      }
     }
   }
 `
