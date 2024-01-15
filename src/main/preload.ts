@@ -14,6 +14,7 @@ export type Channels =
   | 'dialog:openDirectory'
   | 'containers.get'
   | 'services.docker'
+  | 'services.git'
   | 'folders.get'
   | 'folders.create'
   | 'folders.delete'

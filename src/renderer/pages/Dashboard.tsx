@@ -25,6 +25,7 @@ import CloudSyncIndicator from 'renderer/components/CloudSyncIndicator'
 import { useCloudSync } from 'renderer/contexts/CloudSyncContext'
 import client from 'renderer/graphql/client'
 import WorkspaceQuery from 'renderer/graphql/queries/WorkspaceQuery'
+import ModalStart from 'renderer/components/ModalStart'
 
 const apolloClient = client('/user')
 
@@ -35,6 +36,9 @@ function Dashboard() {
   const [isModalEditOpen, setIsModalEditOpen] = useState(false)
   const [isModalSettingsOpen, setIsModalSettingsOpen] = useState(false)
   const [isModalCreateFolderOpen, setIsModalCreateFolderOpen] = useState(false)
+  const [isModalStartOpen, setIsModalStartOpen] = useState<boolean>(
+    !settings?.configured ?? true
+  )
   const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(
     {} as Workspace
   )
@@ -149,6 +153,10 @@ function Dashboard() {
     setSelectedFolder(null)
   }, [])
 
+  const onSaveModalStart = useCallback((data: Setting) => {
+    ipcRenderer.sendMessage('settings.update', data)
+  }, [])
+
   const title = useMemo(() => {
     return settings?.currentFolder?.name ?? 'Dashboard'
   }, [settings?.currentFolder])
@@ -204,6 +212,7 @@ function Dashboard() {
 
   useIpc('settings.get', (data: Setting) => {
     setSettings(data)
+    setIsModalStartOpen(!data.configured)
 
     if (data.currentFolder && !data.currentFolder.path) {
       setIsModalCreateFolderOpen(true)
@@ -213,6 +222,7 @@ function Dashboard() {
 
   useIpc('settings.reload', (data: Setting) => {
     setSettings(data)
+    setIsModalStartOpen(!data.configured)
 
     if (data.currentFolder && !data.currentFolder.path) {
       setIsModalCreateFolderOpen(true)
@@ -302,6 +312,13 @@ function Dashboard() {
           </div>
         </FolderBar>
       </div>
+
+      {isModalStartOpen && (
+        <ModalStart
+          onClose={() => setIsModalStartOpen(false)}
+          onSave={onSaveModalStart}
+        />
+      )}
 
       {isModalEditOpen && (
         <ModalEditWorkspace

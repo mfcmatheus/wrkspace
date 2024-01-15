@@ -579,6 +579,13 @@ export const onServicesDocker = async (event: IpcMainEvent) => {
   })
 }
 
+export const onServicesGit = async (event: IpcMainEvent) => {
+  const gitPath = runScript(`which git`, [''], () => ({}))
+  gitPath.stdout.on('data', (path) => {
+    event.reply('services.git', !!path.toString().trim())
+  })
+}
+
 export const onFoldersGet = async (event: IpcMainEvent) => {
   event.reply('folders.get', (store.get('folders') ?? []) as Folder[])
 }
@@ -672,6 +679,7 @@ export default {
   onOpenDirectory,
   onContainersGet,
   onServicesDocker,
+  onServicesGit,
   onFoldersGet,
   onFoldersCreate,
   onFoldersDelete,

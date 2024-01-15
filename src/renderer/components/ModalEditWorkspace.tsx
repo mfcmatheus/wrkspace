@@ -43,8 +43,6 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
 
   const { hasCloudSync } = useUser()
 
-  console.log(hasCloudSync)
-
   const isEditing = useMemo(() => !!workspace.id, [workspace])
   const isGeneralPage = useMemo(
     () => currentPage === ModalEditWorkspacePages.General,
