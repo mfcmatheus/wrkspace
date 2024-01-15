@@ -19,6 +19,7 @@ import FolderMutation from 'renderer/graphql/mutations/FolderMutation'
 import FolderQuery from 'renderer/graphql/queries/FolderQuery'
 import WorkspaceDeleteMutation from 'renderer/graphql/mutations/WorkspaceDeleteMutation'
 import fakeId from 'renderer/helpers/fakeId'
+import FolderDeleteMutation from 'renderer/graphql/mutations/FolderDeleteMutation'
 import { useUser } from './UserContext'
 import { useToast } from './ToastContext'
 
@@ -79,6 +80,10 @@ export function CloudSyncProvider(props: props) {
     client: apolloClient,
   })
 
+  const [deleteFolder] = useMutation(FolderDeleteMutation, {
+    client: apolloClient,
+  })
+
   const [workspaces, setWorkspaces] = useState<Workspace[] | null>(null)
   const [folders, setFolders] = useState<Folder[] | null>(null)
   const [newData, setNewData] = useState<object[] | null>(null)
@@ -102,7 +107,8 @@ export function CloudSyncProvider(props: props) {
       )
 
       return relative
-        ? moment(item.updated_at).isAfter(relative.updated_at ?? moment())
+        ? moment(item.updated_at).isAfter(relative.updated_at ?? moment()) &&
+            !relative.deleted_at
         : true
     })
   }, [workspaces, newData])
@@ -110,6 +116,8 @@ export function CloudSyncProvider(props: props) {
     if (!workspaces || !newData) return []
 
     return (workspaces ?? [])
+      .filter((item) => !item.deleted_at)
+      .filter((item) => !!item.repo)
       .filter((item) => {
         const relative = (newData ?? []).find(
           (workspace) => workspace.id === item.id
@@ -119,8 +127,6 @@ export function CloudSyncProvider(props: props) {
           ? moment(item.updated_at ?? moment()).isAfter(relative.updated_at)
           : true
       })
-      .filter((item) => !item.deleted_at)
-      .filter((item) => !!item.repo)
   }, [workspaces, newData])
   const toDelete = useMemo(() => {
     if (!workspaces) return []
@@ -135,7 +141,8 @@ export function CloudSyncProvider(props: props) {
       const relative = (folders ?? []).find((folder) => folder.id === item.id)
 
       return relative
-        ? moment(item.updated_at).isAfter(relative.updated_at ?? moment())
+        ? moment(item.updated_at).isAfter(relative.updated_at ?? moment()) &&
+            !relative.deleted_at
         : true
     })
   }, [folders, newFoldersData])
@@ -143,16 +150,24 @@ export function CloudSyncProvider(props: props) {
   const foldersToUpload = useMemo(() => {
     if (!folders || !newFoldersData) return []
 
-    return (folders ?? []).filter((item) => {
-      const relative = (newFoldersData ?? []).find(
-        (folder) => folder.id === item.id
-      )
+    return (folders ?? [])
+      .filter((item) => !item.deleted_at)
+      .filter((item) => {
+        const relative = (newFoldersData ?? []).find(
+          (folder) => folder.id === item.id
+        )
 
-      return relative
-        ? moment(item.updated_at ?? moment()).isAfter(relative.updated_at)
-        : true
-    })
+        return relative
+          ? moment(item.updated_at ?? moment()).isAfter(relative.updated_at)
+          : true
+      })
   }, [folders, newFoldersData])
+
+  const foldersToDelete = useMemo(() => {
+    if (!folders) return []
+
+    return folders.filter((item) => !!item.deleted_at)
+  }, [folders])
 
   const getNewData = useCallback(async () => {
     const {
@@ -292,7 +307,7 @@ export function CloudSyncProvider(props: props) {
         })
 
         // Update current workspace id
-        ipcRenderer.sendMessage('folders.delete', folder)
+        ipcRenderer.sendMessage('folders.delete', { ...folder, deleted: true })
         ipcRenderer.sendMessage('folders.create', {
           ...folder,
           ...newW,
@@ -305,6 +320,24 @@ export function CloudSyncProvider(props: props) {
       }
     }
   }, [foldersToUpload, saveFolder, showError, normalizeFolder])
+
+  const handleFolderDelete = useCallback(async () => {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const folder of foldersToDelete) {
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await deleteFolder({
+          variables: { id: folder.id },
+        })
+
+        // Update current workspace id
+        ipcRenderer.sendMessage('folders.delete', { ...folder, deleted: true })
+      } catch (error) {
+        console.error(error)
+        showError('Error while deleting folders')
+      }
+    }
+  }, [foldersToDelete, showError, deleteFolder])
 
   const setLoading = useCallback(
     (workspace: Workspace) => {
@@ -349,6 +382,12 @@ export function CloudSyncProvider(props: props) {
 
     setLastSync(moment())
   }, [foldersToDownload, handleFolderDownload])
+
+  useEffect(() => {
+    if (foldersToDelete.length) handleFolderDelete()
+
+    setLastSync(moment())
+  }, [foldersToDelete, handleFolderDelete])
 
   useIpc('workspaces.get', async (data: Workspace[]) => {
     if (!hasCloudSync) return

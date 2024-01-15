@@ -604,7 +604,16 @@ export const onFoldersCreate = async (event: IpcMainEvent, folder: Folder) => {
 
 export const onFoldersDelete = async (event: IpcMainEvent, folder: Folder) => {
   let folders = (store.get('folders') ?? []) as Folder[]
-  folders = folders.filter((target) => target.id !== folder.id)
+  const index = folders.findIndex((target) => target.id === folder.id)
+  const regex = /^[0-9]+$/
+
+  // Check if workspace is synced on cloud
+  if (regex.test(folder.id.toString()) && !folder.deleted) {
+    folder.deleted_at = moment().format('YYYY-MM-DD HH:mm:ss')
+    folders[index] = folder
+  } else {
+    folders = folders.filter((target) => target.id !== folder.id)
+  }
 
   store.set('folders', folders)
   event.reply('folders.reload', folders)

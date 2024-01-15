@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import _ from 'lodash'
+import _, { update } from 'lodash'
 import moment from 'moment'
 import { useLazyQuery } from '@apollo/client'
 
@@ -139,14 +139,26 @@ function Dashboard() {
     [settings]
   )
 
-  const onSaveSettings = useCallback((setting: Setting) => {
-    const { folders: updatedFolders, defaultPath } = setting
+  const onSaveSettings = useCallback(
+    (setting: Setting) => {
+      const { folders: newData, defaultPath } = setting
 
-    ipcRenderer.sendMessage('folders.set', updatedFolders)
-    ipcRenderer.sendMessage('settings.update', { defaultPath } as Setting)
+      const deletedFolders = folders.filter(
+        (t) => newData.findIndex((f) => f.id === t.id) === -1
+      )
 
-    setIsModalSettingsOpen(false)
-  }, [])
+      ipcRenderer.sendMessage('folders.set', _.unionBy(newData, folders, 'id'))
+      // eslint-disable-next-line no-restricted-syntax
+      for (const folder of deletedFolders) {
+        ipcRenderer.sendMessage('folders.delete', folder)
+      }
+
+      ipcRenderer.sendMessage('settings.update', { defaultPath } as Setting)
+
+      setIsModalSettingsOpen(false)
+    },
+    [folders]
+  )
 
   const onCloseModalCreateFolder = useCallback(() => {
     setIsModalCreateFolderOpen(false)
@@ -197,7 +209,8 @@ function Dashboard() {
   })
 
   useIpc('folders.reload', (data: Folder[]) => {
-    setFolders(data)
+    const filtered = data.filter((folder) => !folder.deleted_at)
+    setFolders(filtered)
   })
 
   useIpc('workspaces.get', (data: Workspace[]) => {
@@ -205,7 +218,8 @@ function Dashboard() {
   })
 
   useIpc('folders.get', (data: Folder[]) => {
-    setFolders(data)
+    const filtered = data.filter((folder) => !folder.deleted_at)
+    setFolders(filtered)
   })
 
   useIpc('settings.get', (data: Setting) => {
