@@ -39,7 +39,7 @@ function ModalSettingsGeneral() {
             <ButtonMain
               secondary
               bordered
-              className="bg-primary rounded-none px-3 font-thin rounded-r-[8px]"
+              className="bg-highlight-primary rounded-none px-3 font-thin rounded-r-[8px]"
               onClick={onClickSearch}
             >
               <Lucide icon="Search" size={20} color="#000" />

@@ -176,7 +176,7 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
             <ButtonMain
               secondary
               bordered
-              className="bg-primary rounded-none px-3 font-thin rounded-r-[8px]"
+              className="bg-highlight-primary rounded-none px-3 font-thin rounded-r-[8px]"
               onClick={() => onClickRemove(browser)}
             >
               <Lucide icon="Trash" size={20} color="#000" />

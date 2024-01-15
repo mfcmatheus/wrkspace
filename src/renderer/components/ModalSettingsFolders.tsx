@@ -78,7 +78,10 @@ function ModalSettingsFolders(props: ModalSettingsFoldersProps) {
         </ButtonMain>
       </div>
       {folders.map((folder, index: number) => (
-        <div key={folder.id} className="flex flex-col gap-y-2 bg-[#353535] p-5 rounded">
+        <div
+          key={folder.id}
+          className="flex flex-col gap-y-2 bg-[#353535] p-5 rounded"
+        >
           <div className="flex flex-col">
             <div className="flex gap-x-3">
               <InputMain
@@ -89,7 +92,10 @@ function ModalSettingsFolders(props: ModalSettingsFoldersProps) {
                 {initials(folder.name, 3)}
               </span>
             </div>
-            <ErrorMessage name={`folders[${index}].name`} render={renderError}/>
+            <ErrorMessage
+              name={`folders[${index}].name`}
+              render={renderError}
+            />
           </div>
           <div className="flex flex-col">
             <div className="flex">
@@ -102,13 +108,16 @@ function ModalSettingsFolders(props: ModalSettingsFoldersProps) {
               <ButtonMain
                 secondary
                 bordered
-                className="bg-primary rounded-none px-3 font-thin rounded-r-[8px]"
+                className="bg-highlight-primary rounded-none px-3 font-thin rounded-r-[8px]"
                 onClick={() => onClickSearch(folder)}
               >
                 <Lucide icon="Search" size={20} color="#000" />
               </ButtonMain>
             </div>
-            <ErrorMessage name={`folders[${index}].path`} render={renderError} />
+            <ErrorMessage
+              name={`folders[${index}].path`}
+              render={renderError}
+            />
           </div>
           <div className="flex items-center mt-3">
             <ButtonMain

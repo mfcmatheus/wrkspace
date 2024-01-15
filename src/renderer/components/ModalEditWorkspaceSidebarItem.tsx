@@ -23,7 +23,8 @@ function ModalEditWorkspaceSidebarItem(
     () =>
       classNames({
         'flex items-center py-2 px-3 font-thin text-white': true,
-        'bg-gradient-to-r from-primary to-secondary font-normal': current,
+        'bg-gradient-to-r from-highlight-primary to-highlight-secondary font-normal':
+          current,
         'cursor-pointer': !current,
         'border-t border-[#353535]': page === ModalEditWorkspacePages.Browser,
       }),

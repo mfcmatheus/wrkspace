@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
-import 'tailwindcss/tailwind.css'
 import { ApolloProvider } from '@apollo/client'
+
+import 'renderer/App.css'
+import 'tailwindcss/tailwind.css'
 
 import Routes from 'renderer/routes'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'

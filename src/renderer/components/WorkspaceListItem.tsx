@@ -81,7 +81,8 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
       classNames({
         'flex flex-col group rounded border border-transparent p-3 transition ease-in-out duration-200':
           true,
-        '!border-[#353535] hover:!border-primary': !workspace.favorite,
+        '!border-[#353535] hover:!border-highlight-primary':
+          !workspace.favorite,
         'bg-[#353535]/25': !isInstalled,
       }),
     [workspace, isInstalled]
