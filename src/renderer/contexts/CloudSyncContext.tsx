@@ -109,15 +109,18 @@ export function CloudSyncProvider(props: props) {
   const toUpload = useMemo(() => {
     if (!workspaces || !newData) return []
 
-    return (workspaces ?? []).filter((item) => {
-      const relative = (newData ?? []).find(
-        (workspace) => workspace.id === item.id
-      )
+    return (workspaces ?? [])
+      .filter((item) => {
+        const relative = (newData ?? []).find(
+          (workspace) => workspace.id === item.id
+        )
 
-      return relative
-        ? moment(item.updated_at ?? moment()).isAfter(relative.updated_at)
-        : true
-    })
+        return relative
+          ? moment(item.updated_at ?? moment()).isAfter(relative.updated_at)
+          : true
+      })
+      .filter((item) => !item.deleted_at)
+      .filter((item) => !!item.repo)
   }, [workspaces, newData])
   const toDelete = useMemo(() => {
     if (!workspaces) return []
@@ -213,7 +216,10 @@ export function CloudSyncProvider(props: props) {
         })
 
         // Update current workspace id
-        ipcRenderer.sendMessage('workspaces.delete', workspace)
+        ipcRenderer.sendMessage('workspaces.delete', {
+          ...workspace,
+          deleted: true,
+        })
         ipcRenderer.sendMessage('workspaces.create', {
           ...workspace,
           ...newW,
@@ -328,8 +334,6 @@ export function CloudSyncProvider(props: props) {
 
   useEffect(() => {
     if (toDelete.length) handleDelete()
-
-    console.log(toDelete)
 
     setLastSync(moment())
   }, [toDelete, handleDelete])

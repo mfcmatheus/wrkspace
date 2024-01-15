@@ -22,6 +22,7 @@ export const DockerSchema = Yup.object().shape({
   enableComposer: Yup.boolean().nullable(),
   enableContainers: Yup.boolean().nullable(),
   enableSail: Yup.boolean().nullable(),
+  enableBuild: Yup.boolean().nullable(),
 })
 
 export const FeaturesSchema = Yup.object().shape({

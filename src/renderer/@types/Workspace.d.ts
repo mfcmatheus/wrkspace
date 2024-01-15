@@ -23,6 +23,7 @@ export default interface Workspace {
     enableComposer?: boolean
     enableContainers?: boolean
     enableSail?: boolean
+    enableBuild?: boolean
     containers?: Container[]
   }
   installation?: {

@@ -16,6 +16,7 @@ function ModalEditWorkspaceDocker() {
   const [fieldCheckboxComposer] = useField('docker.enableComposer')
   const [fieldCheckboxContainers] = useField('docker.enableContainers')
   const [fieldUseSail] = useField('docker.enableSail')
+  const [fieldUseBuild] = useField('docker.enableBuild')
 
   const [containers, setContainers] = useState<Container[]>([])
   const [isDockerRunning, setIsDockerRunning] = useState<boolean>(false)
@@ -49,10 +50,10 @@ function ModalEditWorkspaceDocker() {
   )
 
   useEffect(() => {
-    if (fieldUseSail.value) {
+    if (fieldUseSail.value || fieldUseBuild.value) {
       setIsOptionsExpanded(true)
     }
-  }, [])
+  }, [fieldUseSail.value, fieldUseBuild.value])
 
   useEffect(() => {
     ipcRenderer.sendMessage('containers.get')
@@ -132,6 +133,19 @@ function ModalEditWorkspaceDocker() {
                 disabled={!fieldCheckboxComposer.value}
               />
               <span className="ml-2">Use Laravel Sail</span>
+            </label>
+            <label
+              htmlFor="enableBuild"
+              className="flex items-center text-[#d2d2d2] font-thin text-sm"
+            >
+              <SwitchMain
+                sm
+                primary
+                name="docker.enableBuild"
+                id="enableBuild"
+                disabled={!fieldCheckboxComposer.value}
+              />
+              <span className="ml-2">Rebuild image?</span>
             </label>
           </div>
         </CollapseMain>
