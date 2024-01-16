@@ -51,3 +51,11 @@ jobs:
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.apple_app_specific_password }}
           CSC_LINK: ${{ secrets.csc_link }}
           CSC_KEY_PASSWORD: ${{ secrets.csc_key_password }}
+          
+      - name: Create release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/build/wrkspace-*.dmg
+          tag: ${{ github.ref }}
+          file_glob: true
