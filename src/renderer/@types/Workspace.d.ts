@@ -35,5 +35,7 @@ export default interface Workspace {
   created_at: string
   deleted_at?: string
   deleted?: boolean
+  created?: boolean
+  updated?: boolean
   opened_at?: string | number
 }

@@ -269,7 +269,8 @@ export const onWorkspaceUpdate = async (
   event.reply('workspaces.reload', workspaces)
 
   const folders = (store.get('folders') ?? []) as Folder[]
-  event.reply('cloud.reload', { w: workspaces, f: folders })
+  if (!workspace.updated)
+    event.reply('cloud.reload', { w: workspaces, f: folders })
 }
 
 export const onWorkspaceDelete = async (
@@ -294,7 +295,8 @@ export const onWorkspaceDelete = async (
   event.reply('workspaces.reload', workspaces)
 
   const folders = (store.get('folders') ?? []) as Folder[]
-  event.reply('cloud.reload', { w: workspaces, f: folders })
+  if (!workspace.deleted)
+    event.reply('cloud.reload', { w: workspaces, f: folders })
 }
 
 export const onWorkspaceCreate = async (
@@ -314,7 +316,8 @@ export const onWorkspaceCreate = async (
   event.reply('workspaces.reload', workspaces)
 
   const folders = (store.get('folders') ?? []) as Folder[]
-  event.reply('cloud.reload', { w: workspaces, f: folders })
+  if (!workspace.created)
+    event.reply('cloud.reload', { w: workspaces, f: folders })
 }
 
 export const onWorkspaceUninstall = async (
@@ -325,9 +328,9 @@ export const onWorkspaceUninstall = async (
 
   fs.rmSync(workspace.path, { recursive: true, force: true })
 
-  onWorkspaceDelete(event, workspace)
-
-  const workspaces = (store.get('workspaces') ?? []) as Workspace[]
+  let workspaces = (store.get('workspaces') ?? []) as Workspace[]
+  workspaces = workspaces.filter((target) => target.id !== workspace.id)
+  store.set('workspaces', workspaces)
 
   event.reply('workspaces.uninstall', workspaces)
   event.reply('workspaces.reload', workspaces)
@@ -399,8 +402,8 @@ const cloneProject = async (
         )}`
 
         workspaceExists(workspace)
-          ? await onWorkspaceUpdate(event, workspace)
-          : await onWorkspaceCreate(event, workspace)
+          ? await onWorkspaceUpdate(event, { ...workspace, updated: true })
+          : await onWorkspaceCreate(event, { ...workspace, created: true })
 
         resolve(true)
       })

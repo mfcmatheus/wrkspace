@@ -238,6 +238,7 @@ export function CloudSyncProvider(props: props) {
         ipcRenderer.sendMessage('workspaces.create', {
           ...workspace,
           ...newW,
+          created: true,
         })
 
         setUploadProgress((prev) => prev + progressSlice)
@@ -400,9 +401,7 @@ export function CloudSyncProvider(props: props) {
   })
 
   useIpc('cloud.reload', async ({ w, f }: { w: Workspace[]; f: Folder[] }) => {
-    /* await refetchUser()
-    setWorkspaces(w)
-    console.log(w, toUpload)
+    await refetchUser()
 
     if (!hasCloudSync) return
 
@@ -413,7 +412,7 @@ export function CloudSyncProvider(props: props) {
     await getNewFoldersData()
     await getNewData()
 
-    setIsSyncing(false) */
+    setIsSyncing(false)
   })
 
   useIpc('folders.get', async (data: Folder[]) => {
