@@ -8,15 +8,28 @@ export type Channels =
   | 'workspaces.delete'
   | 'workspaces.create'
   | 'workspaces.open'
+  | 'workspaces.uninstall'
+  | 'workspaces.install'
+  | 'workspaces.reload'
   | 'dialog:openDirectory'
   | 'containers.get'
   | 'services.docker'
+  | 'services.git'
   | 'folders.get'
   | 'folders.create'
+  | 'folders.delete'
   | 'folders.set'
+  | 'folders.reload'
   | 'settings.get'
   | 'settings.update'
+  | 'settings.reload'
   | 'applications.get'
+  | 'process'
+  | 'user.get'
+  | 'user.set'
+  | 'user.authenticate'
+  | 'user.logout'
+  | 'cloud.reload'
 
 const electronHandler = {
   ipcRenderer: {
@@ -31,6 +44,9 @@ const electronHandler = {
       return () => {
         ipcRenderer.removeListener(channel, subscription)
       }
+    },
+    removeListener(channel: Channels) {
+      ipcRenderer.removeAllListeners(channel)
     },
     once(channel: Channels, func: (...args: unknown[]) => void) {
       ipcRenderer.once(channel, (_event, ...args) => func(...args))

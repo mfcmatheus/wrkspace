@@ -19,9 +19,9 @@ function WorkspaceListItemLaunch(props: WorkspaceListItemLaunchProps) {
   const classes = useMemo(
     () =>
       classNames({
-        'flex cursor-pointer flex-1 text-center bg-[#353535] group-hover:bg-primary -mx-[13px] -mb-[13px] py-2 mt-1 rounded-b-[3px] transition ease-in-out duration-200':
+        'flex cursor-pointer flex-1 text-center bg-[#353535] group-hover:bg-highlight-primary -mx-[13px] -mb-[13px] py-2 mt-1 rounded-b-[3px] transition ease-in-out duration-200':
           true,
-        'group-hover:!bg-gradient-to-r from-primary to-secondary':
+        'group-hover:!bg-gradient-to-r from-highlight-primary to-highlight-secondary':
           workspace.favorite,
       }),
     [workspace]

@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import _ from 'lodash'
-
+import _, { update } from 'lodash'
 import moment from 'moment'
+import { useLazyQuery } from '@apollo/client'
+
 import TopBar from 'renderer/components/TopBar'
 import WorkspaceList from 'renderer/components/WorkspaceList'
 import ModalEditWorkspace from 'renderer/components/ModalEditWorkspace'
@@ -9,7 +10,6 @@ import WorkspaceListItem from 'renderer/components/WorkspaceListItem'
 import Workspace from 'renderer/@types/Workspace'
 import ButtonMain from 'renderer/base-components/ButtonMain'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
-import StatusBar from 'renderer/components/StatusBar'
 import FolderBar from 'renderer/components/FolderBar'
 import ModalCreateFolder from 'renderer/components/ModalCreateFolder'
 import Folder from 'renderer/@types/Folder'
@@ -20,17 +20,36 @@ import ModalSettings from 'renderer/components/ModalSettings'
 import Logo from 'renderer/base-components/Logo'
 import ShadowMain from 'renderer/base-components/ShadowMain'
 import LogsMain from 'renderer/components/LogsMain'
+import FolderBarAuth from 'renderer/components/FolderBarAuth'
+import CloudSyncIndicator from 'renderer/components/CloudSyncIndicator'
+import { useCloudSync } from 'renderer/contexts/CloudSyncContext'
+import client from 'renderer/graphql/client'
+import WorkspaceQuery from 'renderer/graphql/queries/WorkspaceQuery'
+import ModalStart from 'renderer/components/ModalStart'
+
+const apolloClient = client('/user')
 
 function Dashboard() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [folders, setFolders] = useState<Folder[]>([])
-  const [settings, setSettings] = useState<Setting>({})
+  const [settings, setSettings] = useState<Setting>({} as Setting)
   const [isModalEditOpen, setIsModalEditOpen] = useState(false)
   const [isModalSettingsOpen, setIsModalSettingsOpen] = useState(false)
   const [isModalCreateFolderOpen, setIsModalCreateFolderOpen] = useState(false)
+  const [isModalStartOpen, setIsModalStartOpen] = useState<boolean>(
+    !settings?.configured ?? true
+  )
   const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(
     {} as Workspace
   )
+  const [selectedFolder, setSelectedFolder] = useState<Folder | null>(null)
+
+  const { workspaces: toInstall, setLoading: setLoadingPreview } =
+    useCloudSync()
+
+  const [getWorkspace] = useLazyQuery(WorkspaceQuery, {
+    client: apolloClient,
+  })
 
   const onEditWorkspace = useCallback((workspace: Workspace) => {
     setSelectedWorkspace(workspace)
@@ -57,16 +76,35 @@ function Dashboard() {
     setIsModalEditOpen(false)
   }, [])
 
+  const onInstall = useCallback(
+    async (workspace: Workspace) => {
+      setLoadingPreview(workspace)
+
+      const { data } = await getWorkspace({ variables: { id: workspace.id } })
+
+      ipcRenderer.sendMessage('workspaces.install', data.Workspace)
+    },
+    [getWorkspace, setLoadingPreview]
+  )
+
   const onFavorite = useCallback(
     (workspace: Workspace) => {
-      return onSave({ ...workspace, favorite: !workspace.favorite })
+      return onSave({
+        ...workspace,
+        favorite: !workspace.favorite,
+        updated_at: moment().format('YYYY-MM-DD HH:mm:ss'),
+      })
     },
     [onSave]
   )
 
   const onSetFolder = useCallback(
     (workspace: Workspace, folder: Folder | undefined) => {
-      return onSave({ ...workspace, folder })
+      return onSave({
+        ...workspace,
+        folder,
+        updated_at: moment().format('YYYY-MM-DD HH:mm:ss'),
+      })
     },
     [onSave]
   )
@@ -75,6 +113,20 @@ function Dashboard() {
     ipcRenderer.sendMessage('folders.create', folder)
     setIsModalCreateFolderOpen(false)
   }, [])
+
+  const onUpdateFolder = useCallback(
+    (folder: Folder) => {
+      const index = folders.findIndex((f) => f.id === folder.id)
+      const updatedFolders = [...folders]
+      updatedFolders[index] = folder
+
+      ipcRenderer.sendMessage('folders.set', updatedFolders)
+
+      setIsModalCreateFolderOpen(false)
+      setSelectedFolder(null)
+    },
+    [folders]
+  )
 
   const onClickFolder = useCallback(
     (folder: Folder) => {
@@ -87,12 +139,34 @@ function Dashboard() {
     [settings]
   )
 
-  const onSaveSettings = useCallback((setting: Setting) => {
-    const { folders: updatedFolders } = setting
+  const onSaveSettings = useCallback(
+    (setting: Setting) => {
+      const { folders: newData, defaultPath } = setting
 
-    ipcRenderer.sendMessage('folders.set', updatedFolders)
+      const deletedFolders = folders.filter(
+        (t) => newData.findIndex((f) => f.id === t.id) === -1
+      )
 
-    setIsModalSettingsOpen(false)
+      ipcRenderer.sendMessage('folders.set', _.unionBy(newData, folders, 'id'))
+      // eslint-disable-next-line no-restricted-syntax
+      for (const folder of deletedFolders) {
+        ipcRenderer.sendMessage('folders.delete', folder)
+      }
+
+      ipcRenderer.sendMessage('settings.update', { defaultPath } as Setting)
+
+      setIsModalSettingsOpen(false)
+    },
+    [folders]
+  )
+
+  const onCloseModalCreateFolder = useCallback(() => {
+    setIsModalCreateFolderOpen(false)
+    setSelectedFolder(null)
+  }, [])
+
+  const onSaveModalStart = useCallback((data: Setting) => {
+    ipcRenderer.sendMessage('settings.update', data)
   }, [])
 
   const title = useMemo(() => {
@@ -100,14 +174,8 @@ function Dashboard() {
   }, [settings?.currentFolder])
 
   const filteredWorkspaces = useMemo(() => {
-    let data = workspaces.filter((workspace) => {
-      return settings?.currentFolder
-        ? workspace.folder?.id === settings?.currentFolder?.id
-        : true
-    })
-
-    data = _.orderBy(
-      data,
+    let data = _.orderBy(
+      workspaces,
       [
         (w) => !!w.favorite,
         (w) =>
@@ -117,15 +185,32 @@ function Dashboard() {
         'name',
       ],
       ['desc', 'desc', 'asc']
-    )
+    ).filter((w) => !w.deleted_at)
 
-    return data
-  }, [workspaces, settings?.currentFolder]) as Workspace[]
+    if (toInstall?.length) {
+      data = data.concat(_.orderBy(toInstall, ['name'], ['asc']))
+    }
+
+    return data.filter((workspace) => {
+      return settings?.currentFolder
+        ? workspace.folder?.id === settings?.currentFolder?.id
+        : true
+    })
+  }, [workspaces, settings?.currentFolder, toInstall]) as Workspace[]
 
   useEffect(() => {
-    ipcRenderer.sendMessage('workspaces.get')
     ipcRenderer.sendMessage('folders.get')
     ipcRenderer.sendMessage('settings.get')
+    ipcRenderer.sendMessage('workspaces.get')
+  }, [])
+
+  useIpc('workspaces.reload', (data: Workspace[]) => {
+    setWorkspaces(data)
+  })
+
+  useIpc('folders.reload', (data: Folder[]) => {
+    const filtered = data.filter((folder) => !folder.deleted_at)
+    setFolders(filtered)
   })
 
   useIpc('workspaces.get', (data: Workspace[]) => {
@@ -133,11 +218,28 @@ function Dashboard() {
   })
 
   useIpc('folders.get', (data: Folder[]) => {
-    setFolders(data)
+    const filtered = data.filter((folder) => !folder.deleted_at)
+    setFolders(filtered)
   })
 
   useIpc('settings.get', (data: Setting) => {
     setSettings(data)
+    setIsModalStartOpen(!data.configured)
+
+    if (data.currentFolder && !data.currentFolder.path) {
+      setIsModalCreateFolderOpen(true)
+      setSelectedFolder(data.currentFolder)
+    }
+  })
+
+  useIpc('settings.reload', (data: Setting) => {
+    setSettings(data)
+    setIsModalStartOpen(!data.configured)
+
+    if (data.currentFolder && !data.currentFolder.path) {
+      setIsModalCreateFolderOpen(true)
+      setSelectedFolder(data.currentFolder)
+    }
   })
 
   return (
@@ -147,27 +249,27 @@ function Dashboard() {
         <div className="flex flex-col flex-1">
           {filteredWorkspaces?.length ? (
             <div className="flex flex-col flex-1 p-4 relative">
-              <div className="flex mb-4">
+              <div className="flex items-center mb-4">
                 <h2 className="text-medium text-[#f0f0f0] text-xl">{title}</h2>
-                <ButtonMain
-                  sm
-                  bordered
-                  secondary
-                  className="ml-auto"
-                  onClick={onClickCreate}
-                >
-                  Create Workspace
-                </ButtonMain>
+                <div className="flex items-center gap-x-3 ml-auto">
+                  <CloudSyncIndicator />
+                  <ButtonMain sm bordered secondary onClick={onClickCreate}>
+                    Create Workspace
+                  </ButtonMain>
+                </div>
               </div>
               <WorkspaceList>
                 {filteredWorkspaces.map((workspace) => (
                   <WorkspaceListItem
-                    key={workspace.id}
+                    key={
+                      workspace.path ? workspace.id : `${workspace.id}-preview`
+                    }
                     workspace={workspace}
                     folders={folders}
                     onEdit={onEditWorkspace}
                     onFavorite={onFavorite}
                     onSetFolder={onSetFolder}
+                    onInstall={onInstall}
                   />
                 ))}
               </WorkspaceList>
@@ -195,25 +297,40 @@ function Dashboard() {
           <LogsMain />
         </div>
         <FolderBar onClickCreate={() => setIsModalCreateFolderOpen(true)}>
-          {folders.map((folder) => (
-            <FolderBarItem
-              key={folder.id}
-              folder={folder}
-              current={settings?.currentFolder?.id === folder.id}
-              onClick={onClickFolder}
-            />
-          ))}
-          <div className="flex mt-auto border-t border-[#353535] pt-2">
+          <div className="flex flex-col flex-grow basis-0 relative overflow-auto gap-y-3 items-center">
+            {folders.map((folder) => (
+              <FolderBarItem
+                key={folder.id}
+                folder={folder}
+                current={settings?.currentFolder?.id === folder.id}
+                onClick={onClickFolder}
+              />
+            ))}
+          </div>
+          <div className="flex flex-col items-center mt-auto border-t border-[#353535] pt-2 relative">
+            <FolderBarAuth />
             <button
               type="button"
               className="flex h-12 w-12 justify-center items-center"
               onClick={() => setIsModalSettingsOpen(true)}
             >
-              <Lucide icon="Settings" size={26} color="#6f6f6f" />
+              <Lucide
+                icon="Settings"
+                size={32}
+                color="#6f6f6f"
+                strokeWidth={1}
+              />
             </button>
           </div>
         </FolderBar>
       </div>
+
+      {isModalStartOpen && (
+        <ModalStart
+          onClose={() => setIsModalStartOpen(false)}
+          onSave={onSaveModalStart}
+        />
+      )}
 
       {isModalEditOpen && (
         <ModalEditWorkspace
@@ -229,6 +346,7 @@ function Dashboard() {
       {isModalSettingsOpen && (
         <ModalSettings
           folders={folders}
+          settings={settings}
           onClose={() => setIsModalSettingsOpen(false)}
           onSave={onSaveSettings}
         />
@@ -236,8 +354,10 @@ function Dashboard() {
 
       {isModalCreateFolderOpen && (
         <ModalCreateFolder
-          onSave={onCreateFolder}
-          onClose={() => setIsModalCreateFolderOpen(false)}
+          folder={selectedFolder}
+          onCreate={onCreateFolder}
+          onUpdate={onUpdateFolder}
+          onClose={onCloseModalCreateFolder}
         />
       )}
     </>

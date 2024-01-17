@@ -3,6 +3,7 @@ import React, { useMemo } from 'react'
 
 import Folder from 'renderer/@types/Folder'
 import ShadowMain from 'renderer/base-components/ShadowMain'
+import Lucide from 'renderer/base-components/lucide'
 import initials from 'renderer/helpers/initials'
 
 interface FolderBarItemProps {
@@ -30,15 +31,24 @@ function FolderBarItem(props: FolderBarItemProps) {
         title={folder.name}
         type="button"
         className={classNames({
-          'border border-transparent text-[#6f6f6f] rounded-full h-12 w-12 flex items-center justify-center uppercase font-extrabold transition ease-in-out duration-200':
+          'relative border border-transparent text-[#6f6f6f] rounded-full h-12 w-12 flex items-center justify-center uppercase font-extrabold transition ease-in-out duration-200':
             true,
-          'text-secondary': current,
-          '!border-[#6f6f6f] hover:!border-primary hover:text-primary':
+          'text-highlight-secondary': current,
+          '!border-[#6f6f6f] hover:!border-highlight-primary hover:text-highlight-primary':
             !current,
         })}
         onClick={() => onClick?.(folder)}
       >
         {nameInitials}
+
+        {!folder.path && (
+          <div
+            title="Missing path"
+            className="absolute bottom-0 right-0 rounded-full h-3 w-3 bg-yellow-600"
+          >
+            <Lucide icon="Info" size={12} color="#fff" />
+          </div>
+        )}
       </button>
     </Element>
   )

@@ -57,7 +57,7 @@ function ButtonMain(props: ButtonMainProps) {
         'bg-white text-black hover:bg-gray-300': secondary,
         'shadow-[0_0_0_1px_hsla(0,0%,100%,.14)] text-white hover:bg-[hsla(0,0%,100%,.14)] disabled:hover:bg-transparent':
           bordered && primary,
-        'text-white hover:bg-gradient-to-r from-primary to-secondary':
+        'text-white hover:bg-gradient-to-r from-highlight-primary to-highlight-secondary':
           highlight,
         [className!]: !!className,
       }),

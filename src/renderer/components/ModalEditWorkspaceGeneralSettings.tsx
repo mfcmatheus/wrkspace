@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { ErrorMessage, Field, useField } from 'formik'
+import { ErrorMessage, Field, useField, useFormikContext } from 'formik'
 
+import classNames from 'classnames'
 import ButtonMain from 'renderer/base-components/ButtonMain'
 import InputMain from 'renderer/base-components/InputMain'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
@@ -9,8 +10,9 @@ import SelectMain from 'renderer/base-components/SelectMain'
 import Lucide from 'renderer/base-components/lucide'
 
 function ModalEditWorkspaceGeneralSettings() {
+  const { errors } = useFormikContext()
   const pathFieldHelpers = useField('path')[2]
-  const [enableEditorField] = useField('enableEditor')
+  const [enableEditorField] = useField('features.enableEditor')
 
   const [applications, setApplications] = useState<string[]>([])
 
@@ -40,9 +42,15 @@ function ModalEditWorkspaceGeneralSettings() {
       <div className="flex flex-col">
         <label htmlFor="name" className="flex flex-col">
           <span className="text-white font-thin mb-2">Workspace name</span>
-          <InputMain name="name" id="name" placeholder="Workspace name" />
+          <InputMain
+            name="name"
+            id="name"
+            placeholder="Workspace name"
+            containerClasses={classNames({
+              'border border-red-500': errors.name,
+            })}
+          />
         </label>
-        <ErrorMessage name="name" render={renderError} />
       </div>
       <div className="flex flex-col">
         <label htmlFor="path" className="flex flex-col">
@@ -52,19 +60,22 @@ function ModalEditWorkspaceGeneralSettings() {
               name="path"
               id="path"
               placeholder="Workspace path"
-              containerClasses="!rounded-r-none"
+              containerClasses={classNames({
+                '!rounded-r-none': true,
+                'border border-red-500': errors.path,
+              })}
+              readOnly
             />
             <ButtonMain
               secondary
               bordered
-              className="bg-primary rounded-none px-3 font-thin rounded-r-[8px]"
+              className="bg-highlight-primary rounded-none px-3 font-thin rounded-r-[8px]"
               onClick={onClickSearch}
             >
               <Lucide icon="Search" size={20} color="#000" />
             </ButtonMain>
           </div>
         </label>
-        <ErrorMessage name="path" render={renderError} />
       </div>
       <div className="flex flex-col">
         <label htmlFor="enableEditor" className="flex flex-col">
@@ -77,7 +88,12 @@ function ModalEditWorkspaceGeneralSettings() {
                 </option>
               ))}
             </SelectMain>
-            <SwitchMain sm primary name="enableEditor" id="enableEditor" />
+            <SwitchMain
+              sm
+              primary
+              name="features.enableEditor"
+              id="enableEditor"
+            />
           </div>
         </label>
         <ErrorMessage name="editor" render={renderError} />

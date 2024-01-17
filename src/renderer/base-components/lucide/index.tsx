@@ -2,8 +2,10 @@ import React, { useEffect } from 'react'
 import * as lucideIcons from 'lucide-react'
 
 interface LucideProps {
+  id?: string
   icon: string
   size: number
+  color: string
   className?: string
 }
 

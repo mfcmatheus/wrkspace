@@ -26,6 +26,15 @@ export function fakeId(length: number = 16) {
   return result
 }
 
+export const resolveString = (str: string) => {
+  // Remove special characters except dashes and spaces
+  let processedString = str.replace(/[^\w\s-]/gi, '')
+  // Replace spaces with dashes
+  processedString = processedString.replace(/\s+/g, '-')
+  // Return the processed string
+  return processedString
+}
+
 export function runScript(
   command: string,
   args?: readonly string[],

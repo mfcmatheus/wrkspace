@@ -25,9 +25,9 @@ function ShadowMain(props: Props) {
   const shadowCLasses = useMemo(
     () =>
       classNames({
-        'bg-gradient-to-r from-primary to-secondary absolute w-full h-full inset-0 z-[1] rounded-[12px]':
+        'bg-gradient-to-r from-highlight-primary to-highlight-secondary absolute w-full h-full inset-0 z-[1] rounded-[12px]':
           true,
-        "before:absolute before:inset-0 before:bg-gradient-to-r before:from-primary before:to-secondary before:blur-[36px] before:content-[''] before:bg-clip-padding before:border-[12px] before:border-transparent":
+        "before:absolute before:inset-0 before:bg-gradient-to-r before:from-highlight-primary before:to-highlight-secondary before:blur-[36px] before:content-[''] before:bg-clip-padding before:border-[12px] before:border-transparent":
           shadow,
         [shadowClassName!]: !!shadowClassName,
       }),

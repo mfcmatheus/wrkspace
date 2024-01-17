@@ -1,4 +1,8 @@
 export default interface Folder {
-  id?: string
+  id: string | number
   name: string
+  path: string
+  updated_at?: string
+  deleted_at?: string
+  deleted?: boolean
 }

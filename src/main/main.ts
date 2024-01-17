@@ -9,9 +9,12 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path'
+import nodePath from 'node:path'
 import { app, BrowserWindow, shell, ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
+import Store from 'electron-store'
+import { loadErrorMessages, loadDevMessages } from '@apollo/client/dev'
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
 import {
@@ -21,22 +24,31 @@ import {
   onFoldersGet,
   onFoldersSet,
   onOpenDirectory,
+  onProcess,
   onServicesDocker,
   onSettingsGet,
   onSettingsUpdate,
+  onUserGet,
+  onUserSet,
+  onUserAuthenticate,
   onWorkspaceCreate,
   onWorkspaceDelete,
   onWorkspaceGet,
   onWorkspaceOpen,
   onWorkspaceUpdate,
+  onUserLogout,
+  onWorkspaceUninstall,
+  onWorkspaceInstall,
+  onFoldersDelete,
+  onUserUpgrade,
+  onServicesGit,
 } from './process'
 
-const server = 'https://updater.wrkspace.co/'
-const url = `${server}/update/${process.platform}/${app.getVersion()}`
+const store = new Store()
+
 class AppUpdater {
   constructor() {
-    autoUpdater.setFeedURL({ url })
-    log.transports.file.level = 'info'
+    log.transports.file.level = 'debug'
     autoUpdater.logger = log
     autoUpdater.checkForUpdatesAndNotify()
     // autoUpdater.allowPrerelease = true
@@ -51,8 +63,8 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'))
 })
 
-ipcMain.on('dialog:openDirectory', async (event) =>
-  onOpenDirectory(mainWindow as BrowserWindow, event)
+ipcMain.on('dialog:openDirectory', async (event, reference: string | number) =>
+  onOpenDirectory(mainWindow as BrowserWindow, event, reference)
 )
 
 ipcMain.on('containers.get', onContainersGet)
@@ -61,17 +73,31 @@ ipcMain.on('workspaces.get', onWorkspaceGet)
 ipcMain.on('workspaces.create', onWorkspaceCreate)
 ipcMain.on('workspaces.update', onWorkspaceUpdate)
 ipcMain.on('workspaces.delete', onWorkspaceDelete)
+ipcMain.on('workspaces.uninstall', onWorkspaceUninstall)
+ipcMain.on('workspaces.install', onWorkspaceInstall)
 ipcMain.on('services.docker', onServicesDocker)
+ipcMain.on('services.git', onServicesGit)
 ipcMain.on('folders.get', onFoldersGet)
 ipcMain.on('folders.create', onFoldersCreate)
+ipcMain.on('folders.delete', onFoldersDelete)
 ipcMain.on('folders.set', onFoldersSet)
 ipcMain.on('settings.get', onSettingsGet)
 ipcMain.on('settings.update', onSettingsUpdate)
 ipcMain.on('applications.get', onApplicationsGet)
+ipcMain.on('process', onProcess)
+ipcMain.on('user.get', onUserGet)
+ipcMain.on('user.set', onUserSet)
+ipcMain.on('user.authenticate', onUserAuthenticate)
+ipcMain.on('user.upgrade', onUserUpgrade)
+ipcMain.on('user.logout', onUserLogout)
+
+process.env.APP_URL = 'http://localhost:3000'
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support')
   sourceMapSupport.install()
+
+  process.env.APP_URL = 'https://wrkspace.co'
 }
 
 const isDebug =
@@ -79,6 +105,23 @@ const isDebug =
 
 if (isDebug) {
   require('electron-debug')()
+
+  loadDevMessages()
+  loadErrorMessages()
+}
+
+// store.delete('workspaces')
+// store.delete('settings')
+// store.delete('folders')
+
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient('wrkspace', process.execPath, [
+      nodePath.resolve(process.argv[1]),
+    ])
+  }
+} else {
+  app.setAsDefaultProtocolClient('wrkspace')
 }
 
 const installExtensions = async () => {
@@ -133,6 +176,8 @@ const createWindow = async () => {
     } else {
       mainWindow.show()
     }
+
+    mainWindow.webContents.send('user.check', store.get('token'))
   })
 
   mainWindow.on('closed', () => {
@@ -163,6 +208,21 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+app.on('open-url', (event, url) => {
+  const mappedUrl = new URL(url)
+
+  const action = url.match(/wrkspace:\/\/(.*?)\?/)?.[1]
+  const params = new URLSearchParams(mappedUrl.search)
+
+  if (action === 'authorize') {
+    const token = params.get('token')
+    store.set('token', token)
+    mainWindow?.webContents.send('user.check', token)
+  }
+
+  // dialog.showErrorBox('Welcome Back', mappedUrl.search ?? '')
 })
 
 app

@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { Formik, Form } from 'formik'
 
+import moment from 'moment'
 import Workspace from 'renderer/@types/Workspace'
 import SidebarItem from 'renderer/@types/SidebarItem'
 import ModalEditWorkspaceSidebarItem from 'renderer/components/ModalEditWorkspaceSidebarItem'
@@ -14,7 +15,9 @@ import ButtonMain from 'renderer/base-components/ButtonMain'
 import { ModalEditWorkspacePages } from 'renderer/@enums/ModalEditWorkspacePages'
 import WorkspaceFormSchema from 'renderer/@schemas/WorkspaceFormSchema'
 import Setting from 'renderer/@types/Setting'
+import { useUser } from 'renderer/contexts/UserContext'
 import DeleteButton from './DeleteButton'
+import ModalEditWorkspaceInstallation from './ModalEditWorkspaceInstallation'
 
 interface ModalEditWorkspaceProps {
   workspace: Workspace
@@ -38,6 +41,8 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
     ModalEditWorkspacePages.General
   )
 
+  const { hasCloudSync } = useUser()
+
   const isEditing = useMemo(() => !!workspace.id, [workspace])
   const isGeneralPage = useMemo(
     () => currentPage === ModalEditWorkspacePages.General,
@@ -55,43 +60,57 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
     () => currentPage === ModalEditWorkspacePages.Browser,
     [currentPage]
   )
+  const isInstallationPage = useMemo(
+    () => currentPage === ModalEditWorkspacePages.Cloud,
+    [currentPage]
+  )
 
   const sidebarItems: SidebarItem[] = useMemo(
-    () => [
-      {
-        icon: 'Settings',
-        label: 'General',
-        page: ModalEditWorkspacePages.General,
-      },
-      {
-        icon: 'Globe',
-        label: 'Pages',
-        page: ModalEditWorkspacePages.Browser,
-      },
-      {
-        icon: 'Terminal',
-        label: 'Terminals',
-        page: ModalEditWorkspacePages.Terminal,
-      },
-      {
-        icon: 'Container',
-        label: 'Docker',
-        page: ModalEditWorkspacePages.Docker,
-      },
-    ],
-    []
+    () =>
+      [
+        {
+          icon: 'Settings2',
+          label: 'General',
+          page: ModalEditWorkspacePages.General,
+        },
+        {
+          icon: 'Cloud',
+          label: 'Installation',
+          page: ModalEditWorkspacePages.Cloud,
+          condition: !!hasCloudSync,
+        },
+        {
+          icon: 'Globe',
+          label: 'Pages',
+          page: ModalEditWorkspacePages.Browser,
+        },
+        {
+          icon: 'Terminal',
+          label: 'Terminals',
+          page: ModalEditWorkspacePages.Terminal,
+        },
+        {
+          icon: 'Container',
+          label: 'Docker',
+          page: ModalEditWorkspacePages.Docker,
+        },
+      ].filter((item) =>
+        typeof item.condition !== 'undefined' ? item.condition : true
+      ),
+    [hasCloudSync]
   )
 
   const onClickClose = useCallback(() => onClose && onClose(), [onClose])
   const onSubmit = useCallback(
     (data: Workspace) => {
       data.folder = settings.currentFolder
+      data.updated_at = moment().format('YYYY-MM-DD HH:mm:ss')
       return isEditing ? onSave && onSave(data) : onCreate && onCreate(data)
     },
     [isEditing, onSave, onCreate, settings]
   )
   const onClickDelete = useCallback(
-    () => onDelete && onDelete(workspace),
+    () => onDelete?.(workspace),
     [onDelete, workspace]
   )
 
@@ -99,7 +118,7 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
     <div className="flex absolute inset-0 w-screen h-screen">
       <div
         aria-hidden="true"
-        className="absolute z-[3] inset-0 opacity-[60%] bg-[#000000]"
+        className="absolute z-[3] inset-0 bg-black/[.6] backdrop-blur-sm"
         onClick={onClickClose}
       />
       <div className="flex relative z-[4] m-auto bg-[#202020] rounded-lg h-[80vh] w-[60vw] shadow">
@@ -144,6 +163,9 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
                 <ModalEditWorkspaceTerminal workspace={workspace} />
               )}
               {isDockerPage && <ModalEditWorkspaceDocker />}
+              {isInstallationPage && (
+                <ModalEditWorkspaceInstallation workspace={workspace} />
+              )}
               <div className="flex p-3">
                 {isEditing && (
                   <DeleteButton onClick={onClickDelete}>Delete</DeleteButton>

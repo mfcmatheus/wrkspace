@@ -11,6 +11,7 @@ interface InputMainProps {
   containerClasses?: string
   inputClasses?: string
   disabled?: boolean
+  readOnly?: boolean
   name?: string
   value?: string
   defaultValue?: string
@@ -30,6 +31,7 @@ const defaultProps = {
   defaultValue: '',
   icon: null,
   disabled: false,
+  readOnly: false,
   onChange: undefined,
   onBlur: undefined,
 }
@@ -42,6 +44,7 @@ function InputMain(props: InputMainProps) {
     containerClasses: defaultContainerClasses,
     inputClasses: defaultInputClasses,
     disabled,
+    readOnly,
     name,
     value,
     defaultValue,
@@ -66,6 +69,7 @@ function InputMain(props: InputMainProps) {
         'w-full h-[42px] rounded-[8px] text-[1rem] bg-transparent appearance-none px-[12px] text-white transition-all duration-200 ease-in-out !outline-none !ring-0 !border-none placeholder:text-[#9e9e9e] placeholder:font-thin':
           true,
         'resize-none !h-auto': type === 'textarea',
+        'text-white/75': readOnly,
         [defaultInputClasses!]: !!defaultInputClasses,
       }),
     [defaultInputClasses, type]
@@ -85,6 +89,7 @@ function InputMain(props: InputMainProps) {
         className={inputClasses}
         placeholder={placeholder}
         disabled={disabled}
+        readOnly={readOnly}
         rows={type === 'textarea' ? 4 : undefined}
         {...(value ? { value } : undefined)}
         {...(defaultValue ? { defaultValue } : undefined)}

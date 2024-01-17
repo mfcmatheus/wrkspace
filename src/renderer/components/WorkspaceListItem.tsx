@@ -6,7 +6,6 @@ import classNames from 'classnames'
 import WorkspaceListItemName from 'renderer/components/WorkspaceListItemName'
 import WorkspaceListItemLastOpened from 'renderer/components/WorkspaceListItemLastOpened'
 import WorkspaceListItemLaunch from 'renderer/components/WorkspaceListItemLaunch'
-import WorkspaceListItemEdit from 'renderer/components/WorkspaceListItemEdit'
 import WorkspaceListItemFeatures from 'renderer/components/WorkspaceListItemFeatures'
 
 import Workspace from 'renderer/@types/Workspace'
@@ -14,6 +13,8 @@ import { ipcRenderer } from 'renderer/hooks/useIpc'
 import Folder from 'renderer/@types/Folder'
 import ShadowMain from 'renderer/base-components/ShadowMain'
 import WorkspaceListItemContext from 'renderer/components/WorkspaceListItemContext'
+import Lucide from 'renderer/base-components/lucide'
+import LoadingIcon from 'renderer/base-components/LoadingIcon'
 
 interface WorkspaceListItemProps {
   workspace: Workspace
@@ -21,16 +22,19 @@ interface WorkspaceListItemProps {
   onEdit?: (workspace: Workspace) => void
   onFavorite?: (workspace: Workspace) => void
   onSetFolder?: (workspace: Workspace, folder: Folder | undefined) => void
+  onInstall?: (workspace: Workspace) => void
 }
 
 const defaultProps = {
   onEdit: null,
   onFavorite: null,
   onSetFolder: null,
+  onInstall: null,
 }
 
 function WorkspaceListItem(props: WorkspaceListItemProps) {
-  const { workspace, folders, onEdit, onFavorite, onSetFolder } = props
+  const { workspace, folders, onEdit, onFavorite, onSetFolder, onInstall } =
+    props
 
   const { show: showContextMenu } = useContextMenu({
     id: workspace.id,
@@ -41,32 +45,47 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
   }, [workspace])
 
   const onClickEdit = useCallback(() => {
-    return onEdit && onEdit(workspace)
+    return onEdit?.(workspace)
   }, [workspace, onEdit])
 
   const onClickFavorite = useCallback(() => {
-    return onFavorite && onFavorite(workspace)
+    return onFavorite?.(workspace)
   }, [workspace, onFavorite])
 
   const onClickSetFolder = useCallback(
     (workspaceParam: Workspace, folder: Folder | undefined) => {
-      return onSetFolder && onSetFolder(workspaceParam, folder)
+      return onSetFolder?.(workspaceParam, folder)
     },
     [onSetFolder]
   )
+
+  const onClickUninstall = useCallback(() => {
+    ipcRenderer.sendMessage('workspaces.uninstall', workspace)
+  }, [workspace])
+
+  const onClickInstall = useCallback(() => {
+    return onInstall?.(workspace)
+  }, [workspace, onInstall])
 
   const lastOpened = useMemo(
     () => moment(workspace.opened_at, 'YYYY-MM-DD HH:mm:ss'),
     [workspace]
   )
+
+  const isInstalled = useMemo(() => {
+    return !!workspace.path
+  }, [workspace])
+
   const classes = useMemo(
     () =>
       classNames({
         'flex flex-col group rounded border border-transparent p-3 transition ease-in-out duration-200':
           true,
-        '!border-[#353535] hover:!border-primary': !workspace.favorite,
+        '!border-[#353535] hover:!border-highlight-primary':
+          !workspace.favorite,
+        'bg-[#353535]/25': !isInstalled,
       }),
-    [workspace]
+    [workspace, isInstalled]
   )
 
   const renderDate = useCallback(() => {
@@ -102,6 +121,41 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
     return workspace.favorite ? ShadowMain : 'div'
   }, [workspace.favorite])
 
+  if (!isInstalled) {
+    return (
+      <Element
+        className="rounded"
+        shadowClassName="!rounded"
+        wrapperClassName="rounded"
+      >
+        <div className={classes}>
+          <div className="flex items-center h-[20px]" />
+          <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
+          {workspace.loading ? (
+            <LoadingIcon
+              icon="oval"
+              className="w-[2.4rem] mx-auto"
+              color="#f0f0f0"
+            />
+          ) : (
+            <button
+              type="button"
+              className="flex mx-auto"
+              onClick={onClickInstall}
+            >
+              <Lucide
+                icon="DownloadCloud"
+                size={38}
+                color="#6f6f6f"
+                strokeWidth={1}
+              />
+            </button>
+          )}
+        </div>
+      </Element>
+    )
+  }
+
   return (
     <>
       <Element
@@ -112,7 +166,6 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
         <div onContextMenu={handleContextMenu} className={classes}>
           <div className="flex items-center h-[20px]">
             <WorkspaceListItemFeatures workspace={workspace} />
-            {/* <WorkspaceListItemEdit onClick={onClickEdit} /> */}
           </div>
           <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
           <WorkspaceListItemLastOpened>
@@ -129,6 +182,7 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
         onLaunch={onLaunch}
         onFavorite={onClickFavorite}
         onSetFolder={onClickSetFolder}
+        onUninstall={onClickUninstall}
       />
     </>
   )

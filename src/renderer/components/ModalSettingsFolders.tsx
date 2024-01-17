@@ -6,6 +6,7 @@ import InputMain from 'renderer/base-components/InputMain'
 import Lucide from 'renderer/base-components/lucide'
 import fakeId from 'renderer/helpers/fakeId'
 import initials from 'renderer/helpers/initials'
+import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 
 interface ModalSettingsFoldersProps {
   folders: Folder[]
@@ -39,10 +40,23 @@ function ModalSettingsFolders(props: ModalSettingsFoldersProps) {
     [folders, foldersField]
   )
 
+  const onClickSearch = useCallback((folder: Folder) => {
+    ipcRenderer.sendMessage('dialog:openDirectory', folder.id)
+  }, [])
+
   const renderError = useCallback(
     (message: string) => <p className="text-xs text-red-500">{message}</p>,
     []
   )
+
+  useIpc('dialog:openDirectory', (path: string, reference: string | number) => {
+    const index = folders.findIndex((f) => f.id === reference)
+
+    const updatedFolders = [...folders]
+    updatedFolders[index].path = path
+
+    foldersField.setValue(updatedFolders)
+  })
 
   useEffect(() => {
     if (!storedFolders?.length) return
@@ -64,34 +78,57 @@ function ModalSettingsFolders(props: ModalSettingsFoldersProps) {
         </ButtonMain>
       </div>
       {folders.map((folder, index: number) => (
-        <div key={folder.id} className="flex flex-col">
-          <div className="grid grid-cols-12">
-            <span className="flex col-span-2 items-center justify-center text-[#6f6f6f] uppercase font-extrabold">
-              {initials(folder.name, 3)}
-            </span>
-            <div className="col-span-10 flex">
+        <div
+          key={folder.id}
+          className="flex flex-col gap-y-2 bg-[#353535] p-5 rounded"
+        >
+          <div className="flex flex-col">
+            <div className="flex gap-x-3">
               <InputMain
+                placeholder="Folder name"
                 name={`folders[${index}].name`}
-                containerClasses="col-span-9 !rounded-r-none"
+              />
+              <span className="w-[15px] mx-3 flex col-span-1 items-center justify-center text-[#6f6f6f] uppercase font-extrabold">
+                {initials(folder.name, 3)}
+              </span>
+            </div>
+            <ErrorMessage
+              name={`folders[${index}].name`}
+              render={renderError}
+            />
+          </div>
+          <div className="flex flex-col">
+            <div className="flex">
+              <InputMain
+                name={`folders[${index}].path`}
+                placeholder="Folder path"
+                containerClasses="!rounded-r-none"
+                readOnly
               />
               <ButtonMain
                 secondary
                 bordered
-                className="bg-primary rounded-none px-3 font-thin rounded-r-[8px]"
-                onClick={() => onClickRemoveFolder(folder)}
+                className="bg-highlight-primary rounded-none px-3 font-thin rounded-r-[8px]"
+                onClick={() => onClickSearch(folder)}
               >
-                <Lucide icon="Trash" size={20} color="#000" />
+                <Lucide icon="Search" size={20} color="#000" />
               </ButtonMain>
             </div>
+            <ErrorMessage
+              name={`folders[${index}].path`}
+              render={renderError}
+            />
           </div>
-          <div className="col-span-12 grid grid-cols-12">
-            <div className="col-span-2" />
-            <div className="col-span-10">
-              <ErrorMessage
-                name={`folders[${index}].name`}
-                render={renderError}
-              />
-            </div>
+          <div className="flex items-center mt-3">
+            <ButtonMain
+              sm
+              primary
+              bordered
+              className="mt-3"
+              onClick={() => onClickRemoveFolder(folder)}
+            >
+              Remove folder
+            </ButtonMain>
           </div>
         </div>
       ))}

@@ -12,9 +12,11 @@ import ButtonMain from 'renderer/base-components/ButtonMain'
 import Folder from 'renderer/@types/Folder'
 import Setting from 'renderer/@types/Setting'
 import ModalSettingsFolders from 'renderer/components/ModalSettingsFolders'
+import ModalSettingsGeneral from 'renderer/components/ModalSettingsGeneral'
 
 interface ModalSettingsProps {
   folders: Folder[]
+  settings: Setting
   onClose?: () => void
   onSave?: (values: Setting) => void
 }
@@ -25,10 +27,10 @@ const defaultProps = {
 }
 
 function ModalSettings(props: ModalSettingsProps) {
-  const { onClose, onSave, folders } = props
+  const { onClose, onSave, folders, settings } = props
 
   const [currentPage, setCurrentPage] = useState<number>(
-    ModalSettingsPages.FOLDERS
+    ModalSettingsPages.GENERAL
   )
 
   const isFoldersPage = useMemo(
@@ -39,9 +41,18 @@ function ModalSettings(props: ModalSettingsProps) {
     () => currentPage === ModalSettingsPages.ABOUT,
     [currentPage]
   )
+  const isGeneralPage = useMemo(
+    () => currentPage === ModalSettingsPages.GENERAL,
+    [currentPage]
+  )
 
   const sidebarItems: SidebarItem[] = useMemo(
     () => [
+      {
+        icon: 'Settings2',
+        label: 'General',
+        page: ModalSettingsPages.GENERAL,
+      },
       {
         icon: 'Folder',
         label: 'Folders',
@@ -59,8 +70,9 @@ function ModalSettings(props: ModalSettingsProps) {
   const formValues = useMemo(
     () => ({
       folders,
+      defaultPath: settings.defaultPath,
     }),
-    [folders]
+    [folders, settings]
   )
 
   const onClickClose = useCallback(() => onClose?.(), [onClose])
@@ -73,7 +85,7 @@ function ModalSettings(props: ModalSettingsProps) {
     <div className="flex absolute inset-0 w-screen h-screen">
       <div
         aria-hidden="true"
-        className="absolute z-[3] inset-0 opacity-[60%] bg-[#000000]"
+        className="absolute z-[3] inset-0 bg-black/[.6] backdrop-blur-sm"
         onClick={onClickClose}
       />
       <div className="flex relative z-[4] m-auto bg-[#202020] rounded-lg h-[80vh] w-[60vw] shadow">
@@ -107,6 +119,7 @@ function ModalSettings(props: ModalSettingsProps) {
           >
             {({ values }) => (
               <Form className="flex flex-col flex-grow basis-0">
+                {isGeneralPage && <ModalSettingsGeneral />}
                 {isFoldersPage && (
                   <ModalSettingsFolders folders={values.folders} />
                 )}

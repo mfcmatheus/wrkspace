@@ -10,13 +10,13 @@ import CollapseMain from 'renderer/base-components/CollapseMain'
 import SwitchMain from 'renderer/base-components/SwitchMain'
 
 function ModalEditWorkspaceDocker() {
-  const [fieldContainers, metaContainers, helpersContainers] = useField(
-    'dockerOptions.containers'
-  )
-  const [fieldCheckbox] = useField('enableDocker')
-  const [fieldCheckboxComposer] = useField('dockerOptions.enableComposer')
-  const [fieldCheckboxContainers] = useField('dockerOptions.enableContainers')
-  const [fieldUseSail] = useField('dockerOptions.enableSail')
+  const [fieldContainers, metaContainers, helpersContainers] =
+    useField('docker.containers')
+  const [fieldCheckbox] = useField('features.enableDocker')
+  const [fieldCheckboxComposer] = useField('docker.enableComposer')
+  const [fieldCheckboxContainers] = useField('docker.enableContainers')
+  const [fieldUseSail] = useField('docker.enableSail')
+  const [fieldUseBuild] = useField('docker.enableBuild')
 
   const [containers, setContainers] = useState<Container[]>([])
   const [isDockerRunning, setIsDockerRunning] = useState<boolean>(false)
@@ -50,10 +50,10 @@ function ModalEditWorkspaceDocker() {
   )
 
   useEffect(() => {
-    if (fieldUseSail.value) {
+    if (fieldUseSail.value || fieldUseBuild.value) {
       setIsOptionsExpanded(true)
     }
-  }, [])
+  }, [fieldUseSail.value, fieldUseBuild.value])
 
   useEffect(() => {
     ipcRenderer.sendMessage('containers.get')
@@ -79,7 +79,7 @@ function ModalEditWorkspaceDocker() {
   return (
     <div className="flex flex-col gap-y-3 flex-grow basis-0 overflow-auto p-3">
       <div className="flex items-center">
-        <CheckboxMain name="enableDocker">Enable Docker</CheckboxMain>
+        <CheckboxMain name="features.enableDocker">Enable Docker</CheckboxMain>
 
         <div className="flex items-center text-[#d2d2d2] text-xs gap-x-1 font-thin ml-auto">
           <div
@@ -100,7 +100,7 @@ function ModalEditWorkspaceDocker() {
           <CheckboxMain
             as="button"
             primary
-            name="dockerOptions.enableComposer"
+            name="docker.enableComposer"
             className="w-full"
           >
             Enable Composer
@@ -108,7 +108,7 @@ function ModalEditWorkspaceDocker() {
           <CheckboxMain
             as="button"
             primary
-            name="dockerOptions.enableContainers"
+            name="docker.enableContainers"
             className="w-full"
           >
             Enable Containers
@@ -128,11 +128,24 @@ function ModalEditWorkspaceDocker() {
               <SwitchMain
                 sm
                 primary
-                name="dockerOptions.enableSail"
+                name="docker.enableSail"
                 id="enableSail"
                 disabled={!fieldCheckboxComposer.value}
               />
               <span className="ml-2">Use Laravel Sail</span>
+            </label>
+            <label
+              htmlFor="enableBuild"
+              className="flex items-center text-[#d2d2d2] font-thin text-sm"
+            >
+              <SwitchMain
+                sm
+                primary
+                name="docker.enableBuild"
+                id="enableBuild"
+                disabled={!fieldCheckboxComposer.value}
+              />
+              <span className="ml-2">Rebuild image?</span>
             </label>
           </div>
         </CollapseMain>
@@ -155,7 +168,7 @@ function ModalEditWorkspaceDocker() {
                     sm
                     as="button"
                     primary
-                    name="dockerOptions.containers[]"
+                    name="docker.containers[]"
                     labelClassName="px-4"
                     value={container.ID}
                     checked={isSelectedContainer(container)}
