@@ -1,6 +1,9 @@
 name: Package and Publish
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   main:
@@ -18,7 +21,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 18.16
-          
+
       - name: Configure Node caching
         uses: actions/cache@v2
         env:
@@ -30,13 +33,13 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
-            
+
       - name: Install Packages
         run: npm install
-        
+
       - name: Build
         run: npm run build
-        
+
       - name: Package
         run: npm run package
         env:
@@ -51,11 +54,11 @@ jobs:
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.apple_app_specific_password }}
           CSC_LINK: ${{ secrets.csc_link }}
           CSC_KEY_PASSWORD: ${{ secrets.csc_key_password }}
-          
+
       - name: Create release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: target/release/build/wrkspace-*.dmg
+          file: release/build/wrkspace-*.{dmg,zip}
           tag: ${{ github.ref }}
           file_glob: true
