@@ -4,5 +4,6 @@ export default interface Folder {
   path: string
   updated_at?: string
   deleted_at?: string
+  created?: boolean
   deleted?: boolean
 }

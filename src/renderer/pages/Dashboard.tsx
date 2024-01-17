@@ -141,11 +141,16 @@ function Dashboard() {
 
   const onSaveSettings = useCallback(
     (setting: Setting) => {
-      const { folders: newData, defaultPath } = setting
+      const { defaultPath } = setting
 
       const deletedFolders = folders.filter(
-        (t) => newData.findIndex((f) => f.id === t.id) === -1
+        (t) => setting.folders?.findIndex((f) => f.id === t.id) === -1
       )
+
+      const newData = [...setting.folders]?.map((f) => ({
+        ...f,
+        updated_at: moment().format('YYYY-MM-DD HH:mm:ss'),
+      }))
 
       ipcRenderer.sendMessage('folders.set', _.unionBy(newData, folders, 'id'))
       // eslint-disable-next-line no-restricted-syntax

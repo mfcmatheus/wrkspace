@@ -602,7 +602,8 @@ export const onFoldersCreate = async (event: IpcMainEvent, folder: Folder) => {
   event.reply('folders.reload', folders)
 
   const workspaces = (store.get('workspaces') ?? []) as Workspace[]
-  event.reply('cloud.reload', { w: workspaces, f: folders })
+  if (!folder.created)
+    event.reply('cloud.reload', { w: workspaces, f: folders })
 }
 
 export const onFoldersDelete = async (event: IpcMainEvent, folder: Folder) => {
@@ -622,12 +623,15 @@ export const onFoldersDelete = async (event: IpcMainEvent, folder: Folder) => {
   event.reply('folders.reload', folders)
 
   const workspaces = (store.get('workspaces') ?? []) as Workspace[]
-  event.reply('cloud.reload', { w: workspaces, f: folders })
+  if (!folder.deleted)
+    event.reply('cloud.reload', { w: workspaces, f: folders })
 }
 
 export const onFoldersSet = async (event: IpcMainEvent, folders: Folder[]) => {
   store.set('folders', folders)
   event.reply('folders.reload', folders)
+  const workspaces = (store.get('workspaces') ?? []) as Workspace[]
+  event.reply('cloud.reload', { w: workspaces, f: folders })
 }
 
 export const onSettingsGet = async (event: IpcMainEvent) => {

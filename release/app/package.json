@@ -1,6 +1,6 @@
 {
-  "name": "wrkspace",
-  "version": "1.2.0",
+  "name": "Wrkspace",
+  "version": "1.2.1",
   "description": "A scalable project manager & launcher for developers",
   "main": "./dist/main/main.js",
   "scripts": {

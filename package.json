@@ -15,6 +15,10 @@
     "test": "jest"
   },
   "repository": "https://github.com/mfcmatheus/wrkspace",
+  "author": {
+    "name": "Matheus Faria",
+    "email": "mfcmatheus@gmail.com"
+  },
   "private": true,
   "browserslist": [],
   "prettier": {

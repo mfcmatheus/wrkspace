@@ -169,6 +169,14 @@ export function CloudSyncProvider(props: props) {
     return folders.filter((item) => !!item.deleted_at)
   }, [folders])
 
+  const canSyncWorkspaces = useMemo(() => {
+    return (
+      !foldersToUpload.length &&
+      !foldersToDownload.length &&
+      !foldersToDelete.length
+    )
+  }, [foldersToUpload, foldersToDownload, foldersToDelete])
+
   const getNewData = useCallback(async () => {
     const {
       data: { Workspaces: data },
@@ -187,12 +195,30 @@ export function CloudSyncProvider(props: props) {
 
   const normalizeWorkspace = useCallback((workspace: Workspace) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { created_at, updated_at, path, ...rest } = workspace
+    const {
+      created_at,
+      updated_at,
+      path,
+      enableDocker,
+      enableDockerCompose,
+      enableDockerContainers,
+      opened_at,
+      loading,
+      enableEditor,
+      dockerOptions,
+      created,
+      updated,
+      deleted,
+      ...rest
+    } = workspace
+
+    const { containers, ...docker } = workspace.docker
 
     return {
       ...rest,
       id: `${rest.id}`,
-      folder: rest.folder ? { ...rest.folder, id: `${rest.folder.id}` } : null,
+      docker,
+      folder: rest.folder ? { id: `${rest.folder.id}` } : null,
       installation: {
         ...rest.installation,
         variables: rest.installation?.variables?.map((t) => ({
@@ -209,7 +235,7 @@ export function CloudSyncProvider(props: props) {
 
   const normalizeFolder = useCallback((folder: Folder) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { created_at, updated_at, ...rest } = folder
+    const { created_at, updated_at, created, deleted, ...rest } = folder
 
     return {
       ...rest,
@@ -219,6 +245,8 @@ export function CloudSyncProvider(props: props) {
 
   const handleUpload = useCallback(async () => {
     const progressSlice = toUpload.length / 100
+
+    if (!canSyncWorkspaces) return
 
     // eslint-disable-next-line no-restricted-syntax
     for (const workspace of toUpload) {
@@ -247,9 +275,17 @@ export function CloudSyncProvider(props: props) {
         showError('Error while uploading workspaces')
       }
     }
-  }, [toUpload, saveWorkspace, showError, normalizeWorkspace])
+  }, [
+    toUpload,
+    saveWorkspace,
+    showError,
+    normalizeWorkspace,
+    canSyncWorkspaces,
+  ])
 
   const handleDelete = useCallback(async () => {
+    if (!canSyncWorkspaces) return
+
     // eslint-disable-next-line no-restricted-syntax
     for (const workspace of toDelete) {
       try {
@@ -268,7 +304,7 @@ export function CloudSyncProvider(props: props) {
         showError('Error while deleting workspaces')
       }
     }
-  }, [toDelete, showError, deleteWorkspace])
+  }, [toDelete, showError, deleteWorkspace, canSyncWorkspaces])
 
   const handleFolderDownload = useCallback(async () => {
     const progressSlice = foldersToDownload.length / 100
@@ -284,7 +320,7 @@ export function CloudSyncProvider(props: props) {
         })
 
         // Update current workspace id
-        ipcRenderer.sendMessage('folders.create', newW)
+        ipcRenderer.sendMessage('folders.create', { ...newW, created: true })
 
         setDownloadProgress((prev) => prev + progressSlice)
       } catch (error) {
@@ -312,6 +348,7 @@ export function CloudSyncProvider(props: props) {
         ipcRenderer.sendMessage('folders.create', {
           ...folder,
           ...newW,
+          created: true,
         })
 
         setUploadProgress((prev) => prev + progressSlice)
@@ -354,11 +391,23 @@ export function CloudSyncProvider(props: props) {
     [newData]
   )
 
+  const sync = useCallback(async () => {
+    setIsSyncing(true)
+
+    await refetchUser()
+
+    if (!hasCloudSync) return
+
+    await getNewFoldersData()
+    await getNewData()
+
+    setIsSyncing(false)
+  }, [getNewData, getNewFoldersData, hasCloudSync, refetchUser])
+
   useEffect(() => {
     if (!hasCloudSync) return
-    ipcRenderer.sendMessage('folders.get')
-    ipcRenderer.sendMessage('workspaces.get')
-  }, [hasCloudSync])
+    sync()
+  }, [hasCloudSync, sync])
 
   useEffect(() => {
     if (toUpload.length) handleUpload()
@@ -390,39 +439,10 @@ export function CloudSyncProvider(props: props) {
     setLastSync(moment())
   }, [foldersToDelete, handleFolderDelete])
 
-  useIpc('workspaces.get', async (data: Workspace[]) => {
-    if (!hasCloudSync) return
-    setIsSyncing(true)
-
-    setWorkspaces(data)
-    await getNewData()
-
-    setIsSyncing(false)
-  })
-
   useIpc('cloud.reload', async ({ w, f }: { w: Workspace[]; f: Folder[] }) => {
-    await refetchUser()
-
-    if (!hasCloudSync) return
-
-    setIsSyncing(true)
-
     setWorkspaces(w)
     setFolders(f)
-    await getNewFoldersData()
-    await getNewData()
-
-    setIsSyncing(false)
-  })
-
-  useIpc('folders.get', async (data: Folder[]) => {
-    if (!hasCloudSync) return
-    setIsSyncing(true)
-
-    setFolders(data)
-    await getNewFoldersData()
-
-    setIsSyncing(false)
+    await sync()
   })
 
   const providerValue = useMemo(
