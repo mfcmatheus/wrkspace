@@ -5,6 +5,7 @@ import Folder from 'renderer/@types/Folder'
 
 import Workspace from 'renderer/@types/Workspace'
 import Lucide from 'renderer/base-components/lucide'
+import useWorkspace from 'renderer/hooks/useWorkspace'
 
 interface WorkspaceListItemContextProps {
   id: string | number
@@ -36,6 +37,8 @@ function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
     onSetFolder,
     onUninstall,
   } = props
+
+  const { hasSyncEnabled, isSynced } = useWorkspace(workspace)
 
   const styles: React.CSSProperties = useMemo(
     () => ({
@@ -116,13 +119,15 @@ function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
       <Item id="edit" onClick={onClickEdit} keyMatcher={matchShortcutEdit}>
         Edit <RightSlot>⌘E</RightSlot>
       </Item>
-      <Item
-        id="uninstall"
-        onClick={onClickUninstall}
-        className="bg-red-700 rounded"
-      >
-        Uninstall
-      </Item>
+      {hasSyncEnabled && isSynced && (
+        <Item
+          id="uninstall"
+          onClick={onClickUninstall}
+          className="bg-red-700 rounded"
+        >
+          Uninstall
+        </Item>
+      )}
     </Menu>
   )
 }
