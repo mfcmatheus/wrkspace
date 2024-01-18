@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ErrorMessage, useField, useFormikContext } from 'formik'
 
 import classNames from 'classnames'
+import { Tooltip } from 'react-tooltip'
 import Browser from 'renderer/@types/Browser'
 import Workspace from 'renderer/@types/Workspace'
 import ButtonMain from 'renderer/base-components/ButtonMain'
@@ -131,8 +132,28 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
   })
 
   return (
-    <div className="flex flex-col gap-y-3 flex-grow basis-0 overflow-auto p-3">
+    <div className="flex flex-col gap-y-5 flex-grow basis-0 overflow-auto p-3">
       <div className="flex">
+        <div className="flex items-center gap-x-3">
+          <p className="text-white font-thin">Browser pages</p>
+          <Lucide
+            id="pages-info"
+            icon="Info"
+            size={16}
+            color="#d2d2d2"
+            strokeWidth={1}
+          />
+          <Tooltip
+            style={{ backgroundColor: '#181818', maxWidth: '200px' }}
+            anchorSelect="#pages-info"
+            place="bottom"
+            className="flex flex-col text-center font-thin"
+          >
+            <span className="text-xs text-gray-100 font-thin">
+              Add pages to open in the browser when the workspace is opened.
+            </span>
+          </Tooltip>
+        </div>
         <ButtonMain
           sm
           bordered
@@ -143,12 +164,13 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
           New page
         </ButtonMain>
       </div>
-      {browsers.map((browser: Browser, index: number) => (
-        <div
-          key={browser.id}
-          className="grid grid-cols-12 gap-x-1 items-center"
-        >
-          {/* <select
+      <div className="flex flex-col gap-y-3">
+        {browsers.map((browser: Browser, index: number) => (
+          <div
+            key={browser.id}
+            className="grid grid-cols-12 gap-x-1 items-center"
+          >
+            {/* <select
             className="col-span-4"
             name="browsers[].application"
             value={browser.application}
@@ -160,30 +182,29 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
               </option>
             ))}
           </select> */}
-          <div className="col-span-12 flex">
-            <InputMain
-              containerClasses={classNames({
-                '!rounded-r-none': true,
-                'border border-red-500': errors.browsers?.[index]?.url,
-              })}
-              placeholder="https://example.com"
-              name={`browsers[${index}].url`}
-              value={browser.url}
-              defaultValue={browser.url}
-              onChange={(e) => onChangeUrl(e, browser)}
-              onBlur={(e) => onBlurUrl(e, browser)}
-            />
-            <ButtonMain
-              secondary
-              bordered
-              className="bg-highlight-primary rounded-none px-3 font-thin rounded-r-[8px]"
-              onClick={() => onClickRemove(browser)}
-            >
-              <Lucide icon="Trash" size={20} color="#000" />
-            </ButtonMain>
+            <div className="col-span-12 flex">
+              <InputMain
+                containerClasses={classNames({
+                  'border border-red-500': errors.browsers?.[index]?.url,
+                })}
+                placeholder="https://example.com"
+                name={`browsers[${index}].url`}
+                value={browser.url}
+                defaultValue={browser.url}
+                onChange={(e) => onChangeUrl(e, browser)}
+                onBlur={(e) => onBlurUrl(e, browser)}
+              />
+              <button
+                type="button"
+                className="text-white px-4"
+                onClick={() => onClickRemove(browser)}
+              >
+                <Lucide icon="X" size={16} color="#d2d2d2" strokeWidth={1} />
+              </button>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }

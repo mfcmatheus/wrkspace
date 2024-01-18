@@ -2,12 +2,14 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { ErrorMessage, useField, useFormikContext } from 'formik'
 
 import classNames from 'classnames'
+import { Tooltip } from 'react-tooltip'
 import Terminal from 'renderer/@types/Terminal'
 import Workspace from 'renderer/@types/Workspace'
 
 import ButtonMain from 'renderer/base-components/ButtonMain'
 import InputMain from 'renderer/base-components/InputMain'
 import fakeId from 'renderer/helpers/fakeId'
+import Lucide from 'renderer/base-components/lucide'
 
 interface ModalEditWorkspaceTerminalProps {
   workspace: Workspace
@@ -71,6 +73,27 @@ function ModalEditWorkspaceTerminal(props: ModalEditWorkspaceTerminalProps) {
   return (
     <div className="flex flex-col gap-y-5 flex-grow basis-0 overflow-auto p-3">
       <div className="flex">
+        <div className="flex items-center gap-x-3">
+          <p className="text-white font-thin">Terminal commands</p>
+          <Lucide
+            id="pages-info"
+            icon="Info"
+            size={16}
+            color="#d2d2d2"
+            strokeWidth={1}
+          />
+          <Tooltip
+            style={{ backgroundColor: '#181818', maxWidth: '200px' }}
+            anchorSelect="#pages-info"
+            place="bottom"
+            className="flex flex-col text-center font-thin"
+          >
+            <span className="text-xs text-gray-100 font-thin">
+              Create the terminal commands that will be executed when the
+              workspace is opened.
+            </span>
+          </Tooltip>
+        </div>
         <ButtonMain
           sm
           bordered
@@ -81,36 +104,29 @@ function ModalEditWorkspaceTerminal(props: ModalEditWorkspaceTerminalProps) {
           New terminal
         </ButtonMain>
       </div>
-      {terminals.map((terminal: Terminal, index: number) => (
-        <div key={terminal.id} className="bg-[#353535] p-5">
-          <div className="flex flex-col gap-y-3">
-            <div className="flex">
-              <InputMain
-                containerClasses={classNames({
-                  'w-11/12': true,
-                  'border border-red-500': errors.terminals?.[index]?.command,
-                })}
-                placeholder="Command"
-                name={`terminals[${index}].command`}
-                value={terminal.command ?? ''}
-                onChange={(e) => onChangeCommand(e, terminal)}
-                onBlur={() => {}}
-              />
-            </div>
-          </div>
-          <div className="flex">
-            <ButtonMain
-              sm
-              primary
-              bordered
-              className="mt-3"
+      <div className="flex flex-col gap-y-3">
+        {terminals.map((terminal: Terminal, index: number) => (
+          <div key={terminal.id} className="flex">
+            <InputMain
+              containerClasses={classNames({
+                'border border-red-500': errors.terminals?.[index]?.command,
+              })}
+              placeholder="Command"
+              name={`terminals[${index}].command`}
+              value={terminal.command ?? ''}
+              onChange={(e) => onChangeCommand(e, terminal)}
+              onBlur={() => {}}
+            />
+            <button
+              type="button"
+              className="px-4 text-white"
               onClick={() => onClickRemoveTerminal(terminal)}
             >
-              Remove terminal
-            </ButtonMain>
+              <Lucide icon="X" size={16} color="#d2d2d2" strokeWidth={1} />
+            </button>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
       <ErrorMessage name="terminals" render={renderError} />
     </div>
   )

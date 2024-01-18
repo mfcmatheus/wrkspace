@@ -5,6 +5,7 @@ import Folder from 'renderer/@types/Folder'
 
 import Workspace from 'renderer/@types/Workspace'
 import Lucide from 'renderer/base-components/lucide'
+import { useUser } from 'renderer/contexts/UserContext'
 import useWorkspace from 'renderer/hooks/useWorkspace'
 
 interface WorkspaceListItemContextProps {
@@ -38,6 +39,7 @@ function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
     onUninstall,
   } = props
 
+  const { hasCloudSync } = useUser()
   const { hasSyncEnabled, isSynced } = useWorkspace(workspace)
 
   const styles: React.CSSProperties = useMemo(
@@ -119,7 +121,7 @@ function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
       <Item id="edit" onClick={onClickEdit} keyMatcher={matchShortcutEdit}>
         Edit <RightSlot>⌘E</RightSlot>
       </Item>
-      {hasSyncEnabled && isSynced && (
+      {hasCloudSync && hasSyncEnabled && isSynced && (
         <Item
           id="uninstall"
           onClick={onClickUninstall}

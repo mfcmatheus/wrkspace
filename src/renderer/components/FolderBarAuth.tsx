@@ -36,13 +36,18 @@ export default function FolderBarAuth() {
   )
 
   const tooltipGuest = () => (
-    <button
-      type="button"
-      className="text-highlight-primary mt-1 font-thin"
-      onClick={onClickAccount}
-    >
-      Sign in
-    </button>
+    <div className="flex flex-col text-center">
+      <span className="font-thin text-sm">You're not logged in</span>
+      <ButtonMain
+        sm
+        secondary
+        bordered
+        className="mt-2"
+        onClick={onClickAccount}
+      >
+        <span className="mx-auto">Sign in</span>
+      </ButtonMain>
+    </div>
   )
 
   return (

@@ -117,7 +117,7 @@ function ModalSettings(props: ModalSettingsProps) {
             validationSchema={SettingsFormSchema}
             onSubmit={onFormSubmit}
           >
-            {({ values }) => (
+            {({ values, isValid, dirty }) => (
               <Form className="flex flex-col flex-grow basis-0">
                 {isGeneralPage && <ModalSettingsGeneral />}
                 {isFoldersPage && (
@@ -130,6 +130,7 @@ function ModalSettings(props: ModalSettingsProps) {
                     bordered
                     secondary
                     type="submit"
+                    disabled={!isValid || !dirty}
                     className="ml-auto"
                   >
                     Save

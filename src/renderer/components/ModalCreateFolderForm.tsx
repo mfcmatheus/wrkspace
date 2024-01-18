@@ -1,3 +1,4 @@
+import classNames from 'classnames'
 import { ErrorMessage, Form, useField, useFormikContext } from 'formik'
 import React, { useCallback, useMemo } from 'react'
 import Folder from 'renderer/@types/Folder'
@@ -11,6 +12,7 @@ interface ModalCreateFolderFormProps {
 }
 
 function ModalCreateFolderForm(props: ModalCreateFolderFormProps) {
+  const { isValid, dirty, errors } = useFormikContext()
   const { folder } = props
 
   const pathFieldHelpers = useField('path')[2]
@@ -21,11 +23,6 @@ function ModalCreateFolderForm(props: ModalCreateFolderFormProps) {
     ipcRenderer.sendMessage('dialog:openDirectory')
   }, [])
 
-  const renderError = useCallback(
-    (message: string) => <p className="text-xs text-red-500">{message}</p>,
-    []
-  )
-
   useIpc('dialog:openDirectory', (path: string) => {
     pathFieldHelpers.setValue(path)
   })
@@ -35,7 +32,6 @@ function ModalCreateFolderForm(props: ModalCreateFolderFormProps) {
       <label htmlFor="name" className="flex flex-col">
         <span className="text-white font-thin mb-2">Folder name</span>
         <InputMain name="name" placeholder="Folder name" />
-        <ErrorMessage name="name" render={renderError} />
       </label>
 
       <label htmlFor="path" className="flex flex-col">
@@ -45,7 +41,10 @@ function ModalCreateFolderForm(props: ModalCreateFolderFormProps) {
             name="path"
             id="path"
             placeholder="Folder base path"
-            containerClasses="!rounded-r-none"
+            containerClasses={classNames({
+              '!rounded-r-none': true,
+              'border border-red-500': errors.path,
+            })}
             readOnly
           />
           <ButtonMain
@@ -57,10 +56,16 @@ function ModalCreateFolderForm(props: ModalCreateFolderFormProps) {
             <Lucide icon="Search" size={20} color="#000" />
           </ButtonMain>
         </div>
-        <ErrorMessage name="path" render={renderError} />
       </label>
 
-      <ButtonMain sm bordered secondary className="mt-6 mx-auto" type="submit">
+      <ButtonMain
+        sm
+        bordered
+        secondary
+        disabled={!isValid || !dirty}
+        className="mt-6 mx-auto"
+        type="submit"
+      >
         {isEditing ? 'Update' : 'Create'}
       </ButtonMain>
     </Form>

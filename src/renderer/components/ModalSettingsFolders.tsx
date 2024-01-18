@@ -1,4 +1,5 @@
-import { ErrorMessage, useField } from 'formik'
+import classNames from 'classnames'
+import { ErrorMessage, useField, useFormikContext } from 'formik'
 import React, { useCallback, useEffect, useState } from 'react'
 import Folder from 'renderer/@types/Folder'
 import ButtonMain from 'renderer/base-components/ButtonMain'
@@ -16,6 +17,7 @@ function ModalSettingsFolders(props: ModalSettingsFoldersProps) {
   const { folders: storedFolders } = props
 
   const foldersField = useField('folders')[2]
+  const { errors } = useFormikContext()
 
   const [folders, setFolders] = useState(storedFolders)
 
@@ -43,11 +45,6 @@ function ModalSettingsFolders(props: ModalSettingsFoldersProps) {
   const onClickSearch = useCallback((folder: Folder) => {
     ipcRenderer.sendMessage('dialog:openDirectory', folder.id)
   }, [])
-
-  const renderError = useCallback(
-    (message: string) => <p className="text-xs text-red-500">{message}</p>,
-    []
-  )
 
   useIpc('dialog:openDirectory', (path: string, reference: string | number) => {
     const index = folders.findIndex((f) => f.id === reference)
@@ -87,22 +84,24 @@ function ModalSettingsFolders(props: ModalSettingsFoldersProps) {
               <InputMain
                 placeholder="Folder name"
                 name={`folders[${index}].name`}
+                containerClasses={classNames({
+                  'border border-red-500': errors.folders?.[index]?.name,
+                })}
               />
               <span className="w-[15px] mx-3 flex col-span-1 items-center justify-center text-[#6f6f6f] uppercase font-extrabold">
                 {initials(folder.name, 3)}
               </span>
             </div>
-            <ErrorMessage
-              name={`folders[${index}].name`}
-              render={renderError}
-            />
           </div>
           <div className="flex flex-col">
             <div className="flex">
               <InputMain
                 name={`folders[${index}].path`}
                 placeholder="Folder path"
-                containerClasses="!rounded-r-none"
+                containerClasses={classNames({
+                  '!rounded-r-none': true,
+                  'border border-red-500': errors.folders?.[index]?.path,
+                })}
                 readOnly
               />
               <ButtonMain
@@ -114,10 +113,6 @@ function ModalSettingsFolders(props: ModalSettingsFoldersProps) {
                 <Lucide icon="Search" size={20} color="#000" />
               </ButtonMain>
             </div>
-            <ErrorMessage
-              name={`folders[${index}].path`}
-              render={renderError}
-            />
           </div>
           <div className="flex items-center mt-3">
             <ButtonMain

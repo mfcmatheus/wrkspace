@@ -154,33 +154,36 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
             validationSchema={WorkspaceFormSchema}
             onSubmit={onSubmit}
           >
-            <Form className="flex flex-col flex-grow basis-0">
-              {isGeneralPage && <ModalEditWorkspaceGeneralSettings />}
-              {isBrowserPage && (
-                <ModalEditWorkspaceBrowser workspace={workspace} />
-              )}
-              {isTerminalPage && (
-                <ModalEditWorkspaceTerminal workspace={workspace} />
-              )}
-              {isDockerPage && <ModalEditWorkspaceDocker />}
-              {isInstallationPage && (
-                <ModalEditWorkspaceInstallation workspace={workspace} />
-              )}
-              <div className="flex p-3">
-                {isEditing && (
-                  <DeleteButton onClick={onClickDelete}>Delete</DeleteButton>
+            {({ isValid, dirty }) => (
+              <Form className="flex flex-col flex-grow basis-0">
+                {isGeneralPage && <ModalEditWorkspaceGeneralSettings />}
+                {isBrowserPage && (
+                  <ModalEditWorkspaceBrowser workspace={workspace} />
                 )}
-                <ButtonMain
-                  type="submit"
-                  sm
-                  bordered
-                  secondary
-                  className="ml-auto"
-                >
-                  Save
-                </ButtonMain>
-              </div>
-            </Form>
+                {isTerminalPage && (
+                  <ModalEditWorkspaceTerminal workspace={workspace} />
+                )}
+                {isDockerPage && <ModalEditWorkspaceDocker />}
+                {isInstallationPage && (
+                  <ModalEditWorkspaceInstallation workspace={workspace} />
+                )}
+                <div className="flex p-3">
+                  {isEditing && (
+                    <DeleteButton onClick={onClickDelete}>Delete</DeleteButton>
+                  )}
+                  <ButtonMain
+                    type="submit"
+                    sm
+                    bordered
+                    secondary
+                    disabled={!isValid || !dirty}
+                    className="ml-auto"
+                  >
+                    Save workspace
+                  </ButtonMain>
+                </div>
+              </Form>
+            )}
           </Formik>
         </div>
       </div>
