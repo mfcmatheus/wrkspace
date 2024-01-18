@@ -212,12 +212,17 @@ export function CloudSyncProvider(props: props) {
       ...rest
     } = workspace
 
-    const { containers, ...docker } = workspace.docker
+    const { containers, ...docker } = workspace.docker ?? {}
+
+    const terminals = workspace.terminals?.map((t) => ({ ...t, id: `${t.id}` }))
+    const browsers = workspace.browsers?.map((t) => ({ ...t, id: `${t.id}` }))
 
     return {
       ...rest,
       id: `${rest.id}`,
       docker,
+      terminals,
+      browsers,
       folder: rest.folder ? { id: `${rest.folder.id}` } : null,
       installation: {
         ...rest.installation,
@@ -266,6 +271,25 @@ export function CloudSyncProvider(props: props) {
         ipcRenderer.sendMessage('workspaces.create', {
           ...workspace,
           ...newW,
+          terminals:
+            workspace.terminals?.map((t, index) => ({
+              ...t,
+              id: newW.terminals?.[index]?.id ?? t.id,
+            })) ?? [],
+          browsers: workspace.browsers?.map((t, index) => ({
+            ...t,
+            id: newW.browsers?.[index]?.id ?? t.id,
+          })),
+          installation: {
+            commands: workspace.installation?.commands?.map((t, index) => ({
+              ...t,
+              id: newW.installation?.commands?.[index]?.id ?? t.id,
+            })),
+            variables: workspace.installation?.variables?.map((t, index) => ({
+              ...t,
+              id: newW.installation?.variables?.[index]?.id ?? t.id,
+            })),
+          },
           created: true,
         })
 
