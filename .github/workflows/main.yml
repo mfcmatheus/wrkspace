@@ -59,6 +59,6 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: release/build/wrkspace-*.{dmg,zip}
+          file: release/build/{wrkspace,latest,builder}-*.{dmg,zip,yml,yaml,blockmap}
           tag: ${{ github.ref }}
           file_glob: true
