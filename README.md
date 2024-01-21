@@ -66,3 +66,9 @@ Please refer to our [contribution guidelines](./CONTRIBUTING.md) and [code of co
 
 ## License
 This software is licensed under the GNU Affero General Public License, Version 3.0. Read the complete license [here](./LICENSE).
+
+<br />
+
+<a href="https://www.buymeacoffee.com/mfcmatheus" target="_blank">
+  <img src="https://www.buymeacoffee.com/assets/img/guidelines/download-assets-sm-2.svg" alt="Buy Me A Coffee"/>
+</a>
