@@ -26,6 +26,7 @@ import { useCloudSync } from 'renderer/contexts/CloudSyncContext'
 import client from 'renderer/graphql/client'
 import WorkspaceQuery from 'renderer/graphql/queries/WorkspaceQuery'
 import ModalStart from 'renderer/components/ModalStart'
+import UpdateIndicator from 'renderer/components/UpdateIndicator'
 
 const apolloClient = client('/user')
 
@@ -258,6 +259,7 @@ function Dashboard() {
                 <h2 className="text-medium text-[#f0f0f0] text-xl">{title}</h2>
                 <div className="flex items-center gap-x-3 ml-auto">
                   <CloudSyncIndicator />
+                  <UpdateIndicator />
                   <ButtonMain sm bordered secondary onClick={onClickCreate}>
                     Create Workspace
                   </ButtonMain>

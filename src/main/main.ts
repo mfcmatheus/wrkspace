@@ -12,7 +12,6 @@ import path from 'path'
 import nodePath from 'node:path'
 import { app, BrowserWindow, shell, ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
-import log from 'electron-log'
 import Store from 'electron-store'
 import { loadErrorMessages, loadDevMessages } from '@apollo/client/dev'
 import MenuBuilder from './menu'
@@ -47,11 +46,25 @@ import {
 const store = new Store()
 
 class AppUpdater {
-  constructor() {
-    log.transports.file.level = 'debug'
-    autoUpdater.logger = log
-    autoUpdater.checkForUpdatesAndNotify()
-    // autoUpdater.allowPrerelease = true
+  constructor(mainWindow: BrowserWindow) {
+    autoUpdater.setFeedURL({
+      url: `https://updater.wrkspace.co/update/${
+        process.platform
+      }/${app.getVersion()}`,
+      provider: 'generic',
+    })
+
+    autoUpdater.on('update-available', () => {
+      autoUpdater.downloadUpdate()
+    })
+
+    autoUpdater.on('update-downloaded', (info) => {
+      mainWindow.webContents.send('update.downloaded', info)
+    })
+
+    autoUpdater.checkForUpdates()
+
+    ipcMain.on('update.install', () => autoUpdater.quitAndInstall())
   }
 }
 
@@ -178,6 +191,10 @@ const createWindow = async () => {
     }
 
     mainWindow.webContents.send('user.check', store.get('token'))
+
+    // Remove this if your app does not use auto updates
+    // eslint-disable-next-line
+    new AppUpdater(mainWindow)
   })
 
   mainWindow.on('closed', () => {
@@ -192,10 +209,6 @@ const createWindow = async () => {
     shell.openExternal(edata.url)
     return { action: 'deny' }
   })
-
-  // Remove this if your app does not use auto updates
-  // eslint-disable-next-line
-  new AppUpdater();
 }
 
 /**

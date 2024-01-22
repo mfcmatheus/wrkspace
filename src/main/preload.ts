@@ -30,6 +30,8 @@ export type Channels =
   | 'user.authenticate'
   | 'user.logout'
   | 'cloud.reload'
+  | 'update.downloaded'
+  | 'update.install'
 
 const electronHandler = {
   ipcRenderer: {
