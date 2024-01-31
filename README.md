@@ -71,6 +71,7 @@ Please refer to our [contribution guidelines](./CONTRIBUTING.md) and [code of co
 - [ ] Find a way to detect if user have stopped a workspace (Launch / Close functionality)
 - [ ] Windows compatibility
 - [ ] Linux compatibility
+- [ ] Integrated terminals using [xTerm.JS](https://xtermjs.org/)
 
 ## License
 This software is licensed under the GNU Affero General Public License, Version 3.0. Read the complete license [here](./LICENSE).
