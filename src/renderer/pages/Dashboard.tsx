@@ -252,7 +252,7 @@ function Dashboard() {
     <>
       <TopBar />
       <div className="flex flex-1">
-        <div className="flex flex-col flex-1">
+        <div className="flex flex-col flex-1 overflow-hidden">
           {filteredWorkspaces?.length ? (
             <div className="flex flex-col flex-1 p-4 relative">
               <div className="flex items-center mb-4">

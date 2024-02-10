@@ -78,7 +78,7 @@ function LogsMain() {
   if (!windows.length) return <></>
 
   return (
-    <div className="flex flex-col -mb-[1px]">
+    <div className="flex flex-col -mb-[1px] overflow-hidden max-w-full">
       <LogMainTabs>
         {windows.map((window) => (
           <LogMainTabsItem

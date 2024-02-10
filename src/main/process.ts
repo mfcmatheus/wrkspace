@@ -194,6 +194,7 @@ export const onWorkspaceOpen = async (
   workspace: Workspace
 ) => {
   const workspaces = store.get('workspaces') as Workspace[]
+  const processes = (store.get('processes') as []) ?? []
   const index = workspaces.findIndex(
     (target: Workspace) => target.id === workspace.id
   )
@@ -201,7 +202,13 @@ export const onWorkspaceOpen = async (
   workspaces[index].opened_at = moment().format('YYYY-MM-DD HH:mm:ss')
   workspaces[index].loading = true
 
+  const filteredProcesses =
+    processes.filter((process) => process.workspace.id !== workspace.id) ?? []
+
   store.set('workspaces', workspaces)
+  store.set('processes', filteredProcesses)
+
+  event.reply('processes.update', filteredProcesses)
 
   // Open with editor
   // await openEditor(event, workspace).catch(() => {})
