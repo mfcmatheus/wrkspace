@@ -3,7 +3,18 @@ import { URL } from 'url'
 import path from 'path'
 
 import childProcess from 'child_process'
-import { BrowserWindow, dialog } from 'electron'
+import os from 'os'
+import { dialog } from 'electron'
+import { IEvent } from 'xterm'
+import Store from 'electron-store'
+
+import Workspace from 'renderer/@types/Workspace'
+import { mainWindow } from './main'
+
+const pty = require('node-pty')
+
+const store = new Store()
+const shell = os.platform() === 'win32' ? 'powershell.exe' : 'zsh'
 
 export function resolveHtmlPath(htmlFileName: string) {
   if (process.env.NODE_ENV === 'development') {
@@ -33,6 +44,86 @@ export const resolveString = (str: string) => {
   processedString = processedString.replace(/\s+/g, '-')
   // Return the processed string
   return processedString
+}
+
+interface ITerminalReturn {
+  onOutput: IEvent<string>
+  onExit: IEvent<number>
+  process: typeof pty.spawn
+}
+
+async function storeProcess(
+  workspace: Workspace,
+  pid: number,
+  data: string,
+  title: string
+) {
+  const processes = (await store.get('processes')) ?? []
+  let index = processes.findIndex((process) => process.pid === pid)
+  index = index === -1 ? processes.length : index
+
+  const process = {
+    workspace,
+    pid,
+    title,
+    data: [...(processes?.[index]?.data ?? []), data],
+  }
+
+  processes[index] = process
+
+  store.set('processes', processes)
+  mainWindow?.webContents.send('processes.update', processes)
+}
+
+export function terminal(
+  command: string,
+  workspace: Workspace,
+  basePath: string | undefined = process.env.HOME,
+  title: string | undefined = 'Terminal'
+): ITerminalReturn {
+  const ptyProcess = pty.spawn(shell, [], {
+    name: 'xterm-color',
+    cols: 80,
+    rows: 30,
+    cwd: basePath,
+    env: process.env,
+  })
+
+  const defaultOnOutputCallback = (data: string) => {
+    storeProcess(workspace, ptyProcess.pid, data, title)
+    mainWindow?.webContents.send('terminal.incData', {
+      data,
+      workspace,
+      title,
+      pid: ptyProcess.pid,
+    })
+  }
+
+  const onOutput = (
+    callback: (data: string) => void = defaultOnOutputCallback
+  ) => {
+    return ptyProcess.on('data', callback)
+  }
+
+  const onExit = (callback: (exitCode: number) => void = () => {}) => {
+    return ptyProcess.on('exit', callback)
+  }
+
+  ptyProcess.write(`${command} \r`)
+  ptyProcess.write(`exit \r`)
+
+  /* ipcMain.on('terminal.toTerm', (event, data) => {
+    ptyProcess.write(data)
+  }) */
+
+  onOutput()
+  onExit()
+
+  return {
+    onOutput,
+    onExit,
+    process: ptyProcess,
+  }
 }
 
 export function runScript(

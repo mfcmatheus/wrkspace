@@ -13,7 +13,7 @@ import Browser from 'renderer/@types/Browser'
 import User from 'renderer/@types/User'
 import EnvVar from 'renderer/@types/EnvVar'
 import Command from 'renderer/@types/Command'
-import { fakeId, runScript, resolveString } from './util'
+import { fakeId, runScript, resolveString, terminal } from './util'
 
 const store = new Store()
 
@@ -133,39 +133,11 @@ const startDockerCompose = (
       return
     }
 
-    event.reply('workspaces.open.status', {
-      workspace,
-      message: 'Starting docker compose ...',
-    })
-
     const command = workspace.docker?.enableSail
       ? `WWWGROUP=1000 WWWUSER=1000 /usr/local/bin/docker compose up -d`
       : `/usr/local/bin/docker compose up -d`
 
-    const process = runScript(
-      `cd '${workspace.path}' && ${command}`,
-      [''],
-      () => ({})
-    )
-
-    process.stdout.on('data', (data) => {
-      event.reply('workspaces.open.status', {
-        workspace,
-        message: data.toString(),
-      })
-    })
-    process.stderr.on('data', (data) => {
-      event.reply('workspaces.open.status', {
-        workspace,
-        message: data.toString(),
-      })
-    })
-
-    process.on('close', () => {
-      event.reply('workspaces.open.status', { workspace, message: 'Success' })
-      resolve(true)
-    })
-    process.on('error', reject)
+    terminal(command, workspace, workspace.path, 'Docker compose')
   })
 
 const startDockerContainer = (
@@ -230,18 +202,17 @@ export const onWorkspaceOpen = async (
   workspaces[index].loading = true
 
   store.set('workspaces', workspaces)
-  event.reply('workspaces.open.status', { workspace, message: false })
 
   // Open with editor
-  await openEditor(event, workspace).catch(() => {})
+  // await openEditor(event, workspace).catch(() => {})
   // Open browsers
-  await openBrowsers(event, workspace).catch(() => {})
+  // await openBrowsers(event, workspace).catch(() => {})
   // Execute terminal commands
-  await executeTerminalCommands(event, workspace).catch(() => {})
+  // await executeTerminalCommands(event, workspace).catch(() => {})
   // Start docker compose containers
   await startDockerCompose(event, workspace).catch(() => {})
   // Start docker containers
-  await startDockerContainers(event, workspace).catch(() => {})
+  // await startDockerContainers(event, workspace).catch(() => {})
 
   workspaces[index].loading = false
 

@@ -10,12 +10,14 @@
  */
 import path from 'path'
 import nodePath from 'node:path'
+import os from 'os'
 import { app, BrowserWindow, shell, ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import Store from 'electron-store'
 import { loadErrorMessages, loadDevMessages } from '@apollo/client/dev'
+import Workspace from 'renderer/@types/Workspace'
 import MenuBuilder from './menu'
-import { resolveHtmlPath } from './util'
+import { killProcesses, resolveHtmlPath } from './util'
 import {
   onApplicationsGet,
   onContainersGet,
@@ -43,7 +45,10 @@ import {
   onServicesGit,
 } from './process'
 
+const pty = require('node-pty')
+
 const store = new Store()
+const shell = os.platform() === 'win32' ? 'powershell.exe' : 'zsh'
 
 class AppUpdater {
   constructor(mainWindow: BrowserWindow) {
@@ -68,7 +73,7 @@ class AppUpdater {
   }
 }
 
-let mainWindow: BrowserWindow | null = null
+export let mainWindow: BrowserWindow | null = null
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`
@@ -172,6 +177,7 @@ const createWindow = async () => {
     height: 728,
     icon: getAssetPath('icon.png'),
     webPreferences: {
+      nodeIntegration: true,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
@@ -191,6 +197,7 @@ const createWindow = async () => {
     }
 
     mainWindow.webContents.send('user.check', store.get('token'))
+    store.delete('processes')
 
     // Remove this if your app does not use auto updates
     // eslint-disable-next-line

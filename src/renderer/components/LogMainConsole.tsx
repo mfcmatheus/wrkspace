@@ -1,29 +1,52 @@
-import React, { useEffect, useRef } from 'react'
-import LogWindow from 'renderer/@types/LogWindow'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { XTerm } from 'xterm-for-react'
+import { FitAddon } from 'xterm-addon-fit'
+
+import classNames from 'classnames'
+import { useIpc } from 'renderer/hooks/useIpc'
+import Process from 'renderer/@types/Process'
 
 interface LogMainConsoleProps {
-  window: LogWindow
+  process: Process
 }
 
-function LogMainConsole(props: LogMainConsoleProps) {
-  const { window } = props
+const fitAddon = new FitAddon()
 
-  const bottomRef = useRef<HTMLDivElement>(null)
+export default function LogMainConsole(props: LogMainConsoleProps) {
+  const { process } = props
+
+  const xtermRef = useRef(null)
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'instant' })
-  }, [window.data])
+    if (!process) return
+
+    setTimeout(() => {
+      fitAddon.fit()
+
+      for (const line of process.data) {
+        xtermRef.current?.terminal?.write(line)
+      }
+    }, 300)
+  }, [process])
+
+  useIpc('terminal.incData', (data: Process) => {
+    if (!xtermRef.current?.terminal || data.pid !== process.pid) return
+    xtermRef.current.terminal.write(data.data)
+  })
 
   return (
-    <div className="flex flex-col h-[30vh] overflow-y-auto p-2">
-      <ul className="text-xs text-[#d2d2d2] font-thin">
-        {window.data.map((data, index) => (
-          <li key={index}>{data}</li>
-        ))}
-      </ul>
-      <div ref={bottomRef} />
+    <div className="p-2 max-h-full overflow-auto">
+      <XTerm
+        options={{
+          fontSize: 12,
+          rows: 14,
+          theme: { background: '#202020' },
+          scrollOnUserInput: true,
+        }}
+        addons={[fitAddon]}
+        className="h-full w-full"
+        ref={xtermRef}
+      />
     </div>
   )
 }
-
-export default LogMainConsole
