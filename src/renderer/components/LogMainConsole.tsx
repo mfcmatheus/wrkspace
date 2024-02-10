@@ -20,13 +20,11 @@ export default function LogMainConsole(props: LogMainConsoleProps) {
   useEffect(() => {
     if (!process) return
 
-    setTimeout(() => {
-      fitAddon.fit()
+    fitAddon.fit()
 
-      for (const line of process.data) {
-        xtermRef.current?.terminal?.write(line)
-      }
-    }, 300)
+    for (const line of process.data) {
+      xtermRef.current?.terminal?.write(line)
+    }
   }, [process])
 
   useIpc('terminal.incData', (data: Process) => {
