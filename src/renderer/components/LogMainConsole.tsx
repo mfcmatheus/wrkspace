@@ -21,6 +21,7 @@ export default function LogMainConsole(props: LogMainConsoleProps) {
     if (!process) return
 
     fitAddon.fit()
+    xtermRef.current?.terminal?.clear()
 
     for (const line of process.data) {
       xtermRef.current?.terminal?.write(line)

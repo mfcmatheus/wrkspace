@@ -85,18 +85,17 @@ const openBrowsers = async (event: IpcMainEvent, workspace: Workspace) => {
 
 const executeTerminalCommand = (
   workspace: Workspace,
-  terminal: Terminal
+  workspaceTerminal: Terminal
 ): Promise<boolean> =>
-  new Promise((resolve, reject) => {
-    const escapedPath = workspace.path.replace("'", "'\\''")
-    const escapedCommand = terminal.command.replace(/(["\\$`])/g, '\\$1')
+  new Promise((resolve) => {
+    terminal(
+      workspaceTerminal.command,
+      workspace,
+      workspace.path,
+      workspaceTerminal.command
+    )
 
-    const osascriptCommand = `osascript -e 'tell app "Terminal" to do script "cd '\\''${escapedPath}'\\'' && ${escapedCommand}"'`
-
-    const process = runScript(osascriptCommand, [''], () => ({}))
-
-    process.on('close', () => resolve(true))
-    process.on('error', reject)
+    resolve(true)
   })
 
 const executeTerminalCommands = async (
@@ -105,18 +104,11 @@ const executeTerminalCommands = async (
 ) => {
   if (!workspace.terminals?.length) return
 
-  event.reply('workspaces.open.status', {
-    workspace,
-    message: 'Executing terminal commands ...',
-  })
-
   // eslint-disable-next-line no-restricted-syntax
   for (const terminal of workspace.terminals ?? []) {
     // eslint-disable-next-line no-await-in-loop
     await executeTerminalCommand(workspace, terminal)
   }
-
-  event.reply('workspaces.open.status', { workspace, message: 'Success' })
 }
 
 const startDockerCompose = (
@@ -215,7 +207,7 @@ export const onWorkspaceOpen = async (
   // Open browsers
   // await openBrowsers(event, workspace).catch(() => {})
   // Execute terminal commands
-  // await executeTerminalCommands(event, workspace).catch(() => {})
+  await executeTerminalCommands(event, workspace).catch(() => {})
   // Start docker compose containers
   await startDockerCompose(event, workspace).catch(() => {})
   // Start docker containers

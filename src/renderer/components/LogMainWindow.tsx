@@ -18,8 +18,8 @@ function LogMainWindow(props: LogMainConsoleProps) {
   const [selectedProcess, setSelectedProcess] = useState<Process>(processes[0])
 
   useIpc('terminal.incData', (data: Process) => {
-    if (data.pid !== selectedProcess.pid) {
-      setSelectedProcess(processes.find((p) => p.pid === data.pid)!)
+    if (!processes.find((p) => p.pid === data.pid)) {
+      setSelectedProcess(data)
     }
   })
 
@@ -34,11 +34,11 @@ function LogMainWindow(props: LogMainConsoleProps) {
         {processes.map((process) => (
           <li
             key={process.pid}
-            className="flex items-center pr-3 border-b border-[#353535] max-w-[160px]"
+            className="flex items-center pr-3 border-b border-[#353535] w-[160px]"
           >
             <button
               type="button"
-              className="text-sm font-thin px-3 py-1"
+              className="text-left flex-1 text-sm font-thin px-3 py-1 whitespace-nowrap overflow-hidden overflow-ellipsis"
               onClick={() => setSelectedProcess(process)}
             >
               {process.title}
