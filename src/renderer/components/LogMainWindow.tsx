@@ -72,7 +72,7 @@ function LogMainWindow(props: LogMainConsoleProps) {
               <Lucide icon="X" size={16} color="#6f6f6f" />
             </button>
             {isSelectedProcess(process) && (
-              <span className="w-[8px] h-[8px] rounded-full bg-[#353535] absolute right-[-3px]" />
+              <span className="w-[4px] h-full bg-[#353535] absolute right-0" />
             )}
           </li>
         ))}

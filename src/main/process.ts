@@ -30,28 +30,12 @@ const openEditor = (
       return
     }
 
-    event.reply('workspaces.open.status', {
-      workspace,
-      message: 'Opening with editor ...',
-    })
-
     const process = runScript(
       `open -g -a '${workspace.editor}' '${workspace.path}'`,
       [''],
       () => ({})
     )
 
-    process.stdout.on('data', (data) => {
-      event.reply('workspaces.open.status', {
-        workspace,
-        message: data.toString(),
-      })
-    })
-
-    process.on('close', () => {
-      event.reply('workspaces.open.status', { workspace, message: 'Success' })
-      resolve(true)
-    })
     process.on('error', reject)
   })
 
@@ -71,18 +55,11 @@ const openBrowser = (browser: Browser): Promise<void> =>
 const openBrowsers = async (event: IpcMainEvent, workspace: Workspace) => {
   if (!workspace.browsers?.length) return
 
-  event.reply('workspaces.open.status', {
-    workspace,
-    message: 'Opening browsers ...',
-  })
-
   // eslint-disable-next-line no-restricted-syntax
   for (const browser of workspace.browsers ?? []) {
     // eslint-disable-next-line no-await-in-loop
     await openBrowser(browser)
   }
-
-  event.reply('workspaces.open.status', { workspace, message: 'Success' })
 }
 
 const executeTerminalCommand = (
@@ -132,6 +109,8 @@ const startDockerCompose = (
       : `/usr/local/bin/docker compose up -d`
 
     terminal(command, workspace, workspace.path, 'Docker compose')
+
+    resolve(true)
   })
 
 const startDockerContainer = (
@@ -139,22 +118,15 @@ const startDockerContainer = (
   container: Container,
   workspace: Workspace
 ): Promise<boolean> =>
-  new Promise((resolve, reject) => {
-    const process = runScript(
-      `/usr/local/bin/docker start ${container}`,
-      [''],
-      () => ({})
+  new Promise((resolve) => {
+    terminal(
+      `docker start ${container}`,
+      workspace,
+      undefined,
+      `Start container ${container}`
     )
 
-    process.stdout.on('data', (data) => {
-      event.reply('workspaces.open.status', {
-        workspace,
-        message: data.toString(),
-      })
-    })
-
-    process.on('close', () => resolve(true))
-    process.on('error', reject)
+    resolve(true)
   })
 
 const startDockerContainers = async (
@@ -169,18 +141,11 @@ const startDockerContainers = async (
     return
   }
 
-  event.reply('workspaces.open.status', {
-    workspace,
-    message: 'Starting docker containers ...',
-  })
-
   // eslint-disable-next-line no-restricted-syntax
   for (const container of workspace.docker?.containers ?? []) {
     // eslint-disable-next-line no-await-in-loop
     await startDockerContainer(event, container, workspace)
   }
-
-  event.reply('workspaces.open.status', { workspace, message: 'Success' })
 }
 
 export const onWorkspaceOpen = async (
@@ -202,18 +167,19 @@ export const onWorkspaceOpen = async (
   store.set('workspaces', workspaces)
   store.set('processes', filteredProcesses)
 
+  event.reply('workspaces.reload', workspaces)
   event.reply('processes.update', filteredProcesses)
 
   // Open with editor
-  // await openEditor(event, workspace).catch(() => {})
+  await openEditor(event, workspace).catch(() => {})
   // Open browsers
-  // await openBrowsers(event, workspace).catch(() => {})
+  await openBrowsers(event, workspace).catch(() => {})
   // Execute terminal commands
   await executeTerminalCommands(event, workspace).catch(() => {})
   // Start docker compose containers
   await startDockerCompose(event, workspace).catch(() => {})
   // Start docker containers
-  // await startDockerContainers(event, workspace).catch(() => {})
+  await startDockerContainers(event, workspace).catch(() => {})
 
   workspaces[index].loading = false
 
@@ -639,8 +605,8 @@ export const onProcessClose = (event: IpcMainEvent, process: Process) => {
       (target: Process) => target.pid !== process.pid
     )
 
-    treeKill(process.pid as number)
     store.set('processes', filteredProcesses)
+    treeKill(process.pid as number)
 
     setTimeout(() => {
       event.reply('processes.update', filteredProcesses)

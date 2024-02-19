@@ -88,7 +88,7 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
     [workspace, isInstalled]
   )
 
-  const renderDate = useCallback(() => {
+  const renderDate = useMemo(() => {
     if (!lastOpened.isValid()) {
       return <>Never opened</>
     }
@@ -169,7 +169,7 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
           </div>
           <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
           <WorkspaceListItemLastOpened>
-            {renderDate()}
+            {renderDate}
           </WorkspaceListItemLastOpened>
           <WorkspaceListItemLaunch workspace={workspace} onClick={onLaunch} />
         </div>
