@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest]
-        python-version: ["pypy3.9", "pypy3.10", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.12"]
 
     steps:
       - name: Check out Git repository
@@ -39,6 +39,9 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: Install Python dependencies
+        run: python3 -m pip install setuptools
 
       - name: Install Packages
         run: npm install --legacy-peer-deps
