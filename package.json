@@ -54,6 +54,7 @@
     "lodash": "^4.17.21",
     "lucide-react": "^0.263.1",
     "moment": "^2.29.4",
+    "node-abi": "^3.54.0",
     "react": "^18.2.0",
     "react-contexify": "^6.0.0",
     "react-dom": "^18.2.0",
