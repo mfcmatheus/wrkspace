@@ -5,4 +5,5 @@ export default interface Process {
   title: string
   workspace: Workspace
   data: string[]
+  running: boolean
 }

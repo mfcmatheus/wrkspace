@@ -9,6 +9,7 @@ import { IEvent } from 'xterm'
 import Store from 'electron-store'
 
 import Workspace from 'renderer/@types/Workspace'
+import Process from 'renderer/@types/Process'
 import { mainWindow } from './main'
 
 const pty = require('node-pty')
@@ -66,6 +67,7 @@ async function storeProcess(
     workspace,
     pid,
     title,
+    running: true,
     data: [...(processes?.[index]?.data ?? []), data],
   }
 
@@ -99,13 +101,27 @@ export function terminal(
     })
   }
 
+  const defaultOnExitCallback = () => {
+    const processes = (store.get('processes') ?? []) as Process[]
+    const index = processes.findIndex(
+      (process) => process.pid === ptyProcess.pid
+    )
+    if (index !== -1) {
+      processes[index].running = false
+      store.set('processes', processes)
+      mainWindow?.webContents.send('processes.update', processes)
+    }
+  }
+
   const onOutput = (
     callback: (data: string) => void = defaultOnOutputCallback
   ) => {
     return ptyProcess.on('data', callback)
   }
 
-  const onExit = (callback: (exitCode: number) => void = () => {}) => {
+  const onExit = (
+    callback: (exitCode: number) => void = defaultOnExitCallback
+  ) => {
     return ptyProcess.on('exit', callback)
   }
 

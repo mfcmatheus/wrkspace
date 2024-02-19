@@ -1,3 +1,4 @@
+import { childProcess, execSync } from 'child_process'
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
 /**
@@ -16,6 +17,7 @@ import { autoUpdater } from 'electron-updater'
 import Store from 'electron-store'
 import { loadErrorMessages, loadDevMessages } from '@apollo/client/dev'
 import Workspace from 'renderer/@types/Workspace'
+import Process from 'renderer/@types/Process'
 import MenuBuilder from './menu'
 import { killProcesses, resolveHtmlPath } from './util'
 import {
@@ -43,8 +45,10 @@ import {
   onFoldersDelete,
   onUserUpgrade,
   onServicesGit,
+  onProcessClose,
 } from './process'
 
+const kill = require('tree-kill')
 const pty = require('node-pty')
 
 const store = new Store()
@@ -103,6 +107,7 @@ ipcMain.on('settings.get', onSettingsGet)
 ipcMain.on('settings.update', onSettingsUpdate)
 ipcMain.on('applications.get', onApplicationsGet)
 ipcMain.on('process', onProcess)
+ipcMain.on('process.close', onProcessClose)
 ipcMain.on('user.get', onUserGet)
 ipcMain.on('user.set', onUserSet)
 ipcMain.on('user.authenticate', onUserAuthenticate)
@@ -197,6 +202,17 @@ const createWindow = async () => {
     }
 
     mainWindow.webContents.send('user.check', store.get('token'))
+    // store.delete('processes')
+
+    // TODO
+    const processes = (store.get('processes') ?? []) as Process[]
+
+    for (const item of processes) {
+      try {
+        kill(item.pid)
+      } catch {}
+    }
+
     store.delete('processes')
 
     // Remove this if your app does not use auto updates

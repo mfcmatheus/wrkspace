@@ -4,6 +4,7 @@ import { IpcMainEvent, BrowserWindow, dialog } from 'electron'
 import Store from 'electron-store'
 import moment from 'moment'
 
+import treeKill from 'tree-kill'
 import Workspace from 'renderer/@types/Workspace'
 import Terminal from 'renderer/@types/Terminal'
 import Container from 'renderer/@types/Container'
@@ -13,6 +14,7 @@ import Browser from 'renderer/@types/Browser'
 import User from 'renderer/@types/User'
 import EnvVar from 'renderer/@types/EnvVar'
 import Command from 'renderer/@types/Command'
+import Process from 'renderer/@types/Process'
 import { fakeId, runScript, resolveString, terminal } from './util'
 
 const store = new Store()
@@ -630,6 +632,24 @@ export const onProcess = (event: IpcMainEvent) => {
   event.reply('process', { NODE_ENV })
 }
 
+export const onProcessClose = (event: IpcMainEvent, process: Process) => {
+  try {
+    const processes = (store.get('processes') ?? []) as Process[]
+    const filteredProcesses = processes.filter(
+      (target: Process) => target.pid !== process.pid
+    )
+
+    treeKill(process.pid as number)
+    store.set('processes', filteredProcesses)
+
+    setTimeout(() => {
+      event.reply('processes.update', filteredProcesses)
+    }, 500)
+  } catch {
+    //
+  }
+}
+
 export const onUserGet = (event: IpcMainEvent) => {
   const user = store.get('user') ?? null
   event.reply('user.get', user)
@@ -674,6 +694,7 @@ export default {
   onSettingsUpdate,
   onApplicationsGet,
   onProcess,
+  onProcessClose,
   onUserGet,
   onUserSet,
   onUserAuthenticate,
