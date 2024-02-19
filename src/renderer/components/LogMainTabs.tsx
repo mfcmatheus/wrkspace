@@ -8,7 +8,7 @@ function LogMainTabs(props: LogMainTabsProps) {
   const { children } = props
 
   return (
-    <div className="flex overflow-x-auto border-y border-[#353535]">
+    <div className="flex overflow-x-auto max-w-screen border-y border-[#353535]">
       {children}
     </div>
   )

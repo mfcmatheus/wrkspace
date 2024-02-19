@@ -1,3 +1,4 @@
+import { childProcess, execSync } from 'child_process'
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
 /**
@@ -10,12 +11,13 @@
  */
 import path from 'path'
 import nodePath from 'node:path'
+import os from 'os'
 import { app, BrowserWindow, shell, ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import Store from 'electron-store'
 import { loadErrorMessages, loadDevMessages } from '@apollo/client/dev'
 import MenuBuilder from './menu'
-import { resolveHtmlPath } from './util'
+import { killProcesses, resolveHtmlPath } from './util'
 import {
   onApplicationsGet,
   onContainersGet,
@@ -41,6 +43,7 @@ import {
   onFoldersDelete,
   onUserUpgrade,
   onServicesGit,
+  onProcessClose,
 } from './process'
 
 const store = new Store()
@@ -68,7 +71,7 @@ class AppUpdater {
   }
 }
 
-let mainWindow: BrowserWindow | null = null
+export let mainWindow: BrowserWindow | null = null
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`
@@ -98,6 +101,7 @@ ipcMain.on('settings.get', onSettingsGet)
 ipcMain.on('settings.update', onSettingsUpdate)
 ipcMain.on('applications.get', onApplicationsGet)
 ipcMain.on('process', onProcess)
+ipcMain.on('process.close', onProcessClose)
 ipcMain.on('user.get', onUserGet)
 ipcMain.on('user.set', onUserSet)
 ipcMain.on('user.authenticate', onUserAuthenticate)
@@ -172,6 +176,7 @@ const createWindow = async () => {
     height: 728,
     icon: getAssetPath('icon.png'),
     webPreferences: {
+      nodeIntegration: true,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
@@ -191,6 +196,9 @@ const createWindow = async () => {
     }
 
     mainWindow.webContents.send('user.check', store.get('token'))
+    // store.delete('processes')
+
+    killProcesses()
 
     // Remove this if your app does not use auto updates
     // eslint-disable-next-line

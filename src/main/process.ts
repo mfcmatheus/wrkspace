@@ -4,6 +4,7 @@ import { IpcMainEvent, BrowserWindow, dialog } from 'electron'
 import Store from 'electron-store'
 import moment from 'moment'
 
+import treeKill from 'tree-kill'
 import Workspace from 'renderer/@types/Workspace'
 import Terminal from 'renderer/@types/Terminal'
 import Container from 'renderer/@types/Container'
@@ -13,7 +14,14 @@ import Browser from 'renderer/@types/Browser'
 import User from 'renderer/@types/User'
 import EnvVar from 'renderer/@types/EnvVar'
 import Command from 'renderer/@types/Command'
-import { fakeId, runScript, resolveString } from './util'
+import Process from 'renderer/@types/Process'
+import {
+  fakeId,
+  runScript,
+  resolveString,
+  terminal,
+  killProcesses,
+} from './util'
 
 const store = new Store()
 
@@ -28,28 +36,13 @@ const openEditor = (
       return
     }
 
-    event.reply('workspaces.open.status', {
-      workspace,
-      message: 'Opening with editor ...',
-    })
-
     const process = runScript(
       `open -g -a '${workspace.editor}' '${workspace.path}'`,
       [''],
       () => ({})
     )
 
-    process.stdout.on('data', (data) => {
-      event.reply('workspaces.open.status', {
-        workspace,
-        message: data.toString(),
-      })
-    })
-
-    process.on('close', () => {
-      event.reply('workspaces.open.status', { workspace, message: 'Success' })
-      resolve(true)
-    })
+    process.on('close', resolve)
     process.on('error', reject)
   })
 
@@ -69,34 +62,26 @@ const openBrowser = (browser: Browser): Promise<void> =>
 const openBrowsers = async (event: IpcMainEvent, workspace: Workspace) => {
   if (!workspace.browsers?.length) return
 
-  event.reply('workspaces.open.status', {
-    workspace,
-    message: 'Opening browsers ...',
-  })
-
   // eslint-disable-next-line no-restricted-syntax
   for (const browser of workspace.browsers ?? []) {
     // eslint-disable-next-line no-await-in-loop
     await openBrowser(browser)
   }
-
-  event.reply('workspaces.open.status', { workspace, message: 'Success' })
 }
 
 const executeTerminalCommand = (
   workspace: Workspace,
-  terminal: Terminal
+  workspaceTerminal: Terminal
 ): Promise<boolean> =>
-  new Promise((resolve, reject) => {
-    const escapedPath = workspace.path.replace("'", "'\\''")
-    const escapedCommand = terminal.command.replace(/(["\\$`])/g, '\\$1')
+  new Promise((resolve) => {
+    terminal(
+      workspaceTerminal.command,
+      workspace,
+      workspace.path,
+      workspaceTerminal.command
+    )
 
-    const osascriptCommand = `osascript -e 'tell app "Terminal" to do script "cd '\\''${escapedPath}'\\'' && ${escapedCommand}"'`
-
-    const process = runScript(osascriptCommand, [''], () => ({}))
-
-    process.on('close', () => resolve(true))
-    process.on('error', reject)
+    resolve(true)
   })
 
 const executeTerminalCommands = async (
@@ -105,18 +90,11 @@ const executeTerminalCommands = async (
 ) => {
   if (!workspace.terminals?.length) return
 
-  event.reply('workspaces.open.status', {
-    workspace,
-    message: 'Executing terminal commands ...',
-  })
-
   // eslint-disable-next-line no-restricted-syntax
   for (const terminal of workspace.terminals ?? []) {
     // eslint-disable-next-line no-await-in-loop
     await executeTerminalCommand(workspace, terminal)
   }
-
-  event.reply('workspaces.open.status', { workspace, message: 'Success' })
 }
 
 const startDockerCompose = (
@@ -133,39 +111,13 @@ const startDockerCompose = (
       return
     }
 
-    event.reply('workspaces.open.status', {
-      workspace,
-      message: 'Starting docker compose ...',
-    })
-
     const command = workspace.docker?.enableSail
-      ? `WWWGROUP=1000 WWWUSER=1000 /usr/local/bin/docker compose up -d`
-      : `/usr/local/bin/docker compose up -d`
+      ? `WWWGROUP=1000 WWWUSER=1000 /usr/local/bin/docker compose up`
+      : `/usr/local/bin/docker compose up`
 
-    const process = runScript(
-      `cd '${workspace.path}' && ${command}`,
-      [''],
-      () => ({})
-    )
+    terminal(command, workspace, workspace.path, 'Docker compose')
 
-    process.stdout.on('data', (data) => {
-      event.reply('workspaces.open.status', {
-        workspace,
-        message: data.toString(),
-      })
-    })
-    process.stderr.on('data', (data) => {
-      event.reply('workspaces.open.status', {
-        workspace,
-        message: data.toString(),
-      })
-    })
-
-    process.on('close', () => {
-      event.reply('workspaces.open.status', { workspace, message: 'Success' })
-      resolve(true)
-    })
-    process.on('error', reject)
+    resolve(true)
   })
 
 const startDockerContainer = (
@@ -173,22 +125,15 @@ const startDockerContainer = (
   container: Container,
   workspace: Workspace
 ): Promise<boolean> =>
-  new Promise((resolve, reject) => {
-    const process = runScript(
-      `/usr/local/bin/docker start ${container}`,
-      [''],
-      () => ({})
+  new Promise((resolve) => {
+    terminal(
+      `docker start ${container}`,
+      workspace,
+      undefined,
+      `Start container ${container}`
     )
 
-    process.stdout.on('data', (data) => {
-      event.reply('workspaces.open.status', {
-        workspace,
-        message: data.toString(),
-      })
-    })
-
-    process.on('close', () => resolve(true))
-    process.on('error', reject)
+    resolve(true)
   })
 
 const startDockerContainers = async (
@@ -203,18 +148,11 @@ const startDockerContainers = async (
     return
   }
 
-  event.reply('workspaces.open.status', {
-    workspace,
-    message: 'Starting docker containers ...',
-  })
-
   // eslint-disable-next-line no-restricted-syntax
   for (const container of workspace.docker?.containers ?? []) {
     // eslint-disable-next-line no-await-in-loop
     await startDockerContainer(event, container, workspace)
   }
-
-  event.reply('workspaces.open.status', { workspace, message: 'Success' })
 }
 
 export const onWorkspaceOpen = async (
@@ -229,8 +167,13 @@ export const onWorkspaceOpen = async (
   workspaces[index].opened_at = moment().format('YYYY-MM-DD HH:mm:ss')
   workspaces[index].loading = true
 
+  const filteredProcesses = killProcesses(workspace)
+
   store.set('workspaces', workspaces)
-  event.reply('workspaces.open.status', { workspace, message: false })
+  store.set('processes', filteredProcesses)
+
+  event.reply('workspaces.reload', workspaces)
+  event.reply('processes.update', filteredProcesses)
 
   // Open with editor
   await openEditor(event, workspace).catch(() => {})
@@ -660,6 +603,22 @@ export const onProcess = (event: IpcMainEvent) => {
   event.reply('process', { NODE_ENV })
 }
 
+export const onProcessClose = (event: IpcMainEvent, process: Process) => {
+  try {
+    const processes = (store.get('processes') ?? []) as Process[]
+    const filteredProcesses = processes.filter(
+      (target: Process) => target.pid !== process.pid
+    )
+
+    store.set('processes', filteredProcesses)
+    treeKill(process.pid as number)
+
+    event.reply('processes.update', filteredProcesses)
+  } catch {
+    //
+  }
+}
+
 export const onUserGet = (event: IpcMainEvent) => {
   const user = store.get('user') ?? null
   event.reply('user.get', user)
@@ -704,6 +663,7 @@ export default {
   onSettingsUpdate,
   onApplicationsGet,
   onProcess,
+  onProcessClose,
   onUserGet,
   onUserSet,
   onUserAuthenticate,

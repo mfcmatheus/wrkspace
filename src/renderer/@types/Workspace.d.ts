@@ -4,6 +4,7 @@ import Folder from 'renderer/@types/Folder'
 import Browser from 'renderer/@types/Browser'
 import EnvVar from 'renderer/@types/EnvVar'
 import Command from './Command'
+import Process from './Process'
 
 export default interface Workspace {
   id: number | string
@@ -30,6 +31,7 @@ export default interface Workspace {
     commands?: Command[]
     variables?: EnvVar[]
   }
+  processes?: Process[]
   loading?: boolean
   updated_at: string
   created_at: string

@@ -2,8 +2,20 @@ import { useMemo } from 'react'
 
 interface LoadingIconProps {
   color?: string
-  icon?: string
   className?: string
+  icon?:
+    | 'spinner'
+    | 'ball-triangle'
+    | 'bars'
+    | 'circles'
+    | 'grid'
+    | 'hearts'
+    | 'oval'
+    | 'puff'
+    | 'rings'
+    | 'spinning-circles'
+    | 'three-dots'
+    | 'triangle'
 }
 
 function LoadingIcon(props: LoadingIconProps) {
