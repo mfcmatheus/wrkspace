@@ -1,21 +1,21 @@
 /* eslint import/prefer-default-export: off */
 import { URL } from 'url'
 import path from 'path'
-
 import childProcess from 'child_process'
 import os from 'os'
 import { dialog } from 'electron'
 import { IEvent } from 'xterm'
 import Store from 'electron-store'
+import treeKill from 'tree-kill'
+import * as pty from 'node-pty'
 
 import Workspace from 'renderer/@types/Workspace'
 import Process from 'renderer/@types/Process'
 import { mainWindow } from './main'
 
-const pty = require('node-pty')
-
 const store = new Store()
-const shell = os.platform() === 'win32' ? 'powershell.exe' : 'zsh'
+const shell =
+  os.platform() === 'win32' ? 'powershell.exe' : process.env.SHELL ?? '/bin/sh'
 
 export function resolveHtmlPath(htmlFileName: string) {
   if (process.env.NODE_ENV === 'development') {
@@ -125,12 +125,16 @@ export function terminal(
     return ptyProcess.on('exit', callback)
   }
 
+  ptyProcess.on('error', (error) => {
+    dialog.showMessageBox({
+      title: 'Error',
+      type: 'error',
+      message: error.message,
+    })
+  })
+
   ptyProcess.write(`${command} \r`)
   ptyProcess.write(`exit \r`)
-
-  /* ipcMain.on('terminal.toTerm', (event, data) => {
-    ptyProcess.write(data)
-  }) */
 
   onOutput()
   onExit()
@@ -140,6 +144,27 @@ export function terminal(
     onExit,
     process: ptyProcess,
   }
+}
+
+export function killProcesses(workspace: Workspace | null = null) {
+  const processes = (store.get('processes') ?? []) as Process[]
+  const filteredProcesses = processes.filter((process) =>
+    workspace ? workspace.id === process.workspace.id : true
+  )
+
+  for (const item of filteredProcesses) {
+    try {
+      treeKill(item.pid)
+    } catch {}
+  }
+
+  const newProcesses = processes.filter(
+    (process) => !filteredProcesses.includes(process)
+  )
+
+  store.set('processes', newProcesses)
+
+  return newProcesses
 }
 
 export function runScript(

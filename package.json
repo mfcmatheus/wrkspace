@@ -150,7 +150,9 @@
     "files": [
       "dist",
       "node_modules",
-      "package.json"
+      "package.json",
+      "release/app/node_modules",
+      "release/app/package.json"
     ],
     "afterSign": ".erb/scripts/notarize.js",
     "mac": {

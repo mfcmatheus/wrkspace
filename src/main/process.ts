@@ -15,7 +15,13 @@ import User from 'renderer/@types/User'
 import EnvVar from 'renderer/@types/EnvVar'
 import Command from 'renderer/@types/Command'
 import Process from 'renderer/@types/Process'
-import { fakeId, runScript, resolveString, terminal } from './util'
+import {
+  fakeId,
+  runScript,
+  resolveString,
+  terminal,
+  killProcesses,
+} from './util'
 
 const store = new Store()
 
@@ -36,6 +42,7 @@ const openEditor = (
       () => ({})
     )
 
+    process.on('close', resolve)
     process.on('error', reject)
   })
 
@@ -105,8 +112,8 @@ const startDockerCompose = (
     }
 
     const command = workspace.docker?.enableSail
-      ? `WWWGROUP=1000 WWWUSER=1000 /usr/local/bin/docker compose up -d`
-      : `/usr/local/bin/docker compose up -d`
+      ? `WWWGROUP=1000 WWWUSER=1000 /usr/local/bin/docker compose up`
+      : `/usr/local/bin/docker compose up`
 
     terminal(command, workspace, workspace.path, 'Docker compose')
 
@@ -153,7 +160,6 @@ export const onWorkspaceOpen = async (
   workspace: Workspace
 ) => {
   const workspaces = store.get('workspaces') as Workspace[]
-  const processes = (store.get('processes') as []) ?? []
   const index = workspaces.findIndex(
     (target: Workspace) => target.id === workspace.id
   )
@@ -161,8 +167,7 @@ export const onWorkspaceOpen = async (
   workspaces[index].opened_at = moment().format('YYYY-MM-DD HH:mm:ss')
   workspaces[index].loading = true
 
-  const filteredProcesses =
-    processes.filter((process) => process.workspace.id !== workspace.id) ?? []
+  const filteredProcesses = killProcesses(workspace)
 
   store.set('workspaces', workspaces)
   store.set('processes', filteredProcesses)
@@ -608,9 +613,7 @@ export const onProcessClose = (event: IpcMainEvent, process: Process) => {
     store.set('processes', filteredProcesses)
     treeKill(process.pid as number)
 
-    setTimeout(() => {
-      event.reply('processes.update', filteredProcesses)
-    }, 500)
+    event.reply('processes.update', filteredProcesses)
   } catch {
     //
   }

@@ -16,8 +16,6 @@ import { app, BrowserWindow, shell, ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import Store from 'electron-store'
 import { loadErrorMessages, loadDevMessages } from '@apollo/client/dev'
-import Workspace from 'renderer/@types/Workspace'
-import Process from 'renderer/@types/Process'
 import MenuBuilder from './menu'
 import { killProcesses, resolveHtmlPath } from './util'
 import {
@@ -48,11 +46,7 @@ import {
   onProcessClose,
 } from './process'
 
-const kill = require('tree-kill')
-const pty = require('node-pty')
-
 const store = new Store()
-const shell = os.platform() === 'win32' ? 'powershell.exe' : 'zsh'
 
 class AppUpdater {
   constructor(mainWindow: BrowserWindow) {
@@ -204,16 +198,7 @@ const createWindow = async () => {
     mainWindow.webContents.send('user.check', store.get('token'))
     // store.delete('processes')
 
-    // TODO
-    const processes = (store.get('processes') ?? []) as Process[]
-
-    for (const item of processes) {
-      try {
-        kill(item.pid)
-      } catch {}
-    }
-
-    store.delete('processes')
+    killProcesses()
 
     // Remove this if your app does not use auto updates
     // eslint-disable-next-line

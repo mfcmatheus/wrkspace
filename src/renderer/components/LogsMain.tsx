@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react'
 
-import { useIpc } from 'renderer/hooks/useIpc'
+import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import LogWindow from 'renderer/@types/LogWindow'
 import LogMainTabs from 'renderer/components/LogMainTabs'
 import LogMainTabsItem from 'renderer/components/LogMainTabsItem'
@@ -52,23 +52,31 @@ function LogsMain() {
     [isSelectedWindow, setCurrentWindow]
   )
 
-  /* const handleClear = useCallback(
+  const handleClear = useCallback(
     (window: LogWindow) => {
-      setWindows((prev) => {
-        const index = prev.findIndex(
-          (w) => w.workspace.id === window.workspace.id
-        )
-        prev.splice(index, 1)
-        return [...prev]
-      })
+      const toClose = processesByWindow(window) as Process[]
+      // eslint-disable-next-line
+      for (const process of toClose) {
+        ipcRenderer.sendMessage('process.close', process)
+      }
+
       setCurrentWindow(undefined)
     },
-    [setWindows]
-  ) */
+    [processesByWindow]
+  )
+
+  const hasActiveProcesses = useMemo(() => {
+    if (!currentWindow) return false
+    const relativeProcesses = processesByWindow(currentWindow)
+    return relativeProcesses.some((p) => p.running)
+  }, [currentWindow, processesByWindow])
 
   useIpc('processes.update', setProcesses)
   useIpc('terminal.incData', (data: Process) => {
-    if (data.workspace.id !== currentWindow?.workspace.id) {
+    if (
+      data.workspace.id !== currentWindow?.workspace.id &&
+      !hasActiveProcesses
+    ) {
       setCurrentWindow(
         windows.find((w) => w.workspace.id === data.workspace.id)
       )
@@ -85,14 +93,17 @@ function LogsMain() {
             key={window.workspace.id}
             current={isSelectedWindow(window)}
             onSelect={() => handleClickWindow(window)}
-            // onClose={() => handleClear(window)}
+            onClose={() => handleClear(window)}
           >
             {window.workspace.name}
           </LogMainTabsItem>
         ))}
       </LogMainTabs>
       {currentWindow && (
-        <LogMainWindow processes={processesByWindow(currentWindow)} />
+        <LogMainWindow
+          window={currentWindow}
+          processes={processesByWindow(currentWindow)}
+        />
       )}
     </div>
   )

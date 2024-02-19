@@ -1,18 +1,20 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import classNames from 'classnames'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import Process from 'renderer/@types/Process'
 import Lucide from 'renderer/base-components/lucide'
 import LoadingIcon from 'renderer/base-components/LoadingIcon'
+import LogWindow from 'renderer/@types/LogWindow'
 import LogMainConsole from './LogMainConsole'
 
 interface LogMainConsoleProps {
   processes: Process[]
+  window: LogWindow
   className?: string
 }
 
 function LogMainWindow(props: LogMainConsoleProps) {
-  const { className, processes } = props
+  const { className, processes, window } = props
 
   const [selectedProcess, setSelectedProcess] = useState<Process>(processes[0])
 
@@ -30,6 +32,11 @@ function LogMainWindow(props: LogMainConsoleProps) {
   const onCloseProcess = useCallback((process: Process) => {
     ipcRenderer.sendMessage('process.close', process)
   }, [])
+
+  useEffect(() => {
+    if (!window) return
+    setSelectedProcess(processes[0])
+  }, [window, processes])
 
   useIpc('terminal.incData', (data: Process) => {
     if (!processes.find((p) => p.pid === data.pid)) {
