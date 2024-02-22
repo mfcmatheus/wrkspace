@@ -38,6 +38,7 @@ Our platform supports many languages and frameworks like Docker-based applicatio
 - Run your terminal commands
 - Favorite your workspaces
 - Organize your workspaces into folders
+- Centralized processes into a single place
 - And much more comming soon
 
 ## Usage
