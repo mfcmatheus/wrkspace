@@ -3,6 +3,7 @@ import { spawn } from 'child_process'
 import { IpcMainEvent, BrowserWindow, dialog } from 'electron'
 import Store from 'electron-store'
 import moment from 'moment'
+import isRunning from 'is-running'
 
 import treeKill from 'tree-kill'
 import Workspace from 'renderer/@types/Workspace'
@@ -613,7 +614,12 @@ export const onProcessClose = (event: IpcMainEvent, process: Process) => {
     store.set('processes', filteredProcesses)
     treeKill(process.pid as number)
 
-    event.reply('processes.update', filteredProcesses)
+    const interval = setInterval(() => {
+      if (!isRunning(process.pid as number)) {
+        event.reply('processes.update', filteredProcesses)
+        clearInterval(interval)
+      }
+    }, 250)
   } catch {
     //
   }

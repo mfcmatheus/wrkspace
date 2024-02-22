@@ -107,7 +107,7 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
       }
     })
 
-    return result
+    return result !== '' ? result : 'Opened < 1 second ago'
   }, [lastOpened])
 
   const handleContextMenu = useCallback(
