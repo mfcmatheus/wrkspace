@@ -67,15 +67,16 @@ Please refer to our [contribution guidelines](./CONTRIBUTING.md) and [code of co
 
 ## TO-DO list
 - [x] Implement auto-updater with electron-updater referencing to `updater.wrkspace.co` see [workspace-updater](https://github.com/mfcmatheus/wrkspace-updater)
-- [ ] Workspace launch errors on log window
+- [x] Integrated terminals using [xTerm.JS](https://xtermjs.org/)
+- [x] Workspace launch errors on log window
 - [ ] Build a a provider for electron storage to simplify managing data between main and render
 - [ ] Find a way to detect if user have stopped a workspace (Launch / Close functionality)
 - [ ] Windows compatibility
 - [ ] Linux compatibility
-- [ ] Integrated terminals using [xTerm.JS](https://xtermjs.org/)
+
 
 ## License
-This software is licensed under the GNU Affero General Public License, Version 3.0. Read the complete license [here](./LICENSE).
+This software is licensed under the [GNU Affero General Public License, Version 3.0](./LICENSE).
 
 <br />
 
