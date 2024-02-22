@@ -33,16 +33,16 @@ function LogMainWindow(props: LogMainConsoleProps) {
     ipcRenderer.sendMessage('process.close', process)
   }, [])
 
+  const defineProcess = useCallback(() => {
+    if (!processes?.length) return
+    setSelectedProcess(processes[0])
+  }, [processes])
+
   useEffect(() => {
     if (!window) return
-    setSelectedProcess(processes[0])
-  }, [window, processes])
-
-  useIpc('terminal.incData', (data: Process) => {
-    if (!processes.find((p) => p.pid === data.pid)) {
-      setSelectedProcess(data)
-    }
-  })
+    defineProcess()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [window])
 
   return (
     <div

@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { XTerm } from 'xterm-for-react'
 import { FitAddon } from 'xterm-addon-fit'
 
-import classNames from 'classnames'
 import { useIpc } from 'renderer/hooks/useIpc'
 import Process from 'renderer/@types/Process'
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import LogWindow from 'renderer/@types/LogWindow'
@@ -12,20 +12,7 @@ function LogsMain() {
   const [processes, setProcesses] = useState<Process[]>([])
   const [currentWindow, setCurrentWindow] = useState<LogWindow>()
 
-  const windows = useMemo(() => {
-    const data = processes.reduce(
-      (acc, process) => ({
-        ...acc,
-        [process.workspace.id]: {
-          id: fakeId(),
-          workspace: process.workspace,
-        },
-      }),
-      {}
-    )
-
-    return Object.values(data)
-  }, [processes]) as LogWindow[]
+  const [windows, setWindows] = useState<LogWindow[]>([])
 
   const processesByWindow = useCallback(
     (window: LogWindow) => {
@@ -60,30 +47,48 @@ function LogsMain() {
         ipcRenderer.sendMessage('process.close', process)
       }
 
-      setCurrentWindow(undefined)
+      const windowIndex = windows.findIndex(
+        (t) => t.workspace.id === window.workspace.id
+      )
+
+      setCurrentWindow(windowIndex > 0 ? windows[windowIndex - 1] : undefined)
     },
-    [processesByWindow]
+    [processesByWindow, windows, setCurrentWindow]
   )
 
-  const hasActiveProcesses = useMemo(() => {
-    if (!currentWindow) return false
-    const relativeProcesses = processesByWindow(currentWindow)
-    return relativeProcesses.some((p) => p.running)
-  }, [currentWindow, processesByWindow])
+  const setLastWindow = useCallback(() => {
+    const lastWindow = windows[windows.length - 1]
+
+    if (currentWindow?.workspace?.id !== lastWindow?.workspace?.id) {
+      setCurrentWindow(lastWindow)
+    }
+  }, [windows, currentWindow, setCurrentWindow])
+
+  useEffect(() => {
+    const data = processes.reduce(
+      (acc, process) => ({
+        ...acc,
+        [process.workspace.id]: {
+          id: fakeId(),
+          workspace: process.workspace,
+        },
+      }),
+      {}
+    )
+
+    if (Object.values(data).length !== windows.length) {
+      setWindows(Object.values(data))
+    }
+  }, [processes, windows, setWindows])
+
+  useEffect(() => {
+    setLastWindow()
+    // eslint-disable-next-line
+  }, [windows])
 
   useIpc('processes.update', setProcesses)
-  useIpc('terminal.incData', (data: Process) => {
-    if (
-      data.workspace.id !== currentWindow?.workspace.id &&
-      !hasActiveProcesses
-    ) {
-      setCurrentWindow(
-        windows.find((w) => w.workspace.id === data.workspace.id)
-      )
-    }
-  })
 
-  if (!windows.length) return <></>
+  if (!windows.length) return null
 
   return (
     <div className="flex flex-col -mb-[1px] overflow-hidden max-w-full">
