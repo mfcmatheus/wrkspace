@@ -136,12 +136,21 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
         wrapperClassName="rounded"
       >
         <div className={classes}>
-          <div className="flex items-center h-[20px]" />
-          <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
+          {currentView === DashboardViews.GRID && (
+            <div className="flex items-center h-[20px]" />
+          )}
+          <div className="flex flex-col w-full">
+            <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
+            <WorkspaceListItemPath>Not installed</WorkspaceListItemPath>
+          </div>
           {workspace.loading ? (
             <LoadingIcon
               icon="oval"
-              className="w-[2.4rem] mx-auto"
+              className={classNames({
+                'mx-auto': true,
+                'w-[2.4rem]': currentView === DashboardViews.GRID,
+                'w-[1.5rem]': currentView === DashboardViews.LIST,
+              })}
               color="#f0f0f0"
             />
           ) : (
@@ -152,7 +161,7 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
             >
               <Lucide
                 icon="DownloadCloud"
-                size={38}
+                size={currentView === DashboardViews.GRID ? 38 : 24}
                 color="#6f6f6f"
                 strokeWidth={1}
               />
@@ -187,9 +196,7 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
             })}
           >
             <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
-            <WorkspaceListItemPath>
-              {workspace.path || 'Not installed'}
-            </WorkspaceListItemPath>
+            <WorkspaceListItemPath>{workspace.path}</WorkspaceListItemPath>
           </div>
           {currentView === DashboardViews.LIST && workspace.folder?.name && (
             <span className="order-3 mx-auto uppercase text-zinc-400 font-light">

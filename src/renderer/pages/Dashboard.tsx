@@ -9,7 +9,7 @@ import ModalEditWorkspace from 'renderer/components/ModalEditWorkspace'
 import WorkspaceListItem from 'renderer/components/WorkspaceListItem'
 import Workspace from 'renderer/@types/Workspace'
 import ButtonMain from 'renderer/base-components/ButtonMain'
-import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
+import { ipcRenderer } from 'renderer/hooks/useIpc'
 import FolderBar from 'renderer/components/FolderBar'
 import ModalCreateFolder from 'renderer/components/ModalCreateFolder'
 import Folder from 'renderer/@types/Folder'
@@ -30,19 +30,20 @@ import UpdateIndicator from 'renderer/components/UpdateIndicator'
 import DashboardViewIndicator from 'renderer/components/DashboardViewIndicator'
 import { useSetting } from 'renderer/contexts/SettingContext'
 import { useWorkspace } from 'renderer/contexts/WorkspaceContext'
+import { useFolder } from 'renderer/contexts/FolderContext'
 
 const apolloClient = client('/user')
 
 function Dashboard() {
   const settings = useSetting()
   const { workspaces } = useWorkspace()
+  const { folders } = useFolder()
   const { workspaces: toInstall, setLoading: setLoadingPreview } =
     useCloudSync()
   const [getWorkspace] = useLazyQuery(WorkspaceQuery, {
     client: apolloClient,
   })
 
-  const [folders, setFolders] = useState<Folder[]>([])
   const [isModalEditOpen, setIsModalEditOpen] = useState<boolean>(false)
   const [isModalSettingsOpen, setIsModalSettingsOpen] = useState<boolean>(false)
   const [isModalCreateFolderOpen, setIsModalCreateFolderOpen] =
@@ -208,10 +209,6 @@ function Dashboard() {
   }, [workspaces, settings?.currentFolder, toInstall]) as Workspace[]
 
   useEffect(() => {
-    ipcRenderer.sendMessage('folders.get')
-  }, [])
-
-  useEffect(() => {
     setIsModalStartOpen(!settings.configured)
 
     if (settings.currentFolder && !settings.currentFolder.path) {
@@ -219,16 +216,6 @@ function Dashboard() {
       setSelectedFolder(settings.currentFolder)
     }
   }, [settings])
-
-  useIpc('folders.reload', (data: Folder[]) => {
-    const filtered = data.filter((folder) => !folder.deleted_at)
-    setFolders(filtered)
-  })
-
-  useIpc('folders.get', (data: Folder[]) => {
-    const filtered = data.filter((folder) => !folder.deleted_at)
-    setFolders(filtered)
-  })
 
   return (
     <>

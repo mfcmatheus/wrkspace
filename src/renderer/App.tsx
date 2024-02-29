@@ -12,6 +12,7 @@ import { CloudSyncProvider } from './contexts/CloudSyncContext'
 import { ToastProvider } from './contexts/ToastContext'
 import { SettingProvider } from './contexts/SettingContext'
 import { WorkspaceProvider } from './contexts/WorkspaceContext'
+import { FolderProvider } from './contexts/FolderContext'
 
 export default function App() {
   const [token, setToken] = useState<string | null>(null)
@@ -40,9 +41,11 @@ export default function App() {
   if (!token) {
     return (
       <SettingProvider>
-        <WorkspaceProvider>
-          <Routes />
-        </WorkspaceProvider>
+        <FolderProvider>
+          <WorkspaceProvider>
+            <Routes />
+          </WorkspaceProvider>
+        </FolderProvider>
       </SettingProvider>
     )
   }
@@ -50,15 +53,17 @@ export default function App() {
   return (
     <ApolloProvider client={client()}>
       <UserProvider token={token}>
-        <WorkspaceProvider>
-          <ToastProvider>
-            <CloudSyncProvider>
-              <SettingProvider>
-                <Routes />
-              </SettingProvider>
-            </CloudSyncProvider>
-          </ToastProvider>
-        </WorkspaceProvider>
+        <FolderProvider>
+          <WorkspaceProvider>
+            <ToastProvider>
+              <CloudSyncProvider>
+                <SettingProvider>
+                  <Routes />
+                </SettingProvider>
+              </CloudSyncProvider>
+            </ToastProvider>
+          </WorkspaceProvider>
+        </FolderProvider>
       </UserProvider>
     </ApolloProvider>
   )
