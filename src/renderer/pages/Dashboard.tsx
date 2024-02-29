@@ -29,18 +29,19 @@ import ModalStart from 'renderer/components/ModalStart'
 import UpdateIndicator from 'renderer/components/UpdateIndicator'
 import DashboardViewIndicator from 'renderer/components/DashboardViewIndicator'
 import { useSetting } from 'renderer/contexts/SettingContext'
+import { useWorkspace } from 'renderer/contexts/WorkspaceContext'
 
 const apolloClient = client('/user')
 
 function Dashboard() {
   const settings = useSetting()
+  const { workspaces } = useWorkspace()
   const { workspaces: toInstall, setLoading: setLoadingPreview } =
     useCloudSync()
   const [getWorkspace] = useLazyQuery(WorkspaceQuery, {
     client: apolloClient,
   })
 
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [folders, setFolders] = useState<Folder[]>([])
   const [isModalEditOpen, setIsModalEditOpen] = useState<boolean>(false)
   const [isModalSettingsOpen, setIsModalSettingsOpen] = useState<boolean>(false)
@@ -196,7 +197,6 @@ function Dashboard() {
     ).filter((w) => !w.deleted_at)
 
     if (toInstall?.length) {
-      console.log('toInstall', toInstall)
       data = data.concat(_.orderBy(toInstall, ['name'], ['asc']))
     }
 
@@ -209,7 +209,6 @@ function Dashboard() {
 
   useEffect(() => {
     ipcRenderer.sendMessage('folders.get')
-    ipcRenderer.sendMessage('workspaces.get')
   }, [])
 
   useEffect(() => {
@@ -221,17 +220,9 @@ function Dashboard() {
     }
   }, [settings])
 
-  useIpc('workspaces.reload', (data: Workspace[]) => {
-    setWorkspaces(data)
-  })
-
   useIpc('folders.reload', (data: Folder[]) => {
     const filtered = data.filter((folder) => !folder.deleted_at)
     setFolders(filtered)
-  })
-
-  useIpc('workspaces.get', (data: Workspace[]) => {
-    setWorkspaces(data)
   })
 
   useIpc('folders.get', (data: Folder[]) => {

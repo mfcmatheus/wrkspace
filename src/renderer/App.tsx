@@ -11,6 +11,7 @@ import { UserProvider } from './contexts/UserContext'
 import { CloudSyncProvider } from './contexts/CloudSyncContext'
 import { ToastProvider } from './contexts/ToastContext'
 import { SettingProvider } from './contexts/SettingContext'
+import { WorkspaceProvider } from './contexts/WorkspaceContext'
 
 export default function App() {
   const [token, setToken] = useState<string | null>(null)
@@ -39,7 +40,9 @@ export default function App() {
   if (!token) {
     return (
       <SettingProvider>
-        <Routes />
+        <WorkspaceProvider>
+          <Routes />
+        </WorkspaceProvider>
       </SettingProvider>
     )
   }
@@ -47,13 +50,15 @@ export default function App() {
   return (
     <ApolloProvider client={client()}>
       <UserProvider token={token}>
-        <ToastProvider>
-          <CloudSyncProvider>
-            <SettingProvider>
-              <Routes />
-            </SettingProvider>
-          </CloudSyncProvider>
-        </ToastProvider>
+        <WorkspaceProvider>
+          <ToastProvider>
+            <CloudSyncProvider>
+              <SettingProvider>
+                <Routes />
+              </SettingProvider>
+            </CloudSyncProvider>
+          </ToastProvider>
+        </WorkspaceProvider>
       </UserProvider>
     </ApolloProvider>
   )
