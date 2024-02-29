@@ -10,6 +10,7 @@ import client from 'renderer/graphql/client'
 import { UserProvider } from './contexts/UserContext'
 import { CloudSyncProvider } from './contexts/CloudSyncContext'
 import { ToastProvider } from './contexts/ToastContext'
+import { SettingProvider } from './contexts/SettingContext'
 
 export default function App() {
   const [token, setToken] = useState<string | null>(null)
@@ -35,14 +36,22 @@ export default function App() {
     setToken(null)
   })
 
-  if (!token) return <Routes />
+  if (!token) {
+    return (
+      <SettingProvider>
+        <Routes />
+      </SettingProvider>
+    )
+  }
 
   return (
     <ApolloProvider client={client()}>
       <UserProvider token={token}>
         <ToastProvider>
           <CloudSyncProvider>
-            <Routes />
+            <SettingProvider>
+              <Routes />
+            </SettingProvider>
           </CloudSyncProvider>
         </ToastProvider>
       </UserProvider>

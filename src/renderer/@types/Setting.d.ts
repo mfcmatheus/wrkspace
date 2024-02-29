@@ -5,4 +5,5 @@ export default interface Setting {
   currentFolder?: Folder
   defaultPath: string
   configured: boolean
+  currentView: number
 }

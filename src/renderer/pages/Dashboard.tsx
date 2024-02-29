@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import _, { update } from 'lodash'
+import _ from 'lodash'
 import moment from 'moment'
 import { useLazyQuery } from '@apollo/client'
 
@@ -27,16 +27,25 @@ import client from 'renderer/graphql/client'
 import WorkspaceQuery from 'renderer/graphql/queries/WorkspaceQuery'
 import ModalStart from 'renderer/components/ModalStart'
 import UpdateIndicator from 'renderer/components/UpdateIndicator'
+import DashboardViewIndicator from 'renderer/components/DashboardViewIndicator'
+import { useSetting } from 'renderer/contexts/SettingContext'
 
 const apolloClient = client('/user')
 
 function Dashboard() {
+  const settings = useSetting()
+  const { workspaces: toInstall, setLoading: setLoadingPreview } =
+    useCloudSync()
+  const [getWorkspace] = useLazyQuery(WorkspaceQuery, {
+    client: apolloClient,
+  })
+
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [folders, setFolders] = useState<Folder[]>([])
-  const [settings, setSettings] = useState<Setting>({} as Setting)
-  const [isModalEditOpen, setIsModalEditOpen] = useState(false)
-  const [isModalSettingsOpen, setIsModalSettingsOpen] = useState(false)
-  const [isModalCreateFolderOpen, setIsModalCreateFolderOpen] = useState(false)
+  const [isModalEditOpen, setIsModalEditOpen] = useState<boolean>(false)
+  const [isModalSettingsOpen, setIsModalSettingsOpen] = useState<boolean>(false)
+  const [isModalCreateFolderOpen, setIsModalCreateFolderOpen] =
+    useState<boolean>(false)
   const [isModalStartOpen, setIsModalStartOpen] = useState<boolean>(
     !settings?.configured ?? true
   )
@@ -44,13 +53,6 @@ function Dashboard() {
     {} as Workspace
   )
   const [selectedFolder, setSelectedFolder] = useState<Folder | null>(null)
-
-  const { workspaces: toInstall, setLoading: setLoadingPreview } =
-    useCloudSync()
-
-  const [getWorkspace] = useLazyQuery(WorkspaceQuery, {
-    client: apolloClient,
-  })
 
   const onEditWorkspace = useCallback((workspace: Workspace) => {
     setSelectedWorkspace(workspace)
@@ -194,6 +196,7 @@ function Dashboard() {
     ).filter((w) => !w.deleted_at)
 
     if (toInstall?.length) {
+      console.log('toInstall', toInstall)
       data = data.concat(_.orderBy(toInstall, ['name'], ['asc']))
     }
 
@@ -206,9 +209,17 @@ function Dashboard() {
 
   useEffect(() => {
     ipcRenderer.sendMessage('folders.get')
-    ipcRenderer.sendMessage('settings.get')
     ipcRenderer.sendMessage('workspaces.get')
   }, [])
+
+  useEffect(() => {
+    setIsModalStartOpen(!settings.configured)
+
+    if (settings.currentFolder && !settings.currentFolder.path) {
+      setIsModalCreateFolderOpen(true)
+      setSelectedFolder(settings.currentFolder)
+    }
+  }, [settings])
 
   useIpc('workspaces.reload', (data: Workspace[]) => {
     setWorkspaces(data)
@@ -228,26 +239,6 @@ function Dashboard() {
     setFolders(filtered)
   })
 
-  useIpc('settings.get', (data: Setting) => {
-    setSettings(data)
-    setIsModalStartOpen(!data.configured)
-
-    if (data.currentFolder && !data.currentFolder.path) {
-      setIsModalCreateFolderOpen(true)
-      setSelectedFolder(data.currentFolder)
-    }
-  })
-
-  useIpc('settings.reload', (data: Setting) => {
-    setSettings(data)
-    setIsModalStartOpen(!data.configured)
-
-    if (data.currentFolder && !data.currentFolder.path) {
-      setIsModalCreateFolderOpen(true)
-      setSelectedFolder(data.currentFolder)
-    }
-  })
-
   return (
     <>
       <TopBar />
@@ -256,7 +247,12 @@ function Dashboard() {
           {filteredWorkspaces?.length ? (
             <div className="flex flex-col flex-1 p-4 relative">
               <div className="flex items-center mb-4">
-                <h2 className="text-medium text-[#f0f0f0] text-xl">{title}</h2>
+                <div className="flex items-center gap-x-3">
+                  <h2 className="text-medium text-[#f0f0f0] text-xl">
+                    {title}
+                  </h2>
+                  <DashboardViewIndicator className="ml-5" />
+                </div>
                 <div className="flex items-center gap-x-3 ml-auto">
                   <CloudSyncIndicator />
                   <UpdateIndicator />
