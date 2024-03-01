@@ -46,9 +46,9 @@ export default function DashboardViewIndicator(
   return (
     <button type="button" className={classes} onClick={onClick}>
       {currentView === DashboardViews.GRID ? (
-        <Lucide icon="LayoutGrid" size="24" color="#6f6f6f" />
+        <Lucide icon="LayoutGrid" size="24" color="#6f6f6f" strokeWidth={1} />
       ) : (
-        <Lucide icon="LayoutList" size="24" color="#6f6f6f" />
+        <Lucide icon="LayoutList" size="24" color="#6f6f6f" strokeWidth={1} />
       )}
     </button>
   )

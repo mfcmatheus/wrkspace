@@ -31,6 +31,8 @@ import DashboardViewIndicator from 'renderer/components/DashboardViewIndicator'
 import { useSetting } from 'renderer/contexts/SettingContext'
 import { useWorkspace } from 'renderer/contexts/WorkspaceContext'
 import { useFolder } from 'renderer/contexts/FolderContext'
+import DashboardFilterIndicator from 'renderer/components/DashboardFilterIndicator'
+import Filters from 'renderer/@types/Filters'
 
 const apolloClient = client('/user')
 
@@ -55,6 +57,7 @@ function Dashboard() {
     {} as Workspace
   )
   const [selectedFolder, setSelectedFolder] = useState<Folder | null>(null)
+  const [filters, setFilters] = useState<Filters>({} as Filters)
 
   const onEditWorkspace = useCallback((workspace: Workspace) => {
     setSelectedWorkspace(workspace)
@@ -201,12 +204,30 @@ function Dashboard() {
       data = data.concat(_.orderBy(toInstall, ['name'], ['asc']))
     }
 
+    if (filters) {
+      data = _.filter(data, (workspace: Workspace) => {
+        return (
+          (filters?.features?.enableEditor
+            ? true
+            : !workspace.features?.enableEditor) &&
+          (filters?.browsers ? true : !workspace.browsers?.length) &&
+          (filters?.terminals ? true : !workspace.terminals?.length) &&
+          (filters?.docker?.enableComposer
+            ? true
+            : !workspace.docker?.enableComposer) &&
+          (filters?.docker?.enableContainers
+            ? true
+            : !workspace.docker?.enableContainers)
+        )
+      })
+    }
+
     return data.filter((workspace) => {
       return settings?.currentFolder
         ? workspace.folder?.id === settings?.currentFolder?.id
         : true
     })
-  }, [workspaces, settings?.currentFolder, toInstall]) as Workspace[]
+  }, [workspaces, settings?.currentFolder, toInstall, filters]) as Workspace[]
 
   useEffect(() => {
     setIsModalStartOpen(!settings.configured)
@@ -222,23 +243,24 @@ function Dashboard() {
       <TopBar />
       <div className="flex flex-1">
         <div className="flex flex-col flex-1 overflow-hidden">
-          {filteredWorkspaces?.length ? (
-            <div className="flex flex-col flex-1 p-4 relative">
-              <div className="flex items-center mb-4">
-                <div className="flex items-center gap-x-3">
-                  <h2 className="text-medium text-[#f0f0f0] text-xl">
-                    {title}
-                  </h2>
-                  <DashboardViewIndicator className="ml-5" />
-                </div>
-                <div className="flex items-center gap-x-3 ml-auto">
-                  <CloudSyncIndicator />
-                  <UpdateIndicator />
-                  <ButtonMain sm bordered secondary onClick={onClickCreate}>
-                    Create Workspace
-                  </ButtonMain>
-                </div>
+          <div className="flex flex-col flex-1 p-4 relative">
+            <div className="flex items-center mb-4">
+              <div className="flex items-center gap-x-3 w-1/3">
+                <h2 className="text-medium text-[#f0f0f0] text-xl overflow-hidden whitespace-nowrap text-ellipsis">
+                  {title}
+                </h2>
+                <DashboardViewIndicator className="ml-5" />
+                <DashboardFilterIndicator setFilters={setFilters} />
               </div>
+              <div className="flex items-center gap-x-3 ml-auto">
+                <CloudSyncIndicator />
+                <UpdateIndicator />
+                <ButtonMain sm bordered secondary onClick={onClickCreate}>
+                  Create Workspace
+                </ButtonMain>
+              </div>
+            </div>
+            {filteredWorkspaces?.length ? (
               <WorkspaceList>
                 {filteredWorkspaces.map((workspace) => (
                   <WorkspaceListItem
@@ -254,27 +276,27 @@ function Dashboard() {
                   />
                 ))}
               </WorkspaceList>
-              <div className="flex flex-col items-center justify-center absolute top-[50%] left-[50%] z-[-1] h-[20rem] w-[20rem] transform translate-x-[-50%] translate-y-[-50%]">
-                <Logo color="#252525" />
+            ) : (
+              <div className="flex flex-col flex-1 items-center h-full justify-center pb-[3rem]">
+                <p className="text-lg text-[#727272] font-thin">
+                  No workspaces yet, start using Wrkspace creating one
+                </p>
+                <ShadowMain
+                  shadow
+                  wrapperClassName="rounded-[7px] mt-5"
+                  shadowClassName="!rounded-[7px]"
+                  className="rounded-[7px]"
+                >
+                  <ButtonMain highlight bordered sm onClick={onClickCreate}>
+                    Create workspace
+                  </ButtonMain>
+                </ShadowMain>
               </div>
+            )}
+            <div className="flex flex-col items-center justify-center absolute top-[50%] left-[50%] z-[-1] h-[20rem] w-[20rem] transform translate-x-[-50%] translate-y-[-50%]">
+              <Logo color="#252525" />
             </div>
-          ) : (
-            <div className="flex flex-col flex-1 items-center h-full justify-center">
-              <p className="text-lg text-[#727272] font-thin">
-                No workspaces yet, start using Wrkspace creating one
-              </p>
-              <ShadowMain
-                shadow
-                wrapperClassName="rounded-[7px] mt-5"
-                shadowClassName="!rounded-[7px]"
-                className="rounded-[7px]"
-              >
-                <ButtonMain highlight bordered sm onClick={onClickCreate}>
-                  Create workspace
-                </ButtonMain>
-              </ShadowMain>
-            </div>
-          )}
+          </div>
           <LogsMain />
         </div>
         <FolderBar onClickCreate={() => setIsModalCreateFolderOpen(true)}>
