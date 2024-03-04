@@ -70,7 +70,7 @@ Please refer to our [contribution guidelines](./CONTRIBUTING.md) and [code of co
 - [x] Integrated terminals using [xTerm.JS](https://xtermjs.org/)
 - [x] Workspace launch errors on log window
 - [ ] Build a a provider for electron storage to simplify managing data between main and render
-- [ ] Find a way to detect if user have stopped a workspace (Launch / Close functionality)
+- [ ] Find a way to detect if user have stopped a workspace (start-stop functionality)
 - [ ] Windows compatibility
 - [ ] Linux compatibility
 
