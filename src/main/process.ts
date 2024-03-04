@@ -606,19 +606,22 @@ export const onProcess = (event: IpcMainEvent) => {
 
 export const onProcessClose = (event: IpcMainEvent, process: Process) => {
   try {
-    const processes = (store.get('processes') ?? []) as Process[]
-    const filteredProcesses = processes.filter(
-      (target: Process) => target.pid !== process.pid
-    )
-
-    store.set('processes', filteredProcesses)
     treeKill(process.pid as number)
 
     const interval = setInterval(() => {
-      if (!isRunning(process.pid as number)) {
+      if (isRunning(process.pid as number)) return
+
+      setTimeout(() => {
+        const processes = (store.get('processes') ?? []) as Process[]
+        const filteredProcesses = processes.filter(
+          (target: Process) => target.pid !== process.pid
+        )
+
+        store.set('processes', filteredProcesses)
         event.reply('processes.update', filteredProcesses)
-        clearInterval(interval)
-      }
+      }, 250)
+
+      clearInterval(interval)
     }, 250)
   } catch {
     //

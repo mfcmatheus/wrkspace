@@ -22,6 +22,8 @@ import fakeId from 'renderer/helpers/fakeId'
 import FolderDeleteMutation from 'renderer/graphql/mutations/FolderDeleteMutation'
 import { useUser } from './UserContext'
 import { useToast } from './ToastContext'
+import { useWorkspace } from './WorkspaceContext'
+import { useFolder } from './FolderContext'
 
 export interface props {
   children: React.ReactNode
@@ -52,6 +54,8 @@ export const useCloudSync = () => {
 export function CloudSyncProvider(props: props) {
   const { children } = props
   const { hasCloudSync, refetchUser } = useUser()
+  const { workspaces } = useWorkspace()
+  const { folders } = useFolder()
   const { showError } = useToast()
 
   const apolloClient = useMemo(() => client('/user'), [])
@@ -84,8 +88,6 @@ export function CloudSyncProvider(props: props) {
     client: apolloClient,
   })
 
-  const [workspaces, setWorkspaces] = useState<Workspace[] | null>(null)
-  const [folders, setFolders] = useState<Folder[] | null>(null)
   const [newData, setNewData] = useState<object[] | null>(null)
   const [newFoldersData, setNewFoldersData] = useState<object[] | null>(null)
   const [isSyncing, setIsSyncing] = useState(false)
@@ -463,9 +465,7 @@ export function CloudSyncProvider(props: props) {
     setLastSync(moment())
   }, [foldersToDelete, handleFolderDelete])
 
-  useIpc('cloud.reload', async ({ w, f }: { w: Workspace[]; f: Folder[] }) => {
-    setWorkspaces(w)
-    setFolders(f)
+  useIpc('cloud.reload', async () => {
     await sync()
   })
 

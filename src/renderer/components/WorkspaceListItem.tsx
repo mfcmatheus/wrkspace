@@ -15,6 +15,10 @@ import ShadowMain from 'renderer/base-components/ShadowMain'
 import WorkspaceListItemContext from 'renderer/components/WorkspaceListItemContext'
 import Lucide from 'renderer/base-components/lucide'
 import LoadingIcon from 'renderer/base-components/LoadingIcon'
+import { useSetting } from 'renderer/contexts/SettingContext'
+import { DashboardViews } from 'renderer/@enums/DashboardViews'
+import initials from 'renderer/helpers/initials'
+import WorkspaceListItemPath from './WorkspaceListItemPath'
 
 interface WorkspaceListItemProps {
   workspace: Workspace
@@ -35,6 +39,7 @@ const defaultProps = {
 function WorkspaceListItem(props: WorkspaceListItemProps) {
   const { workspace, folders, onEdit, onFavorite, onSetFolder, onInstall } =
     props
+  const { currentView } = useSetting()
 
   const { show: showContextMenu } = useContextMenu({
     id: workspace.id,
@@ -79,13 +84,15 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
   const classes = useMemo(
     () =>
       classNames({
-        'flex flex-col group rounded border border-transparent p-3 transition ease-in-out duration-200':
+        'flex group rounded border border-transparent p-3 transition ease-in-out duration-200':
           true,
+        'flex-col': currentView === DashboardViews.GRID,
+        'flex-row items-center gap-x-3': currentView === DashboardViews.LIST,
         '!border-[#353535] hover:!border-highlight-primary':
           !workspace.favorite,
         'bg-[#353535]/25': !isInstalled,
       }),
-    [workspace, isInstalled]
+    [workspace, isInstalled, currentView]
   )
 
   const renderDate = useMemo(() => {
@@ -129,12 +136,21 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
         wrapperClassName="rounded"
       >
         <div className={classes}>
-          <div className="flex items-center h-[20px]" />
-          <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
+          {currentView === DashboardViews.GRID && (
+            <div className="flex items-center h-[20px]" />
+          )}
+          <div className="flex flex-col w-full">
+            <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
+            <WorkspaceListItemPath>Not installed</WorkspaceListItemPath>
+          </div>
           {workspace.loading ? (
             <LoadingIcon
               icon="oval"
-              className="w-[2.4rem] mx-auto"
+              className={classNames({
+                'mx-auto': true,
+                'w-[2.4rem]': currentView === DashboardViews.GRID,
+                'w-[1.5rem]': currentView === DashboardViews.LIST,
+              })}
               color="#f0f0f0"
             />
           ) : (
@@ -145,7 +161,7 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
             >
               <Lucide
                 icon="DownloadCloud"
-                size={38}
+                size={currentView === DashboardViews.GRID ? 38 : 24}
                 color="#6f6f6f"
                 strokeWidth={1}
               />
@@ -164,10 +180,29 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
         wrapperClassName="rounded"
       >
         <div onContextMenu={handleContextMenu} className={classes}>
-          <div className="flex items-center h-[20px]">
+          <div
+            className={classNames({
+              'flex items-center ': true,
+              'h-[20px]': currentView === DashboardViews.GRID,
+              'order-3 w-2/12': currentView === DashboardViews.LIST,
+            })}
+          >
             <WorkspaceListItemFeatures workspace={workspace} />
           </div>
-          <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
+          <div
+            className={classNames({
+              'flex flex-col': true,
+              'order-1 w-5/12': currentView === DashboardViews.LIST,
+            })}
+          >
+            <WorkspaceListItemName>{workspace.name}</WorkspaceListItemName>
+            <WorkspaceListItemPath>{workspace.path}</WorkspaceListItemPath>
+          </div>
+          {currentView === DashboardViews.LIST && workspace.folder?.name && (
+            <span className="order-3 mx-auto uppercase text-zinc-400 font-light">
+              {initials(workspace.folder?.name, 3)}
+            </span>
+          )}
           <WorkspaceListItemLastOpened>
             {renderDate}
           </WorkspaceListItemLastOpened>

@@ -1,8 +1,11 @@
 import classNames from 'classnames'
 import React, { useMemo } from 'react'
+import { DashboardViews } from 'renderer/@enums/DashboardViews'
 
 import Workspace from 'renderer/@types/Workspace'
 import LoadingIcon from 'renderer/base-components/LoadingIcon'
+import Lucide from 'renderer/base-components/lucide'
+import { useSetting } from 'renderer/contexts/SettingContext'
 
 interface WorkspaceListItemLaunchProps {
   workspace: Workspace
@@ -15,16 +18,21 @@ const defaultProps = {
 
 function WorkspaceListItemLaunch(props: WorkspaceListItemLaunchProps) {
   const { workspace, onClick } = props
+  const { currentView } = useSetting()
 
   const classes = useMemo(
     () =>
       classNames({
-        'flex cursor-pointer flex-1 text-center bg-[#353535] group-hover:bg-highlight-primary -mx-[13px] -mb-[13px] py-2 mt-1 rounded-b-[3px] transition ease-in-out duration-200':
+        'flex cursor-pointer text-center transition ease-in-out duration-200':
           true,
-        'group-hover:!bg-gradient-to-r from-highlight-primary to-highlight-secondary':
-          workspace.favorite,
+        '-mx-[13px] -mb-[13px] mt-1 rounded-b-[3px] bg-[#353535] flex-1 py-2 group-hover:bg-highlight-primary':
+          currentView === DashboardViews.GRID,
+        'order-5 ml-3': currentView === DashboardViews.LIST,
+        'from-highlight-primary to-highlight-secondary': workspace.favorite,
+        'group-hover:!bg-gradient-to-r':
+          workspace.favorite && currentView === DashboardViews.GRID,
       }),
-    [workspace]
+    [workspace, currentView]
   )
 
   return (
@@ -35,7 +43,13 @@ function WorkspaceListItemLaunch(props: WorkspaceListItemLaunchProps) {
         </div>
       ) : (
         <p className="uppercase text-[#f0f0f0] font-thin text-xs mx-auto">
-          Launch
+          {currentView === DashboardViews.GRID ? (
+            <>Launch</>
+          ) : (
+            <span className="flex items-center">
+              <Lucide icon="Play" size={20} color="#f0f0f0" strokeWidth={1} />
+            </span>
+          )}
         </p>
       )}
     </button>

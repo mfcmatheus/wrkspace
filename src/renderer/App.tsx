@@ -10,6 +10,9 @@ import client from 'renderer/graphql/client'
 import { UserProvider } from './contexts/UserContext'
 import { CloudSyncProvider } from './contexts/CloudSyncContext'
 import { ToastProvider } from './contexts/ToastContext'
+import { SettingProvider } from './contexts/SettingContext'
+import { WorkspaceProvider } from './contexts/WorkspaceContext'
+import { FolderProvider } from './contexts/FolderContext'
 
 export default function App() {
   const [token, setToken] = useState<string | null>(null)
@@ -35,16 +38,32 @@ export default function App() {
     setToken(null)
   })
 
-  if (!token) return <Routes />
+  if (!token) {
+    return (
+      <SettingProvider>
+        <FolderProvider>
+          <WorkspaceProvider>
+            <Routes />
+          </WorkspaceProvider>
+        </FolderProvider>
+      </SettingProvider>
+    )
+  }
 
   return (
     <ApolloProvider client={client()}>
       <UserProvider token={token}>
-        <ToastProvider>
-          <CloudSyncProvider>
-            <Routes />
-          </CloudSyncProvider>
-        </ToastProvider>
+        <FolderProvider>
+          <WorkspaceProvider>
+            <ToastProvider>
+              <CloudSyncProvider>
+                <SettingProvider>
+                  <Routes />
+                </SettingProvider>
+              </CloudSyncProvider>
+            </ToastProvider>
+          </WorkspaceProvider>
+        </FolderProvider>
       </UserProvider>
     </ApolloProvider>
   )

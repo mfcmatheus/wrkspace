@@ -34,9 +34,11 @@ function LogMainWindow(props: LogMainConsoleProps) {
   }, [])
 
   const defineProcess = useCallback(() => {
-    if (!processes?.length) return
-    setSelectedProcess(processes[0])
-  }, [processes])
+    if (processes.find((process) => process.pid === selectedProcess.pid)) return
+    setSelectedProcess(processes[processes.length - 1])
+  }, [processes, selectedProcess])
+
+  useEffect(() => defineProcess, [processes, defineProcess])
 
   useEffect(() => {
     if (!window) return
