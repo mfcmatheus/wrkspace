@@ -240,6 +240,10 @@ function Dashboard() {
     }))
   }, [])
 
+  const onSetFilters = useCallback((newFilters: Filters) => {
+    setFilters((prev) => ({ ...prev, ...newFilters }))
+  }, [])
+
   useEffect(() => {
     setIsModalStartOpen(!settings.configured)
 
@@ -261,7 +265,7 @@ function Dashboard() {
                   {title}
                 </h2>
                 <DashboardViewIndicator className="ml-5" />
-                <DashboardFilterIndicator setFilters={setFilters} />
+                <DashboardFilterIndicator setFilters={onSetFilters} />
                 <DashboardSearch onSearch={onSearch} />
               </div>
               <div className="flex items-center gap-x-3 ml-auto">
