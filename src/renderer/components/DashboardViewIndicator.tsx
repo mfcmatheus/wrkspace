@@ -48,7 +48,7 @@ export default function DashboardViewIndicator(
       {currentView === DashboardViews.GRID ? (
         <Lucide icon="LayoutGrid" size="24" color="#6f6f6f" strokeWidth={1} />
       ) : (
-        <Lucide icon="LayoutList" size="24" color="#6f6f6f" strokeWidth={1} />
+        <Lucide icon="LayoutList" size="24" color="#fff" strokeWidth={1} />
       )}
     </button>
   )

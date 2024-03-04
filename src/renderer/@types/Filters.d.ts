@@ -1,4 +1,5 @@
 export default interface Filters {
+  name: string | null
   features: {
     enableEditor: boolean
   }

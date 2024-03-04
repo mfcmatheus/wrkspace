@@ -18,6 +18,7 @@ interface InputMainProps {
   icon?: string
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void
+  standard?: boolean
 }
 
 const defaultProps = {
@@ -34,6 +35,7 @@ const defaultProps = {
   readOnly: false,
   onChange: undefined,
   onBlur: undefined,
+  standard: false,
 }
 
 function InputMain(props: InputMainProps) {
@@ -51,6 +53,7 @@ function InputMain(props: InputMainProps) {
     icon,
     onChange,
     onBlur,
+    standard,
   } = props
 
   const containerClasses = useMemo(
@@ -75,6 +78,8 @@ function InputMain(props: InputMainProps) {
     [defaultInputClasses, type]
   )
 
+  const Element = useMemo(() => (standard ? 'input' : Field), [standard])
+
   return (
     <div className={containerClasses}>
       {icon && (
@@ -82,7 +87,7 @@ function InputMain(props: InputMainProps) {
           <Lucide icon={icon} size={20} color="#f0f0f0" className="" />
         </div>
       )}
-      <Field
+      <Element
         id={id}
         name={name}
         type={type ?? 'text'}

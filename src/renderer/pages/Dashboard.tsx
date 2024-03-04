@@ -33,6 +33,7 @@ import { useWorkspace } from 'renderer/contexts/WorkspaceContext'
 import { useFolder } from 'renderer/contexts/FolderContext'
 import DashboardFilterIndicator from 'renderer/components/DashboardFilterIndicator'
 import Filters from 'renderer/@types/Filters'
+import DashboardSearch from 'renderer/components/DashboardSearch'
 
 const apolloClient = client('/user')
 
@@ -217,7 +218,10 @@ function Dashboard() {
             : !workspace.docker?.enableComposer) &&
           (filters?.docker?.enableContainers
             ? true
-            : !workspace.docker?.enableContainers)
+            : !workspace.docker?.enableContainers) &&
+          (filters?.name
+            ? workspace.name?.toLowerCase().includes(filters.name)
+            : true)
         )
       })
     }
@@ -228,6 +232,13 @@ function Dashboard() {
         : true
     })
   }, [workspaces, settings?.currentFolder, toInstall, filters]) as Workspace[]
+
+  const onSearch = useCallback((search: string | null) => {
+    setFilters((prev) => ({
+      ...prev,
+      name: search,
+    }))
+  }, [])
 
   useEffect(() => {
     setIsModalStartOpen(!settings.configured)
@@ -245,12 +256,13 @@ function Dashboard() {
         <div className="flex flex-col flex-1 overflow-hidden">
           <div className="flex flex-col flex-1 p-4 relative">
             <div className="flex items-center mb-4">
-              <div className="flex items-center gap-x-3 w-1/3">
+              <div className="flex items-center gap-x-3">
                 <h2 className="text-medium text-[#f0f0f0] text-xl overflow-hidden whitespace-nowrap text-ellipsis">
                   {title}
                 </h2>
                 <DashboardViewIndicator className="ml-5" />
                 <DashboardFilterIndicator setFilters={setFilters} />
+                <DashboardSearch onSearch={onSearch} />
               </div>
               <div className="flex items-center gap-x-3 ml-auto">
                 <CloudSyncIndicator />
