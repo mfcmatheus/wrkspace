@@ -24,7 +24,7 @@ function LogMainWindow(props: LogMainConsoleProps) {
 
   const isSelectedProcess = useCallback(
     (process: Process) => {
-      return selectedProcess?.pid === process.pid
+      return selectedProcess?.pid === process?.pid
     },
     [selectedProcess]
   )
@@ -34,8 +34,9 @@ function LogMainWindow(props: LogMainConsoleProps) {
   }, [])
 
   const defineProcess = useCallback(() => {
-    if (processes.find((process) => process.pid === selectedProcess.pid)) return
-    setSelectedProcess(processes[processes.length - 1])
+    if (processes.find((process) => process?.pid === selectedProcess?.pid))
+      return
+    setSelectedProcess(processes?.[processes.length - 1] ?? null)
   }, [processes, selectedProcess])
 
   useEffect(() => defineProcess, [processes, defineProcess])
@@ -56,7 +57,7 @@ function LogMainWindow(props: LogMainConsoleProps) {
       <ul className="border-r border-[#353535]">
         {orderedProcesses.map((process) => (
           <li
-            key={process.pid}
+            key={process?.pid}
             className={classNames({
               'flex items-center px-3 border-b border-[#353535] w-[200px] overflow-hidden relative':
                 true,

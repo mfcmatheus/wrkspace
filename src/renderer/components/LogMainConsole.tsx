@@ -28,7 +28,7 @@ export default function LogMainConsole(props: LogMainConsoleProps) {
   }, [process])
 
   useIpc('terminal.incData', (data: Process) => {
-    if (!xtermRef.current?.terminal || data.pid !== process.pid) return
+    if (!xtermRef.current?.terminal || data?.pid !== process?.pid) return
     xtermRef.current.terminal.write(data.data)
   })
 
