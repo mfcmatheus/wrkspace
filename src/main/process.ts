@@ -606,15 +606,15 @@ export const onProcess = (event: IpcMainEvent) => {
 
 export const onProcessClose = (event: IpcMainEvent, process: Process) => {
   try {
-    treeKill(process.pid as number)
+    treeKill(process?.pid as number)
 
     const interval = setInterval(() => {
-      if (isRunning(process.pid as number)) return
+      if (isRunning(process?.pid as number)) return
 
       setTimeout(() => {
         const processes = (store.get('processes') ?? []) as Process[]
         const filteredProcesses = processes.filter(
-          (target: Process) => target.pid !== process.pid
+          (target: Process) => target?.pid !== process?.pid
         )
 
         store.set('processes', filteredProcesses)

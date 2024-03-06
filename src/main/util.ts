@@ -60,7 +60,7 @@ async function storeProcess(
   title: string
 ) {
   const processes = (await store.get('processes')) ?? []
-  let index = processes.findIndex((process) => process.pid === pid)
+  let index = processes.findIndex((process) => process?.pid === pid)
   index = index === -1 ? processes.length : index
 
   const process = {
@@ -92,19 +92,19 @@ export function terminal(
   })
 
   const defaultOnOutputCallback = (data: string) => {
-    storeProcess(workspace, ptyProcess.pid, data, title)
+    storeProcess(workspace, ptyProcess?.pid, data, title)
     mainWindow?.webContents.send('terminal.incData', {
       data,
       workspace,
       title,
-      pid: ptyProcess.pid,
+      pid: ptyProcess?.pid,
     })
   }
 
   const defaultOnExitCallback = () => {
     const processes = (store.get('processes') ?? []) as Process[]
     const index = processes.findIndex(
-      (process) => process.pid === ptyProcess.pid
+      (process) => process?.pid === ptyProcess?.pid
     )
     if (index !== -1) {
       processes[index].running = false
@@ -154,7 +154,7 @@ export function killProcesses(workspace: Workspace | null = null) {
 
   for (const item of filteredProcesses) {
     try {
-      treeKill(item.pid)
+      treeKill(item?.pid)
     } catch {}
   }
 
