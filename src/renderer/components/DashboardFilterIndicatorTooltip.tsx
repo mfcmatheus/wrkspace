@@ -21,7 +21,7 @@ export default function DashboardFilterIndicatorTooltip(
 
   return (
     <Tooltip
-      style={{ backgroundColor: '#181818' }}
+      style={{ backgroundColor: '#181818', zIndex: 3 }}
       anchorSelect="#filter-button"
       place="bottom"
       clickable
