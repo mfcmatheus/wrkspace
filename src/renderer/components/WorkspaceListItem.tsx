@@ -18,7 +18,9 @@ import LoadingIcon from 'renderer/base-components/LoadingIcon'
 import { useSetting } from 'renderer/contexts/SettingContext'
 import { DashboardViews } from 'renderer/@enums/DashboardViews'
 import initials from 'renderer/helpers/initials'
+import { useProcess } from 'renderer/contexts/ProcessContext'
 import WorkspaceListItemPath from './WorkspaceListItemPath'
+import BorderLoader from './BorderLoader'
 
 interface WorkspaceListItemProps {
   workspace: Workspace
@@ -40,10 +42,15 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
   const { workspace, folders, onEdit, onFavorite, onSetFolder, onInstall } =
     props
   const { currentView } = useSetting()
-
+  const { getProcessesByWorkspace } = useProcess()
   const { show: showContextMenu } = useContextMenu({
     id: workspace.id,
   })
+
+  const isRunning = useMemo(() => {
+    const processes = getProcessesByWorkspace(workspace)
+    return processes.length > 0
+  }, [getProcessesByWorkspace, workspace])
 
   const onLaunch = useCallback(() => {
     ipcRenderer.sendMessage('workspaces.open', workspace)
@@ -84,12 +91,11 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
   const classes = useMemo(
     () =>
       classNames({
-        'flex group rounded border border-transparent p-3 transition ease-in-out duration-200':
+        'flex group rounded border border-transparent p-3 transition ease-in-out duration-200 !border-[#353535]':
           true,
         'flex-col': currentView === DashboardViews.GRID,
         'flex-row items-center gap-x-3': currentView === DashboardViews.LIST,
-        '!border-[#353535] hover:!border-highlight-primary':
-          !workspace.favorite,
+        'hover:!border-highlight-primary': !workspace.favorite,
         'bg-[#353535]/25': !isInstalled,
       }),
     [workspace, isInstalled, currentView]
@@ -125,8 +131,9 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
   )
 
   const Element = useMemo(() => {
+    if (isRunning) return BorderLoader
     return workspace.favorite ? ShadowMain : 'div'
-  }, [workspace.favorite])
+  }, [workspace.favorite, isRunning])
 
   if (!isInstalled) {
     return (

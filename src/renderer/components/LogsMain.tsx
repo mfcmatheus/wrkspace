@@ -1,17 +1,17 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
-import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import LogWindow from 'renderer/@types/LogWindow'
 import LogMainTabs from 'renderer/components/LogMainTabs'
 import LogMainTabsItem from 'renderer/components/LogMainTabsItem'
 import LogMainWindow from 'renderer/components/LogMainWindow'
 import Process from 'renderer/@types/Process'
 import fakeId from 'renderer/helpers/fakeId'
+import { useProcess } from 'renderer/contexts/ProcessContext'
 
 function LogsMain() {
-  const [processes, setProcesses] = useState<Process[]>([])
-  const [currentWindow, setCurrentWindow] = useState<LogWindow>()
+  const { processes, closeProcess } = useProcess()
 
+  const [currentWindow, setCurrentWindow] = useState<LogWindow>()
   const [windows, setWindows] = useState<LogWindow[]>([])
 
   const processesByWindow = useCallback(
@@ -44,7 +44,7 @@ function LogsMain() {
       const toClose = processesByWindow(window) as Process[]
       // eslint-disable-next-line
       for (const process of toClose) {
-        ipcRenderer.sendMessage('process.close', process)
+        closeProcess(process)
       }
 
       const windowIndex = windows.findIndex(
@@ -53,7 +53,7 @@ function LogsMain() {
 
       setCurrentWindow(windowIndex > 0 ? windows[windowIndex - 1] : undefined)
     },
-    [processesByWindow, windows, setCurrentWindow]
+    [processesByWindow, windows, setCurrentWindow, closeProcess]
   )
 
   const setLastWindow = useCallback(() => {
@@ -85,8 +85,6 @@ function LogsMain() {
     setLastWindow()
     // eslint-disable-next-line
   }, [windows])
-
-  useIpc('processes.update', setProcesses)
 
   if (!windows.length) return null
 
