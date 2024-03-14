@@ -309,7 +309,7 @@ function Dashboard() {
                 </ShadowMain>
               </div>
             )}
-            <div className="flex flex-col items-center justify-center absolute top-[50%] left-[50%] z-[-1] h-[20rem] w-[20rem] transform translate-x-[-50%] translate-y-[-50%]">
+            <div className="flex flex-col items-center justify-center absolute top-[50%] left-[50%] z-[-2] h-[20rem] w-[20rem] transform translate-x-[-50%] translate-y-[-50%]">
               <Logo color="#252525" />
             </div>
           </div>

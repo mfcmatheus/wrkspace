@@ -20,6 +20,16 @@ function BorderLoader(props: Props) {
     [wrapperClassName]
   )
 
+  const borderClasses = useMemo(
+    () =>
+      classNames({
+        'flex absolute h-[150%] w-[150%] m-[-1px] top-[50%] left-[50%] transform translate-x-[-50%] translate-y-[-50%] rounded-full z-[-1]':
+          true,
+        [className!]: !!className,
+      }),
+    [className]
+  )
+
   const classes = useMemo(
     () =>
       classNames({
@@ -32,7 +42,7 @@ function BorderLoader(props: Props) {
   return (
     <div className={wrapperClasses}>
       <div className={classes}>{children}</div>
-      <div className="flex absolute h-[300px] m-[-1px] aspect-square top-[50%] left-[50%] transform translate-x-[-50%] translate-y-[-50%] rounded-full z-[-1]">
+      <div className={borderClasses}>
         <div
           className="h-full w-full motion-safe:animate-spin-slow"
           style={{
