@@ -13,6 +13,7 @@ import { ToastProvider } from './contexts/ToastContext'
 import { SettingProvider } from './contexts/SettingContext'
 import { WorkspaceProvider } from './contexts/WorkspaceContext'
 import { FolderProvider } from './contexts/FolderContext'
+import { ProcessProvider } from './contexts/ProcessContext'
 
 export default function App() {
   const [token, setToken] = useState<string | null>(null)
@@ -43,7 +44,9 @@ export default function App() {
       <SettingProvider>
         <FolderProvider>
           <WorkspaceProvider>
-            <Routes />
+            <ProcessProvider>
+              <Routes />
+            </ProcessProvider>
           </WorkspaceProvider>
         </FolderProvider>
       </SettingProvider>
@@ -58,7 +61,9 @@ export default function App() {
             <ToastProvider>
               <CloudSyncProvider>
                 <SettingProvider>
-                  <Routes />
+                  <ProcessProvider>
+                    <Routes />
+                  </ProcessProvider>
                 </SettingProvider>
               </CloudSyncProvider>
             </ToastProvider>
