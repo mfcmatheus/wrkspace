@@ -69,8 +69,8 @@ Please refer to our [contribution guidelines](./CONTRIBUTING.md) and [code of co
 - [x] Implement auto-updater with electron-updater referencing to `updater.wrkspace.co` see [workspace-updater](https://github.com/mfcmatheus/wrkspace-updater)
 - [x] Integrated terminals using [xTerm.JS](https://xtermjs.org/)
 - [x] Workspace launch errors on log window
+- [x] Find a way to detect if user have stopped a workspace (start-stop functionality)
 - [ ] Build a a provider for electron storage to simplify managing data between main and render
-- [ ] Find a way to detect if user have stopped a workspace (start-stop functionality)
 - [ ] Windows compatibility
 - [ ] Linux compatibility
 
