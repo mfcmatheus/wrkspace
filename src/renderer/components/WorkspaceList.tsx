@@ -16,7 +16,8 @@ function WorkspaceList(props: WorkspaceListProps) {
     () =>
       classNames({
         'grid justify-start items-start gap-3 w-full': true,
-        'grid-cols-5': settings.currentView === DashboardViews.GRID,
+        'grid-cols-3 lg:grid-cols-5 xl:grid-cols-6':
+          settings.currentView === DashboardViews.GRID,
         'grid-cols-1': settings.currentView === DashboardViews.LIST,
       }),
     [settings.currentView]
