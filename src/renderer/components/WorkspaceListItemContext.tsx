@@ -14,6 +14,7 @@ interface WorkspaceListItemContextProps {
   folders: Folder[]
   onEdit?: (workspace: Workspace) => void
   onLaunch?: (workspace: Workspace) => void
+  onNewTerminal?: (workspace: Workspace) => void
   onFavorite?: (workspace: Workspace) => void
   onSetFolder?: (workspace: Workspace, folder: Folder | undefined) => void
   onUninstall?: (workspace: Workspace) => void
@@ -22,6 +23,7 @@ interface WorkspaceListItemContextProps {
 const defaultProps = {
   onEdit: null,
   onLaunch: null,
+  onNewTerminal: null,
   onFavorite: null,
   onSetFolder: null,
   onUninstall: null,
@@ -34,6 +36,7 @@ function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
     folders,
     onEdit,
     onLaunch,
+    onNewTerminal,
     onFavorite,
     onSetFolder,
     onUninstall,
@@ -89,10 +92,17 @@ function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
     []
   )
 
+  const onClickNewTerminal = useCallback(() => {
+    return onNewTerminal?.(workspace)
+  }, [workspace, onNewTerminal])
+
   return (
     <Menu id={id} style={styles}>
       <Item id="launch" onClick={onClickLaunch}>
         Launch
+      </Item>
+      <Item id="launch" onClick={onClickNewTerminal}>
+        New console
       </Item>
       <Item id="favorite" onClick={onClickFavorite}>
         <span>{workspace.favorite ? 'Unpin' : 'Pin'}</span>

@@ -17,6 +17,8 @@ const store = new Store()
 const shell =
   os.platform() === 'win32' ? 'powershell.exe' : process.env.SHELL ?? '/bin/sh'
 
+export const runningProcesses = []
+
 export function resolveHtmlPath(htmlFileName: string) {
   if (process.env.NODE_ENV === 'development') {
     const port = process.env.PORT || 1212
@@ -77,11 +79,24 @@ async function storeProcess(
   mainWindow?.webContents.send('processes.update', processes)
 }
 
+function handleRunningProcess(ptyProcess: pty.IPty) {
+  const processes = (store.get('processes') ?? []) as Process[]
+  const index = processes.findIndex(
+    (process) => process?.pid === ptyProcess?.pid
+  )
+  if (index !== -1) {
+    processes[index].running = false
+    store.set('processes', processes)
+    mainWindow?.webContents.send('processes.update', processes)
+  }
+}
+
 export function terminal(
   command: string,
   workspace: Workspace,
   basePath: string | undefined = process.env.HOME,
-  title: string | undefined = 'Terminal'
+  title: string | undefined = 'Terminal',
+  autoKill: boolean = true
 ): ITerminalReturn {
   const ptyProcess = pty.spawn(shell, [], {
     name: 'xterm-color',
@@ -91,7 +106,13 @@ export function terminal(
     env: process.env,
   })
 
+  runningProcesses.push(ptyProcess)
+
+  let outputTimeout = null
+
   const defaultOnOutputCallback = (data: string) => {
+    if (outputTimeout) clearTimeout(outputTimeout)
+
     storeProcess(workspace, ptyProcess?.pid, data, title)
     mainWindow?.webContents.send('terminal.incData', {
       data,
@@ -99,6 +120,10 @@ export function terminal(
       title,
       pid: ptyProcess?.pid,
     })
+
+    outputTimeout = setTimeout(() => {
+      handleRunningProcess(ptyProcess)
+    }, 1000)
   }
 
   const defaultOnExitCallback = () => {
@@ -110,6 +135,10 @@ export function terminal(
       processes[index].running = false
       store.set('processes', processes)
       mainWindow?.webContents.send('processes.update', processes)
+      runningProcesses.splice(
+        runningProcesses.findIndex((t) => t.pid === ptyProcess.pid),
+        1
+      )
     }
   }
 
@@ -122,7 +151,8 @@ export function terminal(
   const onExit = (
     callback: (exitCode: number) => void = defaultOnExitCallback
   ) => {
-    return ptyProcess.on('exit', callback)
+    ptyProcess.on('exit', callback)
+    ptyProcess.on('close', callback)
   }
 
   ptyProcess.on('error', (error) => {
@@ -133,8 +163,8 @@ export function terminal(
     })
   })
 
-  ptyProcess.write(`${command} \r`)
-  ptyProcess.write(`exit \r`)
+  if (command) ptyProcess.write(`${command} \r`)
+  if (autoKill) ptyProcess.write(`exit \r`)
 
   onOutput()
   onExit()
@@ -163,6 +193,7 @@ export function killProcesses(workspace: Workspace | null = null) {
   )
 
   store.set('processes', newProcesses)
+  runningProcesses.splice(0, runningProcesses.length)
 
   return newProcesses
 }

@@ -56,6 +56,10 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
     ipcRenderer.sendMessage('workspaces.open', workspace)
   }, [workspace])
 
+  const onNewTerminal = useCallback(() => {
+    ipcRenderer.sendMessage('process.open', workspace)
+  }, [workspace])
+
   const onClickEdit = useCallback(() => {
     return onEdit?.(workspace)
   }, [workspace, onEdit])
@@ -222,6 +226,7 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
         folders={folders}
         onEdit={onClickEdit}
         onLaunch={onLaunch}
+        onNewTerminal={onNewTerminal}
         onFavorite={onClickFavorite}
         onSetFolder={onClickSetFolder}
         onUninstall={onClickUninstall}

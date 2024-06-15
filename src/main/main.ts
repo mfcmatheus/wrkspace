@@ -44,6 +44,8 @@ import {
   onUserUpgrade,
   onServicesGit,
   onProcessClose,
+  onProcessOpen,
+  onTerminalData,
 } from './process'
 
 const store = new Store()
@@ -101,12 +103,14 @@ ipcMain.on('settings.get', onSettingsGet)
 ipcMain.on('settings.update', onSettingsUpdate)
 ipcMain.on('applications.get', onApplicationsGet)
 ipcMain.on('process', onProcess)
+ipcMain.on('process.open', onProcessOpen)
 ipcMain.on('process.close', onProcessClose)
 ipcMain.on('user.get', onUserGet)
 ipcMain.on('user.set', onUserSet)
 ipcMain.on('user.authenticate', onUserAuthenticate)
 ipcMain.on('user.upgrade', onUserUpgrade)
 ipcMain.on('user.logout', onUserLogout)
+ipcMain.on('terminal.data', onTerminalData)
 
 process.env.APP_URL = 'http://localhost:3000'
 

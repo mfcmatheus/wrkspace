@@ -22,7 +22,9 @@ import {
   resolveString,
   terminal,
   killProcesses,
+  runningProcesses,
 } from './util'
+import { mainWindow } from './main'
 
 const store = new Store()
 
@@ -604,9 +606,29 @@ export const onProcess = (event: IpcMainEvent) => {
   event.reply('process', { NODE_ENV })
 }
 
+export const onProcessOpen = (event: IpcMainEvent, workspace: Workspace) => {
+  terminal('', workspace, workspace.path, 'Terminal', false)
+}
+
+export const onTerminalData = (
+  event: IpcMainEvent,
+  data: { pid: string | number; data: string }
+) => {
+  const ptyProcess = runningProcesses.find(
+    (target: Process) => target.pid === data.pid
+  )
+
+  ptyProcess?.write(data.data)
+}
+
 export const onProcessClose = (event: IpcMainEvent, process: Process) => {
   try {
     treeKill(process?.pid as number)
+
+    const ptyProcess = runningProcesses.find(
+      (target: Process) => target.pid === process.pid
+    )
+    ptyProcess?.write('exit\n')
 
     const interval = setInterval(() => {
       if (isRunning(process?.pid as number)) return
@@ -678,4 +700,5 @@ export default {
   onUserAuthenticate,
   onUserUpgrade,
   onUserLogout,
+  onTerminalData,
 }

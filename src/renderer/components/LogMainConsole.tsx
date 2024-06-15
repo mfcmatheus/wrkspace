@@ -1,8 +1,8 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { XTerm } from 'xterm-for-react'
 import { FitAddon } from 'xterm-addon-fit'
 
-import { useIpc } from 'renderer/hooks/useIpc'
+import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import Process from 'renderer/@types/Process'
 
 interface LogMainConsoleProps {
@@ -15,6 +15,13 @@ export default function LogMainConsole(props: LogMainConsoleProps) {
   const { process } = props
 
   const xtermRef = useRef(null)
+
+  const onData = useCallback(
+    (data: string) => {
+      ipcRenderer.sendMessage('terminal.data', { pid: process.pid, data })
+    },
+    [process]
+  )
 
   useEffect(() => {
     if (!process) return
@@ -44,6 +51,7 @@ export default function LogMainConsole(props: LogMainConsoleProps) {
         addons={[fitAddon]}
         className="h-full w-full"
         ref={xtermRef}
+        onData={onData}
       />
     </div>
   )
