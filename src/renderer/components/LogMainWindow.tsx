@@ -50,16 +50,16 @@ function LogMainWindow(props: LogMainConsoleProps) {
   return (
     <div
       className={classNames({
-        'flex h-[30vh] overflow-y-auto': true,
+        'flex flex-1 overflow-hidden': true,
         [className!]: !!className,
       })}
     >
-      <ul className="border-r border-[#353535]">
+      <ul className="flex flex-col border-r border-[#353535] overflow-y-auto">
         {orderedProcesses.map((process) => (
           <li
             key={process?.pid}
             className={classNames({
-              'flex items-center px-3 border-b border-[#353535] w-[200px] overflow-hidden relative':
+              'flex items-center px-3 border-b border-[#353535] w-[200px] overflow-hidden relative flex-shrink-0':
                 true,
               'opacity-50': !process.running,
             })}
@@ -87,7 +87,7 @@ function LogMainWindow(props: LogMainConsoleProps) {
           </li>
         ))}
       </ul>
-      <div className="flex-1">
+      <div className="flex flex-1 overflow-hidden">
         {selectedProcess && <LogMainConsole process={selectedProcess} />}
       </div>
     </div>

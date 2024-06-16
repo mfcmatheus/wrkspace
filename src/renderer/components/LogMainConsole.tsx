@@ -40,7 +40,7 @@ export default function LogMainConsole(props: LogMainConsoleProps) {
   })
 
   return (
-    <div className="max-h-full p-2">
+    <div className="flex max-h-full p-2 overflow-auto">
       <XTerm
         options={{
           fontSize: 12,
