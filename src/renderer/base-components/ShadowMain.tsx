@@ -37,7 +37,7 @@ function ShadowMain(props: Props) {
   const classes = useMemo(
     () =>
       classNames({
-        'relative z-[2] bg-[#202020] bg-clip-padding border border-transparent shadow-[0_0_0_1px_rgb(255,255,255,.07),0_2px_4px_rgb(255,255,255,.05),0_12px_24px_rgb(255,255,255,.05)]':
+        'relative z-[2] bg-background bg-clip-padding border border-transparent shadow-[0_0_0_1px_rgb(255,255,255,.07),0_2px_4px_rgb(255,255,255,.05),0_12px_24px_rgb(255,255,255,.05)]':
           true,
         [className!]: !!className,
       }),

@@ -22,20 +22,15 @@ function FolderBarItem(props: FolderBarItemProps) {
   }, [current])
 
   return (
-    <Element
-      shadowClassName="!rounded-full"
-      wrapperClassName="rounded-full"
-      className="rounded-full"
-    >
+    <Element>
       <button
         title={folder.name}
         type="button"
         className={classNames({
-          'relative border border-transparent text-[#6f6f6f] rounded-full h-12 w-12 flex items-center justify-center uppercase font-extrabold transition ease-in-out duration-200':
+          'relative border border-transparent text-accent-foreground bg-muted rounded-md h-11 w-11 flex items-center justify-center uppercase font-extrabold transition ease-in-out duration-200':
             true,
           'text-highlight-secondary': current,
-          '!border-[#6f6f6f] hover:!border-highlight-primary hover:text-highlight-primary':
-            !current,
+          '!border-border hover:!border-foreground': !current,
         })}
         onClick={() => onClick?.(folder)}
       >

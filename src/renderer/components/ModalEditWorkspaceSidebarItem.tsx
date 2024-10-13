@@ -22,18 +22,17 @@ function ModalEditWorkspaceSidebarItem(
   const classes = useMemo(
     () =>
       classNames({
-        'flex items-center py-2 px-3 font-thin text-white': true,
-        'bg-gradient-to-r from-highlight-primary to-highlight-secondary font-normal':
-          current,
+        'flex items-center py-2 px-3 font-thin text-white/75 hover:bg-border rounded transition ease-in-out duration-200':
+          true,
+        ' bg-border font-normal !text-white': current,
         'cursor-pointer': !current,
-        'border-t border-[#353535]': page === ModalEditWorkspacePages.Browser,
       }),
-    [current, page]
+    [current]
   )
 
   return (
     <li className={classes} onClick={() => onClick(page)} aria-hidden="true">
-      <Lucide icon={icon} className="mr-3" /> {children}
+      {children}
     </li>
   )
 }

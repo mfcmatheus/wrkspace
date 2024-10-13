@@ -34,6 +34,7 @@ import { useFolder } from 'renderer/contexts/FolderContext'
 import DashboardFilterIndicator from 'renderer/components/DashboardFilterIndicator'
 import Filters from 'renderer/@types/Filters'
 import DashboardSearch from 'renderer/components/DashboardSearch'
+import DashboardBreadcrumbs from 'renderer/components/DashboardBreadcrumbs'
 
 const apolloClient = client('/user')
 
@@ -261,10 +262,8 @@ function Dashboard() {
           <div className="flex flex-col flex-1 p-4 relative">
             <div className="flex items-center mb-4">
               <div className="flex items-center gap-x-3">
-                <h2 className="text-medium text-[#f0f0f0] text-xl overflow-hidden whitespace-nowrap text-ellipsis">
-                  {title}
-                </h2>
-                <DashboardViewIndicator className="ml-5" />
+                <DashboardBreadcrumbs folder={settings?.currentFolder} />
+                <DashboardViewIndicator className="ml-7" />
                 <DashboardFilterIndicator setFilters={onSetFilters} />
                 <DashboardSearch onSearch={onSearch} />
               </div>
@@ -309,9 +308,6 @@ function Dashboard() {
                 </ShadowMain>
               </div>
             )}
-            <div className="flex flex-col items-center justify-center absolute top-[50%] left-[50%] z-[-2] h-[20rem] w-[20rem] transform translate-x-[-50%] translate-y-[-50%]">
-              <Logo color="#252525" />
-            </div>
           </div>
           <LogsMain />
         </div>
@@ -326,7 +322,7 @@ function Dashboard() {
               />
             ))}
           </div>
-          <div className="flex flex-col items-center mt-auto border-t border-[#353535] pt-2 relative">
+          <div className="flex flex-col items-center mt-auto border-t border-border pt-2 relative">
             <FolderBarAuth />
             <button
               type="button"

@@ -59,7 +59,7 @@ function InputMain(props: InputMainProps) {
   const containerClasses = useMemo(
     () =>
       classNames({
-        'flex flex-1 items-center rounded-[8px] shadow-[0_0_0_1px_hsla(0,0%,100%,.14)] hover:shadow-[0_0_0_1px_hsla(0,0%,100%,.24)] hover:focus-within:shadow-[0_0_0_1px_hsla(0,0%,100%,.51),0_0_0_4px_hsla(0,0%,100%,.24)] focus-within:shadow-[0_0_0_1px_hsla(0,0%,100%,.51),0_0_0_4px_hsla(0,0%,100%,.24)] bg-[#202020] transition-all ease-in-out duration-200':
+        'flex flex-1 items-center rounded-[8px] shadow-[0_0_0_1px_hsla(0,0%,100%,.14)] hover:shadow-[0_0_0_1px_hsla(0,0%,100%,.24)] hover:focus-within:shadow-[0_0_0_1px_hsla(0,0%,100%,.51),0_0_0_4px_hsla(0,0%,100%,.24)] focus-within:shadow-[0_0_0_1px_hsla(0,0%,100%,.51),0_0_0_4px_hsla(0,0%,100%,.24)] bg-background transition-all ease-in-out duration-200':
           true,
         [defaultContainerClasses!]: !!defaultContainerClasses,
       }),

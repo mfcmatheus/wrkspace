@@ -1,3 +1,4 @@
+import classNames from 'classnames'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import ButtonMain from 'renderer/base-components/ButtonMain'
 import useDebounce from 'renderer/hooks/useDebounce'
@@ -5,14 +6,16 @@ import useDebounce from 'renderer/hooks/useDebounce'
 interface DeleteButtonProps {
   children: React.ReactNode
   onClick?: () => void
+  className?: string
 }
 
 const defaultProps = {
   onClick: null,
+  className: '',
 }
 
 function DeleteButton(props: DeleteButtonProps) {
-  const { onClick, children } = props
+  const { onClick, children, className } = props
 
   const [firstClick, setFirstClick] = useState<boolean>(true)
 
@@ -36,7 +39,15 @@ function DeleteButton(props: DeleteButtonProps) {
   }, [debounce])
 
   return (
-    <ButtonMain sm primary bordered onClick={handleOnClick}>
+    <ButtonMain
+      sm
+      primary
+      bordered
+      className={classNames({
+        [className!]: !!className,
+      })}
+      onClick={handleOnClick}
+    >
       {buttonTitle}
     </ButtonMain>
   )

@@ -16,8 +16,11 @@ import { ModalEditWorkspacePages } from 'renderer/@enums/ModalEditWorkspacePages
 import WorkspaceFormSchema from 'renderer/@schemas/WorkspaceFormSchema'
 import Setting from 'renderer/@types/Setting'
 import { useUser } from 'renderer/contexts/UserContext'
+import normalize from 'renderer/helpers/normalize'
 import DeleteButton from './DeleteButton'
 import ModalEditWorkspaceInstallation from './ModalEditWorkspaceInstallation'
+import DashboardBreadcrumbs from './DashboardBreadcrumbs'
+import TopBar from './TopBar'
 
 interface ModalEditWorkspaceProps {
   workspace: Workspace
@@ -115,79 +118,70 @@ function ModalEditWorkspace(props: ModalEditWorkspaceProps) {
   )
 
   return (
-    <div className="flex absolute inset-0 w-screen h-screen">
-      <div
-        aria-hidden="true"
-        className="absolute z-[3] inset-0 bg-black/[.6] backdrop-blur-sm"
-        onClick={onClickClose}
-      />
-      <div className="flex relative z-[4] m-auto bg-[#202020] rounded-lg h-[80vh] w-[60vw] shadow">
-        <ModalEditWorkspaceSidebar>
-          {sidebarItems.map((item) => (
-            <ModalEditWorkspaceSidebarItem
-              {...item}
-              key={item.label}
-              current={currentPage === item.page}
-              onClick={(page) => setCurrentPage(page)}
-            >
-              {item.label}
-            </ModalEditWorkspaceSidebarItem>
-          ))}
-        </ModalEditWorkspaceSidebar>
-        <div className="flex flex-col flex-1">
-          <div className="flex p-3">
-            {isEditing ? (
-              <p className="text-white font-thin">Edit workspace</p>
-            ) : (
-              <p className="text-white font-thin">Create workspace</p>
-            )}
-            <button
-              type="button"
-              className="text-white ml-auto"
-              onClick={onClickClose}
-            >
-              <Lucide icon="X" />
-            </button>
-          </div>
-          <Formik
-            initialValues={workspace}
-            validationSchema={WorkspaceFormSchema}
-            onSubmit={onSubmit}
-          >
-            {({ isValid, dirty }) => (
-              <Form className="flex flex-col flex-grow basis-0">
-                {isGeneralPage && <ModalEditWorkspaceGeneralSettings />}
-                {isBrowserPage && (
-                  <ModalEditWorkspaceBrowser workspace={workspace} />
-                )}
-                {isTerminalPage && (
-                  <ModalEditWorkspaceTerminal workspace={workspace} />
-                )}
-                {isDockerPage && <ModalEditWorkspaceDocker />}
-                {isInstallationPage && (
-                  <ModalEditWorkspaceInstallation workspace={workspace} />
-                )}
-                <div className="flex p-3">
-                  {isEditing && (
-                    <DeleteButton onClick={onClickDelete}>Delete</DeleteButton>
-                  )}
-                  <ButtonMain
-                    type="submit"
-                    sm
-                    bordered
-                    secondary
-                    disabled={!isValid || !dirty}
-                    className="ml-auto"
+    <Formik
+      initialValues={{ ...workspace, name: normalize(workspace.name) }}
+      validationSchema={WorkspaceFormSchema}
+      onSubmit={onSubmit}
+    >
+      {({ isValid, dirty }) => (
+        <div className="flex flex-col absolute inset-x-0 bottom-0 w-screen h-screen bg-background">
+          <TopBar />
+          <div className="flex flex-col p-4 h-full">
+            <div className="flex items-center pr-1">
+              <DashboardBreadcrumbs
+                folder={settings?.currentFolder}
+                workspace={workspace}
+                onBack={onClickClose}
+              />
+              <ButtonMain
+                type="submit"
+                sm
+                bordered
+                secondary
+                disabled={!isValid || !dirty}
+                className="ml-auto"
+              >
+                Save workspace
+              </ButtonMain>
+            </div>
+            <div className="flex h-full gap-x-8 pt-10">
+              <ModalEditWorkspaceSidebar>
+                {sidebarItems.map((item) => (
+                  <ModalEditWorkspaceSidebarItem
+                    {...item}
+                    key={item.label}
+                    current={currentPage === item.page}
+                    onClick={(page) => setCurrentPage(page)}
                   >
-                    Save workspace
-                  </ButtonMain>
-                </div>
-              </Form>
-            )}
-          </Formik>
+                    {item.label}
+                  </ModalEditWorkspaceSidebarItem>
+                ))}
+              </ModalEditWorkspaceSidebar>
+              <div className="flex flex-col flex-1">
+                <Form className="flex flex-col flex-grow basis-0">
+                  {isGeneralPage && (
+                    <ModalEditWorkspaceGeneralSettings
+                      onDelete={onClickDelete}
+                      isEditing={isEditing}
+                    />
+                  )}
+                  {isBrowserPage && (
+                    <ModalEditWorkspaceBrowser workspace={workspace} />
+                  )}
+                  {isTerminalPage && (
+                    <ModalEditWorkspaceTerminal workspace={workspace} />
+                  )}
+                  {isDockerPage && <ModalEditWorkspaceDocker />}
+                  {isInstallationPage && (
+                    <ModalEditWorkspaceInstallation workspace={workspace} />
+                  )}
+                </Form>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </Formik>
   )
 }
 

@@ -95,12 +95,12 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
   const classes = useMemo(
     () =>
       classNames({
-        'flex group rounded border border-transparent p-3 transition ease-in-out duration-200 !border-[#353535]':
+        'bg-muted flex group rounded border border-transparent p-3 transition ease-in-out duration-200 !border-border':
           true,
         'flex-col': currentView === DashboardViews.GRID,
         'flex-row items-center gap-x-3': currentView === DashboardViews.LIST,
-        'hover:!border-highlight-primary': !workspace.favorite,
-        'bg-[#353535]/25': !isInstalled,
+        'hover:!border-foreground': !workspace.favorite,
+        'bg-border/25': !isInstalled,
       }),
     [workspace, isInstalled, currentView]
   )

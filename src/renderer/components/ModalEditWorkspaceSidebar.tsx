@@ -7,11 +7,7 @@ interface ModalEditWorkspaceSidebarProps {
 function ModalEditWorkspaceSidebar(props: ModalEditWorkspaceSidebarProps) {
   const { children } = props
 
-  return (
-    <ul className="flex flex-col gap-y-2 justify-center w-3/12 border-r border-[#353535]">
-      {children}
-    </ul>
-  )
+  return <ul className="flex flex-col gap-y-2 w-3/12">{children}</ul>
 }
 
 export default ModalEditWorkspaceSidebar

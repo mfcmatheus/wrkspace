@@ -10,11 +10,11 @@ function FolderBar(props: FolderBarProps) {
   const { children, onClickCreate } = props
 
   return (
-    <div className="flex flex-col gap-y-3 h-full border-l border-[#353535] p-2">
-      <div className="flex border-b border-[#353535] pb-3">
+    <div className="flex flex-col gap-y-3 h-full border-l border-border p-2">
+      <div className="flex border-b border-border pb-3 justify-center">
         <button
           type="button"
-          className="border border-dashed border-[#6f6f6f] rounded-full h-12 w-12 flex items-center justify-center opacity-50"
+          className="h-10 w-10 flex items-center justify-center opacity-75"
           onClick={onClickCreate}
         >
           <Lucide icon="Plus" size={24} color="#6f6f6f" />

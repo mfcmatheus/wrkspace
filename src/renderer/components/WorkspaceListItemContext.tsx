@@ -47,11 +47,11 @@ function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
 
   const styles: React.CSSProperties = useMemo(
     () => ({
-      '--contexify-menu-bgColor': 'rgba(40,40,40,.98)',
+      '--contexify-menu-bgColor': 'hsl(var(--border))',
       '--contexify-separator-color': '#4c4c4c',
       '--contexify-item-color': '#fff',
-      '--contexify-activeItem-color': '#fff',
-      '--contexify-activeItem-bgColor': 'oklch(59.59% 0.24 255.09156059071347)',
+      '--contexify-activeItem-color': 'hsl(var(--background))',
+      '--contexify-activeItem-bgColor': '#fff',
       '--contexify-rightSlot-color': '#6f6e77',
       '--contexify-activeRightSlot-color': '#fff',
       '--contexify-arrow-color': '#6f6e77',
@@ -102,7 +102,7 @@ function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
         Launch
       </Item>
       <Item id="launch" onClick={onClickNewTerminal}>
-        New console
+        New terminal
       </Item>
       <Item id="favorite" onClick={onClickFavorite}>
         <span>{workspace.favorite ? 'Unpin' : 'Pin'}</span>

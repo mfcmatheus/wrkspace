@@ -32,7 +32,7 @@ function WorkspaceListItemLaunch(props: WorkspaceListItemLaunchProps) {
       classNames({
         'flex cursor-pointer text-center transition ease-in-out duration-200':
           true,
-        '-mx-[13px] -mb-[13px] mt-1 rounded-b-[3px] bg-[#353535] flex-1 py-2 group-hover:bg-highlight-primary':
+        '-mx-[13px] -mb-[13px] mt-1 rounded-b-[3px] bg-border flex-1 py-2 group-hover:bg-foreground':
           currentView === DashboardViews.GRID,
         'order-5 ml-3': currentView === DashboardViews.LIST,
         'from-highlight-primary to-highlight-secondary': workspace.favorite,
@@ -66,7 +66,7 @@ function WorkspaceListItemLaunch(props: WorkspaceListItemLaunchProps) {
   return (
     <button type="button" className={classes} onClick={onClickLaunch}>
       {isRunning ? (
-        <p className="uppercase text-[#f0f0f0] font-thin text-xs mx-auto">
+        <p className="uppercase text-[#f0f0f0] group-hover:text-background font-thin text-xs mx-auto transition ease-in-out duration-200">
           {currentView === DashboardViews.GRID ? (
             <>Stop</>
           ) : (
@@ -76,7 +76,7 @@ function WorkspaceListItemLaunch(props: WorkspaceListItemLaunchProps) {
           )}
         </p>
       ) : (
-        <p className="uppercase text-[#f0f0f0] font-thin text-xs mx-auto">
+        <p className="uppercase text-[#f0f0f0] group-hover:text-background font-thin text-xs mx-auto transition ease-in-out duration-200">
           {currentView === DashboardViews.GRID ? (
             <>Start</>
           ) : (

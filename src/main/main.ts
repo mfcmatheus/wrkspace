@@ -173,8 +173,9 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     frame: false,
+    transparent: true,
     titleBarStyle: 'hidden',
-    trafficLightPosition: { x: 15, y: 12 },
+    trafficLightPosition: { x: 15, y: 11 },
     show: false,
     width: 1024,
     height: 728,
