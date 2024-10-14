@@ -35,6 +35,7 @@ import DashboardFilterIndicator from 'renderer/components/DashboardFilterIndicat
 import Filters from 'renderer/@types/Filters'
 import DashboardSearch from 'renderer/components/DashboardSearch'
 import DashboardBreadcrumbs from 'renderer/components/DashboardBreadcrumbs'
+import MainLayout from 'renderer/layouts/MainLayout'
 
 const apolloClient = client('/user')
 
@@ -254,7 +255,7 @@ function Dashboard() {
     }
   }, [settings])
 
-  return (
+  /* return (
     <>
       <TopBar />
       <div className="flex flex-1">
@@ -376,6 +377,12 @@ function Dashboard() {
         />
       )}
     </>
+  ) */
+
+  return (
+    <MainLayout>
+      <></>
+    </MainLayout>
   )
 }
 

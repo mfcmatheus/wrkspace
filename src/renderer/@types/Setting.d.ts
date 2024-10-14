@@ -6,4 +6,6 @@ export default interface Setting {
   defaultPath: string
   configured: boolean
   currentView: number
+  isMenuFolderOpened: boolean
+  currentTeam: unknown // TODO: Define Team type
 }

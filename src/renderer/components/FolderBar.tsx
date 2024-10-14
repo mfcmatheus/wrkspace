@@ -10,7 +10,7 @@ function FolderBar(props: FolderBarProps) {
   const { children, onClickCreate } = props
 
   return (
-    <div className="flex flex-col gap-y-3 h-full border-l border-border p-2">
+    <div className="flex flex-col gap-y-3 h-full">
       <div className="flex border-b border-border pb-3 justify-center">
         <button
           type="button"

@@ -4,6 +4,7 @@ import { ApolloProvider } from '@apollo/client'
 import 'renderer/App.css'
 import 'tailwindcss/tailwind.css'
 
+import { RecoilRoot } from 'recoil'
 import Routes from 'renderer/routes'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import client from 'renderer/graphql/client'
@@ -45,7 +46,9 @@ export default function App() {
         <FolderProvider>
           <WorkspaceProvider>
             <ProcessProvider>
-              <Routes />
+              <RecoilRoot>
+                <Routes />
+              </RecoilRoot>
             </ProcessProvider>
           </WorkspaceProvider>
         </FolderProvider>
@@ -62,7 +65,9 @@ export default function App() {
               <CloudSyncProvider>
                 <SettingProvider>
                   <ProcessProvider>
-                    <Routes />
+                    <RecoilRoot>
+                      <Routes />
+                    </RecoilRoot>
                   </ProcessProvider>
                 </SettingProvider>
               </CloudSyncProvider>
