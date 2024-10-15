@@ -3,6 +3,7 @@ import moment from 'moment'
 
 import { useContextMenu } from 'react-contexify'
 import classNames from 'classnames'
+import { useRecoilValue, waitForAll } from 'recoil'
 import WorkspaceListItemName from 'renderer/components/WorkspaceListItemName'
 import WorkspaceListItemLastOpened from 'renderer/components/WorkspaceListItemLastOpened'
 import WorkspaceListItemLaunch from 'renderer/components/WorkspaceListItemLaunch'
@@ -10,38 +11,35 @@ import WorkspaceListItemFeatures from 'renderer/components/WorkspaceListItemFeat
 
 import Workspace from 'renderer/@types/Workspace'
 import { ipcRenderer } from 'renderer/hooks/useIpc'
-import Folder from 'renderer/@types/Folder'
 import ShadowMain from 'renderer/base-components/ShadowMain'
 import WorkspaceListItemContext from 'renderer/components/WorkspaceListItemContext'
 import Lucide from 'renderer/base-components/lucide'
 import LoadingIcon from 'renderer/base-components/LoadingIcon'
-import { useSetting } from 'renderer/contexts/SettingContext'
 import { DashboardViews } from 'renderer/@enums/DashboardViews'
 import initials from 'renderer/helpers/initials'
 import { useProcess } from 'renderer/contexts/ProcessContext'
+import FolderAtom from 'renderer/store/atoms/FolderAtom'
+import SettingAtom from 'renderer/store/atoms/SettingAtom'
 import WorkspaceListItemPath from './WorkspaceListItemPath'
 import BorderLoader from './BorderLoader'
 
 interface WorkspaceListItemProps {
   workspace: Workspace
-  folders: Folder[]
   onEdit?: (workspace: Workspace) => void
-  onFavorite?: (workspace: Workspace) => void
-  onSetFolder?: (workspace: Workspace, folder: Folder | undefined) => void
   onInstall?: (workspace: Workspace) => void
 }
 
 const defaultProps = {
   onEdit: null,
-  onFavorite: null,
-  onSetFolder: null,
   onInstall: null,
 }
 
 function WorkspaceListItem(props: WorkspaceListItemProps) {
-  const { workspace, folders, onEdit, onFavorite, onSetFolder, onInstall } =
-    props
-  const { currentView } = useSetting()
+  const { workspace, onEdit, onInstall } = props
+  const [folders, settings] = useRecoilValue(
+    waitForAll([FolderAtom, SettingAtom])
+  )
+  const { currentView } = settings
   const { getProcessesByWorkspace } = useProcess()
   const { show: showContextMenu } = useContextMenu({
     id: workspace.id,
@@ -59,21 +57,6 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
   const onNewTerminal = useCallback(() => {
     ipcRenderer.sendMessage('process.open', workspace)
   }, [workspace])
-
-  const onClickEdit = useCallback(() => {
-    return onEdit?.(workspace)
-  }, [workspace, onEdit])
-
-  const onClickFavorite = useCallback(() => {
-    return onFavorite?.(workspace)
-  }, [workspace, onFavorite])
-
-  const onClickSetFolder = useCallback(
-    (workspaceParam: Workspace, folder: Folder | undefined) => {
-      return onSetFolder?.(workspaceParam, folder)
-    },
-    [onSetFolder]
-  )
 
   const onClickUninstall = useCallback(() => {
     ipcRenderer.sendMessage('workspaces.uninstall', workspace)
@@ -224,11 +207,8 @@ function WorkspaceListItem(props: WorkspaceListItemProps) {
         id={workspace.id}
         workspace={workspace}
         folders={folders}
-        onEdit={onClickEdit}
         onLaunch={onLaunch}
         onNewTerminal={onNewTerminal}
-        onFavorite={onClickFavorite}
-        onSetFolder={onClickSetFolder}
         onUninstall={onClickUninstall}
       />
     </>

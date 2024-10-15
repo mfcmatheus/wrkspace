@@ -40,4 +40,5 @@ export default interface Workspace {
   created?: boolean
   updated?: boolean
   opened_at?: string | number
+  archived_at?: string | number
 }

@@ -1,22 +1,21 @@
 import classNames from 'classnames'
-import React, { ReactNode, useMemo } from 'react'
+import React, { useMemo } from 'react'
+import { useRecoilValue, waitForAll } from 'recoil'
 import { DashboardViews } from 'renderer/@enums/DashboardViews'
-import { useSetting } from 'renderer/contexts/SettingContext'
+import SettingAtom from 'renderer/store/atoms/SettingAtom'
+import WorkspaceListSelector from 'renderer/store/selectors/WorkspaceListSelector'
+import WorkspaceListItem from './WorkspaceListItem'
 
-interface WorkspaceListProps {
-  children: ReactNode
-}
-
-function WorkspaceList(props: WorkspaceListProps) {
-  const { children } = props
-
-  const settings = useSetting()
+function WorkspaceList() {
+  const [workspaces, settings] = useRecoilValue(
+    waitForAll([WorkspaceListSelector, SettingAtom])
+  )
 
   const gridClasses = useMemo(
     () =>
       classNames({
         'grid justify-start items-start gap-3 w-full': true,
-        'grid-cols-3 lg:grid-cols-5 xl:grid-cols-6':
+        'grid-cols-3 lg:grid-cols-4 xl:grid-cols-5':
           settings.currentView === DashboardViews.GRID,
         'grid-cols-1': settings.currentView === DashboardViews.LIST,
       }),
@@ -24,8 +23,19 @@ function WorkspaceList(props: WorkspaceListProps) {
   )
 
   return (
-    <div className="flex flex-grow basis-0 overflow-auto items-start">
-      <div className={gridClasses}>{children}</div>
+    <div className="flex flex-grow basis-full overflow-auto items-start p-4">
+      <div className={gridClasses}>
+        {workspaces.map((workspace) => (
+          <WorkspaceListItem
+            key={workspace.path ? workspace.id : `${workspace.id}-preview`}
+            workspace={workspace}
+            // onEdit={onEditWorkspace}
+            // onFavorite={onFavorite}
+            // onSetFolder={onSetFolder}
+            // onInstall={onInstall}
+          />
+        ))}
+      </div>
     </div>
   )
 }

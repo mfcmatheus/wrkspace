@@ -197,6 +197,7 @@ export const onWorkspaceOpen = async (
 
 export const onWorkspaceGet = async (event: IpcMainEvent) => {
   event.reply('workspaces.get', (store.get('workspaces') ?? []) as Workspace[])
+  event.returnValue = (store.get('workspaces') ?? []) as Workspace[]
 }
 
 export const onWorkspaceUpdate = async (
@@ -217,6 +218,8 @@ export const onWorkspaceUpdate = async (
   const folders = (store.get('folders') ?? []) as Folder[]
   if (!workspace.updated)
     event.reply('cloud.reload', { w: workspaces, f: folders })
+
+  event.returnValue = workspaces
 }
 
 export const onWorkspaceDelete = async (

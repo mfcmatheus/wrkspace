@@ -35,20 +35,28 @@ export default function TeamsBar() {
       >
         <Logo color="#d2d2d2" />
       </button>
-      {teams.map((team) => (
-        <button
-          key={team.id}
-          type="button"
-          className={classNames({
-            [baseClasses!]: true,
-            [selectorClasses!]: currentTeam?.id === team.id,
-          })}
-        >
-          {initials(team.name)}
+      <div className="flex flex-col flex-grow basis-full overflow-y-auto">
+        {teams.map((team) => (
+          <button
+            key={team.id}
+            type="button"
+            className={classNames({
+              [baseClasses!]: true,
+              [selectorClasses!]: currentTeam?.id === team.id,
+            })}
+          >
+            {initials(team.name)}
+          </button>
+        ))}
+        <button type="button" className={baseClasses}>
+          <Lucide icon="Plus" size={24} strokeWidth={1} />
         </button>
-      ))}
-      <button type="button" className={baseClasses}>
-        <Lucide icon="Plus" size={24} strokeWidth={1} />
+      </div>
+      <button
+        type="button"
+        className="flex h-12 w-12 justify-center items-center"
+      >
+        <Lucide icon="UserCircle2" size={32} color="#6f6f6f" strokeWidth={1} />
       </button>
     </div>
   )

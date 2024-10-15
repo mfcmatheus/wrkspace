@@ -1,39 +1,31 @@
 import classNames from 'classnames'
 import React from 'react'
-import {
-  useRecoilCallback,
-  useRecoilState,
-  useRecoilValue,
-  waitForAll,
-} from 'recoil'
+import { useRecoilCallback, useRecoilValue, waitForAll } from 'recoil'
 import Folder from 'renderer/@types/Folder'
 import Lucide from 'renderer/base-components/lucide'
 import FolderAtom from 'renderer/store/atoms/FolderAtom'
-import SettingAtom from 'renderer/store/atoms/SettingAtom'
 import SettingCurrentFolderSelector from 'renderer/store/selectors/SettingCurrentFolderSelector'
 import SettingIsMenuFolderOpened from 'renderer/store/selectors/SettingIsMenuFolderOpened'
-import SettingSelector from 'renderer/store/selectors/SettingSelector'
+import SettingDefaultSelector from 'renderer/store/selectors/SettingDefaultSelector'
 
 export default function FoldersMain() {
-  const [folders, currentFolder, settings, isMenuFolderOpened] = useRecoilValue(
+  const [folders, currentFolder, isMenuFolderOpened] = useRecoilValue(
     waitForAll([
       FolderAtom,
       SettingCurrentFolderSelector,
-      SettingAtom,
       SettingIsMenuFolderOpened,
     ])
   )
 
   const onClickFolder = useRecoilCallback(({ set }) => (folder: Folder) => {
-    set(SettingSelector, {
-      ...settings,
+    set(SettingDefaultSelector, {
       currentFolder: currentFolder?.id === folder.id ? undefined : folder,
+      currentFilter: null,
     })
   })
 
   const onClickMenu = useRecoilCallback(({ set }) => () => {
-    set(SettingSelector, {
-      ...settings,
+    set(SettingDefaultSelector, {
       isMenuFolderOpened: !isMenuFolderOpened,
     })
   })

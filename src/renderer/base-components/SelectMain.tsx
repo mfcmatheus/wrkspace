@@ -42,9 +42,9 @@ function SelectMain(props: SelectMainProps) {
   const classes = useMemo(
     () =>
       classNames({
+        [defaultInputClasses!]: !!defaultInputClasses,
         'h-[42px] rounded-[8px] text-[1rem] bg-transparent appearance-none px-[12px] text-white transition-all duration-200 ease-in-out outline-none w-full  !outline-none !ring-0 !border-none placeholder:text-[#9e9e9e] placeholder:font-thin':
           true,
-        [defaultInputClasses!]: !!defaultInputClasses,
       }),
     [defaultInputClasses]
   )

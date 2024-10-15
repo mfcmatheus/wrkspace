@@ -7,8 +7,9 @@ export default selector({
   get: () => {
     return ElectronApi.call('settings.get', {})
   },
-  set: ({ set }, newValue) => {
-    set(SettingAtom, newValue)
-    ElectronApi.call('settings.update', newValue)
+  set: ({ set, get }, newValue) => {
+    const settings = get(SettingAtom)
+    set(SettingAtom, { ...settings, ...newValue })
+    ElectronApi.call('settings.update', { ...settings, ...newValue })
   },
 })

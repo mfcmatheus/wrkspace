@@ -1,49 +1,39 @@
 import React, { useCallback, useMemo } from 'react'
 import { Item, Menu, RightSlot, Separator, Submenu } from 'react-contexify'
 import 'react-contexify/ReactContexify.css'
+import { useNavigate } from 'react-router-dom'
+import { useSetRecoilState } from 'recoil'
 import Folder from 'renderer/@types/Folder'
 
 import Workspace from 'renderer/@types/Workspace'
 import Lucide from 'renderer/base-components/lucide'
 import { useUser } from 'renderer/contexts/UserContext'
 import useWorkspace from 'renderer/hooks/useWorkspace'
+import WorkspaceItemSelector from 'renderer/store/selectors/WorkspaceItemSelector'
 
 interface WorkspaceListItemContextProps {
   id: string | number
   workspace: Workspace
   folders: Folder[]
-  onEdit?: (workspace: Workspace) => void
   onLaunch?: (workspace: Workspace) => void
   onNewTerminal?: (workspace: Workspace) => void
-  onFavorite?: (workspace: Workspace) => void
-  onSetFolder?: (workspace: Workspace, folder: Folder | undefined) => void
   onUninstall?: (workspace: Workspace) => void
 }
 
 const defaultProps = {
-  onEdit: null,
   onLaunch: null,
   onNewTerminal: null,
-  onFavorite: null,
-  onSetFolder: null,
   onUninstall: null,
 }
 
 function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
-  const {
-    id,
-    workspace,
-    folders,
-    onEdit,
-    onLaunch,
-    onNewTerminal,
-    onFavorite,
-    onSetFolder,
-    onUninstall,
-  } = props
+  const { id, workspace, folders, onLaunch, onNewTerminal, onUninstall } = props
 
+  const navigate = useNavigate()
   const { hasCloudSync } = useUser()
   const { hasSyncEnabled, isSynced } = useWorkspace(workspace)
+
+  const updateWorkspace = useSetRecoilState(WorkspaceItemSelector(workspace.id))
 
   const styles: React.CSSProperties = useMemo(
     () => ({
@@ -66,21 +56,22 @@ function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
     [workspace, onLaunch]
   )
   const onClickEdit = useCallback(
-    () => onEdit?.(workspace),
-    [workspace, onEdit]
+    () => navigate(`/${workspace.id}/edit`),
+    [navigate, workspace]
   )
+
   const onClickFavorite = useCallback(
-    () => onFavorite?.(workspace),
-    [workspace, onFavorite]
+    () => updateWorkspace({ ...workspace, favorite: !workspace.favorite }),
+    [workspace, updateWorkspace]
   )
+
   const onClickFolder = useCallback(
-    (folder: Folder) => {
-      return onSetFolder?.(
-        workspace,
-        folder.id === workspace.folder?.id ? undefined : folder
-      )
-    },
-    [workspace, onSetFolder]
+    (folder: Folder) =>
+      updateWorkspace({
+        ...workspace,
+        folder: folder.id === workspace.folder?.id ? undefined : folder,
+      }),
+    [workspace, updateWorkspace]
   )
 
   const onClickUninstall = useCallback(() => {
