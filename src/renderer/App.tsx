@@ -46,9 +46,11 @@ export default function App() {
         <FolderProvider>
           <WorkspaceProvider>
             <ProcessProvider>
-              <RecoilRoot>
-                <Routes />
-              </RecoilRoot>
+              <ToastProvider>
+                <RecoilRoot>
+                  <Routes />
+                </RecoilRoot>
+              </ToastProvider>
             </ProcessProvider>
           </WorkspaceProvider>
         </FolderProvider>

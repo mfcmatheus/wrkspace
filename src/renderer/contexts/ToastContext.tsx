@@ -8,6 +8,7 @@ export interface props {
 
 export interface IToastContext {
   showError: (message: string) => void
+  showSuccess: (message: string) => void
 }
 
 export const ToastContext = createContext<IToastContext>({} as IToastContext)
@@ -42,11 +43,29 @@ export function ToastProvider(props: props) {
     []
   )
 
+  const showSuccess = useCallback(
+    (message: string) =>
+      toast.success(message, {
+        position: 'top-center',
+        autoClose: 5000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        progress: undefined,
+        theme: 'dark',
+        transition: Zoom,
+        closeButton: false,
+        className: '!bg-[#181818]',
+        bodyClassName: '!text-sm !font-thin',
+      }),
+    []
+  )
+
   const providerValue = useMemo(
     () => ({
       showError,
+      showSuccess,
     }),
-    [showError]
+    [showError, showSuccess]
   )
 
   return (

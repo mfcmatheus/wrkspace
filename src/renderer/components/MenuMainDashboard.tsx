@@ -2,8 +2,8 @@ import React from 'react'
 import { useRecoilValue, useSetRecoilState, waitForAll } from 'recoil'
 import SettingCurrentFilterSelector from 'renderer/store/selectors/SettingCurrentFilterSelector'
 import SettingCurrentFolderSelector from 'renderer/store/selectors/SettingCurrentFolderSelector'
-import WorkspaceAtom from 'renderer/store/atoms/WorkspaceAtom'
 import SettingDefaultSelector from 'renderer/store/selectors/SettingDefaultSelector'
+import WorkspaceListByFilterSelector from 'renderer/store/selectors/WorkspaceListByFilterSelector'
 import MenuMainDefault from './MenuMainDefault'
 
 export default function MenuMainDashboard() {
@@ -11,7 +11,7 @@ export default function MenuMainDashboard() {
     waitForAll([
       SettingCurrentFilterSelector,
       SettingCurrentFolderSelector,
-      WorkspaceAtom,
+      WorkspaceListByFilterSelector(''),
     ])
   )
 

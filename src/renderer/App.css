@@ -58,7 +58,7 @@
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  @apply bg-border rounded opacity-50;
+  @apply bg-foreground rounded opacity-50;
 }
 
 /* Handle on hover */

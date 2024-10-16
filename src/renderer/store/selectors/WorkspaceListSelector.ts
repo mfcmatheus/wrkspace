@@ -17,6 +17,10 @@ export default selector({
       workspaces = _(get(WorkspaceListByFilterSelector(currentFilter)) ?? [])
     }
 
+    if (currentFilter !== 'archived') {
+      workspaces = workspaces.filter((w) => !w.archived_at)
+    }
+
     if (currentFolder) {
       workspaces = workspaces.filter((w) => w.folder?.id === currentFolder?.id)
     }

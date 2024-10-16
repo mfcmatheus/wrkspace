@@ -505,7 +505,11 @@ export const onOpenDirectory = async (
 
   if (!canceled && filePaths.length) {
     event.reply('dialog:openDirectory', filePaths[0], reference)
+    const filePath = filePaths[0]
+    event.returnValue = filePath
   }
+
+  event.returnValue = null
 }
 
 export const onContainersGet = async (event: IpcMainEvent) => {
@@ -605,6 +609,7 @@ export const onApplicationsGet = async (event: IpcMainEvent) => {
     application.endsWith('.app')
   )
   event.reply('applications.get', applications)
+  event.returnValue = applications
 }
 
 export const onProcess = (event: IpcMainEvent) => {

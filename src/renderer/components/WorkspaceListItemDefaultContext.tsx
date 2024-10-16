@@ -26,7 +26,7 @@ const defaultProps = {
   onUninstall: null,
 }
 
-function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
+function WorkspaceListItemDefaultContext(props: WorkspaceListItemContextProps) {
   const { id, workspace, folders, onLaunch, onNewTerminal, onUninstall } = props
 
   const navigate = useNavigate()
@@ -135,6 +135,6 @@ function WorkspaceListItemContext(props: WorkspaceListItemContextProps) {
   )
 }
 
-WorkspaceListItemContext.defaultProps = defaultProps
+WorkspaceListItemDefaultContext.defaultProps = defaultProps
 
-export default WorkspaceListItemContext
+export default WorkspaceListItemDefaultContext

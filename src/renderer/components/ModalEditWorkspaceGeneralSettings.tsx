@@ -1,53 +1,73 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { ErrorMessage, Field, useField, useFormikContext } from 'formik'
+import React, { useCallback } from 'react'
+import { ErrorMessage, useField, useFormikContext } from 'formik'
 
 import classNames from 'classnames'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
+import moment from 'moment'
+import { useNavigate } from 'react-router-dom'
 import ButtonMain from 'renderer/base-components/ButtonMain'
 import InputMain from 'renderer/base-components/InputMain'
-import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import SwitchMain from 'renderer/base-components/SwitchMain'
 import SelectMain from 'renderer/base-components/SelectMain'
 import Lucide from 'renderer/base-components/lucide'
 import normalize from 'renderer/helpers/normalize'
+import ElectronApi from 'services/ElectronApi'
+import ApplicationSelector from 'renderer/store/selectors/ApplicationSelector'
+import WorkspaceItemSelector from 'renderer/store/selectors/WorkspaceItemSelector'
+import Workspace from 'renderer/@types/Workspace'
+import { useToast } from 'renderer/contexts/ToastContext'
 import DeleteButton from './DeleteButton'
 
 interface Props {
   isEditing: boolean
-  onClickDelete: () => void
+  workspace: Workspace
 }
 
 function ModalEditWorkspaceGeneralSettings(props: Props) {
-  const { isEditing, onClickDelete } = props
+  const { isEditing, workspace } = props
 
+  const { showSuccess } = useToast()
+  const navigate = useNavigate()
+  const updateWorkspace = useSetRecoilState(WorkspaceItemSelector(workspace.id))
+  const applications = useRecoilValue(ApplicationSelector)
   const { errors, setFieldValue } = useFormikContext()
   const pathFieldHelpers = useField('path')[2]
   const [enableEditorField] = useField('features.enableEditor')
 
-  const [applications, setApplications] = useState<string[]>([])
-
   const onClickSearch = useCallback(() => {
-    ipcRenderer.sendMessage('dialog:openDirectory')
-  }, [])
+    const path = ElectronApi.call('dialog:openDirectory')
+    pathFieldHelpers.setValue(path)
+  }, [pathFieldHelpers])
 
   const renderError = useCallback(
     (message: string) => <p className="text-xs text-red-500">{message}</p>,
     []
   )
 
-  useIpc('dialog:openDirectory', (path: string) => {
-    pathFieldHelpers.setValue(path)
-  })
+  const onClickUnarchive = useCallback(() => {
+    updateWorkspace({
+      ...workspace,
+      archived_at: null,
+    })
+    showSuccess('Workspace unarchived successfully')
+    navigate('/')
+  }, [updateWorkspace, workspace, showSuccess, navigate])
 
-  useIpc('applications.get', (data: string[]) => {
-    setApplications(data.map((app) => app.replace('.app', '')))
-  })
+  const onClickArchive = useCallback(() => {
+    updateWorkspace({
+      ...workspace,
+      archived_at: moment().format('YYYY-MM-DD HH:mm:ss'),
+    })
+    showSuccess('Workspace archived successfully')
+    navigate('/')
+  }, [updateWorkspace, workspace, showSuccess, navigate])
 
-  useEffect(() => {
-    ipcRenderer.sendMessage('applications.get')
+  const onClickDelete = useCallback(() => {
+    //
   }, [])
 
   return (
-    <div className="flex flex-col gap-y-6 flex-grow basis-0 overflow-auto">
+    <div className="flex flex-col gap-y-6">
       <div className="flex flex-col border border-border p-5 rounded-lg bg-muted">
         <label htmlFor="name" className="flex flex-col gap-y-4">
           <span className="text-white">Workspace name</span>
@@ -120,20 +140,47 @@ function ModalEditWorkspaceGeneralSettings(props: Props) {
         </label>
         <ErrorMessage name="editor" render={renderError} />
       </div>
-      <div className="flex flex-col border border-destructive/50 p-5 rounded-lg bg-muted">
-        <label htmlFor="path" className="flex flex-col gap-y-4">
-          <span className="text-white">Danger zone</span>
-          <p className="font-thin text-sm">
-            Deleting a workspace is irreversible. Make sure you have a backup of
-            your workspace files.
-          </p>
-          {isEditing && (
-            <DeleteButton onClick={onClickDelete} className="mr-auto">
-              Delete workspace
-            </DeleteButton>
-          )}
-        </label>
-      </div>
+      {isEditing && (
+        <div className="flex flex-col border border-destructive/50 p-5 rounded-lg bg-muted">
+          <label htmlFor="path" className="flex flex-col gap-y-4">
+            <span className="text-white">Danger zone</span>
+            <p className="font-thin text-sm">
+              Be careful with the actions you take in this section. They are not
+              reversible.
+            </p>
+            <div className="flex items-center mt-6 border-b border-border pb-6 mb-2">
+              <p className="font-thin text-sm w-9/12">
+                Archive your workspace and its files. This will remove the
+                workspace from the app but keep the files on your computer.
+              </p>
+              {workspace.archived_at ? (
+                <ButtonMain
+                  sm
+                  primary
+                  bordered
+                  onClick={onClickUnarchive}
+                  className="w-3/12"
+                >
+                  Unarchive workspace
+                </ButtonMain>
+              ) : (
+                <DeleteButton onClick={onClickArchive} className="w-3/12">
+                  Archive workspace
+                </DeleteButton>
+              )}
+            </div>
+            <div className="flex items-center">
+              <p className="font-thin text-sm w-9/12">
+                Deleting a workspace is irreversible. Make sure you have a
+                backup of your workspace files.
+              </p>
+              <DeleteButton onClick={onClickDelete} className="w-3/12">
+                Delete workspace
+              </DeleteButton>
+            </div>
+          </label>
+        </div>
+      )}
     </div>
   )
 }

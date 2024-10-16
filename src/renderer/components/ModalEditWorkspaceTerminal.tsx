@@ -70,6 +70,10 @@ function ModalEditWorkspaceTerminal(props: ModalEditWorkspaceTerminalProps) {
     helpers.setValue(field.value ?? workspace.terminals)
   }, [field.value, workspace.terminals, helpers])
 
+  useEffect(() => {
+    setTerminals(workspace.terminals ?? [])
+  }, [workspace.terminals])
+
   return (
     <div className="flex flex-col gap-y-5 flex-grow basis-0 overflow-auto p-3">
       <div className="flex">

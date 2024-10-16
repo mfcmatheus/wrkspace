@@ -3,14 +3,15 @@ import { ErrorMessage, useField, useFormikContext } from 'formik'
 
 import classNames from 'classnames'
 import { Tooltip } from 'react-tooltip'
+import { useRecoilValue } from 'recoil'
 import Browser from 'renderer/@types/Browser'
 import Workspace from 'renderer/@types/Workspace'
 import ButtonMain from 'renderer/base-components/ButtonMain'
 import InputMain from 'renderer/base-components/InputMain'
 import fakeId from 'renderer/helpers/fakeId'
-import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import Browsers from 'renderer/@enums/Browsers'
 import Lucide from 'renderer/base-components/lucide'
+import ApplicationSelector from 'renderer/store/selectors/ApplicationSelector'
 
 interface ModalEditWorkspaceBrowserProps {
   workspace: Workspace
@@ -19,14 +20,13 @@ interface ModalEditWorkspaceBrowserProps {
 function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
   const { workspace } = props
 
+  const applications = useRecoilValue(ApplicationSelector)
   const { errors } = useFormikContext()
-
   const [field, meta, helpers] = useField('browsers')
 
   const [browsers, setBrowsers] = useState<Browser[]>(
     field.value ?? workspace.browsers ?? []
   )
-  const [applications, setApplications] = useState<string[]>([])
 
   const installedBrowsers = useMemo(() => {
     return (
@@ -124,12 +124,8 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
   }, [field.value, workspace.browsers, helpers])
 
   useEffect(() => {
-    ipcRenderer.sendMessage('applications.get')
-  }, [])
-
-  useIpc('applications.get', (data: string[]) => {
-    setApplications(data)
-  })
+    setBrowsers(workspace.browsers ?? [])
+  }, [workspace.browsers])
 
   return (
     <div className="flex flex-col gap-y-5 flex-grow basis-0 overflow-auto p-3">

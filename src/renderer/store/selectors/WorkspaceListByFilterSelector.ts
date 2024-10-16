@@ -21,6 +21,10 @@ export default selectorFamily({
         workspaces = workspaces.filter(filters[filter])
       }
 
+      if (filter !== 'archived') {
+        workspaces = workspaces.filter((w) => !filters.archived(w))
+      }
+
       return workspaces
     },
 })

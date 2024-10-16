@@ -11,7 +11,7 @@ export default function MainLayout(props: Props) {
   return (
     <div className="flex h-full p-1 overflow-hidden">
       <TeamsBar />
-      <div className="flex flex-1">{children}</div>
+      <div className="flex flex-1 h-full overflow-hidden">{children}</div>
     </div>
   )
 }
