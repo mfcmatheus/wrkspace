@@ -35,18 +35,19 @@ export default function FoldersMain() {
       <div className="flex items-center gap-x-2 px-2">
         <button
           type="button"
-          className="flex-1 text-left text-sm"
+          className="cursor-default flex-1 text-left text-sm"
           onClick={() => onClickMenu()}
         >
           Folders
         </button>
-        <button type="button">
+        <button type="button" className="cursor-default">
           <Lucide icon="Plus" size={18} />
         </button>
         <button
           type="button"
           className={classNames({
-            'text-white transition-all ease-in-out duration-200': true,
+            'cursor-default text-white transition-all ease-in-out duration-200':
+              true,
             'text-[#d2d2d2] rotate-180 transform': !isMenuFolderOpened,
           })}
           onClick={() => onClickMenu()}
@@ -61,7 +62,7 @@ export default function FoldersMain() {
               <button
                 type="button"
                 className={classNames({
-                  'flex items-center gap-x-2 w-full py-1 px-2 rounded text-[#d2d2d2] hover:bg-border transition ease-in-out duration-200':
+                  'cursor-default flex items-center gap-x-2 w-full py-1 px-2 rounded text-[#d2d2d2] hover:bg-border transition ease-in-out duration-200':
                     true,
                   'bg-border text-white': currentFolder?.id === folder.id,
                 })}

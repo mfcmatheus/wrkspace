@@ -8,12 +8,12 @@ import MenuMainArchived from './MenuMainArchived'
 
 export default function MenuMain() {
   return (
-    <ul className="flex flex-col">
+    <ul className="flex flex-col gap-y-1">
       <MenuMainDashboard />
       <MenuMainFavorites />
       <MenuMainMostUsed />
       <MenuMainNeverUsed />
-      <MenuMainNotInstalled />
+      {/* <MenuMainNotInstalled /> */}
       <MenuMainArchived />
     </ul>
   )

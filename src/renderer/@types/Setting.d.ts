@@ -8,5 +8,14 @@ export default interface Setting {
   currentView: number
   isMenuFolderOpened: boolean
   currentTeam?: unknown | null // TODO: Define Team type
-  currentFilter?: string | null
+  currentFilter?:
+    | 'favorites'
+    | 'most_used'
+    | 'never_used'
+    | 'not_installed'
+    | 'archived'
+    | null
+
+  showSearch: boolean
+  search: string
 }

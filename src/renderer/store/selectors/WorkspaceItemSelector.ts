@@ -11,14 +11,27 @@ export default selectorFamily({
       return get(WorkspaceAtom).find((w) => w.id === id)
     },
   set:
-    () =>
+    (id: string | undefined) =>
     ({ set }, newValue: Workspace) => {
+      const isEditing = !!id
+
+      if (isEditing) {
+        set(WorkspaceAtom, (old) => {
+          const values = [...old]
+          const index = old.findIndex((w) => w.id === newValue.id)
+          values[index] = newValue
+          return values
+        })
+        ElectronApi.call('workspaces.update', newValue)
+
+        return
+      }
+
       set(WorkspaceAtom, (old) => {
         const values = [...old]
-        const index = old.findIndex((w) => w.id === newValue.id)
-        values[index] = newValue
+        values.push(newValue)
         return values
       })
-      ElectronApi.call('workspaces.update', newValue)
+      ElectronApi.call('workspaces.create', newValue)
     },
 })

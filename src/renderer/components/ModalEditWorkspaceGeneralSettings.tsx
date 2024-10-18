@@ -28,7 +28,9 @@ function ModalEditWorkspaceGeneralSettings(props: Props) {
 
   const { showSuccess } = useToast()
   const navigate = useNavigate()
-  const updateWorkspace = useSetRecoilState(WorkspaceItemSelector(workspace.id))
+  const updateWorkspace = useSetRecoilState(
+    WorkspaceItemSelector(workspace?.id)
+  )
   const applications = useRecoilValue(ApplicationSelector)
   const { errors, setFieldValue } = useFormikContext()
   const pathFieldHelpers = useField('path')[2]
@@ -63,8 +65,10 @@ function ModalEditWorkspaceGeneralSettings(props: Props) {
   }, [updateWorkspace, workspace, showSuccess, navigate])
 
   const onClickDelete = useCallback(() => {
-    //
-  }, [])
+    ElectronApi.call('workspaces.delete', workspace)
+    showSuccess('Workspace deleted successfully')
+    navigate('/')
+  }, [workspace, showSuccess, navigate])
 
   return (
     <div className="flex flex-col gap-y-6">

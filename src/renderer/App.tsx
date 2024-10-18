@@ -14,7 +14,6 @@ import { ToastProvider } from './contexts/ToastContext'
 import { SettingProvider } from './contexts/SettingContext'
 import { WorkspaceProvider } from './contexts/WorkspaceContext'
 import { FolderProvider } from './contexts/FolderContext'
-import { ProcessProvider } from './contexts/ProcessContext'
 
 export default function App() {
   const [token, setToken] = useState<string | null>(null)
@@ -42,41 +41,37 @@ export default function App() {
 
   if (!token) {
     return (
-      <SettingProvider>
-        <FolderProvider>
-          <WorkspaceProvider>
-            <ProcessProvider>
+      <RecoilRoot>
+        <SettingProvider>
+          <FolderProvider>
+            <WorkspaceProvider>
               <ToastProvider>
-                <RecoilRoot>
-                  <Routes />
-                </RecoilRoot>
+                <Routes />
               </ToastProvider>
-            </ProcessProvider>
-          </WorkspaceProvider>
-        </FolderProvider>
-      </SettingProvider>
+            </WorkspaceProvider>
+          </FolderProvider>
+        </SettingProvider>
+      </RecoilRoot>
     )
   }
 
   return (
     <ApolloProvider client={client()}>
-      <UserProvider token={token}>
-        <FolderProvider>
-          <WorkspaceProvider>
-            <ToastProvider>
-              <CloudSyncProvider>
-                <SettingProvider>
-                  <ProcessProvider>
-                    <RecoilRoot>
-                      <Routes />
-                    </RecoilRoot>
-                  </ProcessProvider>
-                </SettingProvider>
-              </CloudSyncProvider>
-            </ToastProvider>
-          </WorkspaceProvider>
-        </FolderProvider>
-      </UserProvider>
+      <RecoilRoot>
+        <UserProvider token={token}>
+          <FolderProvider>
+            <WorkspaceProvider>
+              <ToastProvider>
+                <CloudSyncProvider>
+                  <SettingProvider>
+                    <Routes />
+                  </SettingProvider>
+                </CloudSyncProvider>
+              </ToastProvider>
+            </WorkspaceProvider>
+          </FolderProvider>
+        </UserProvider>
+      </RecoilRoot>
     </ApolloProvider>
   )
 }

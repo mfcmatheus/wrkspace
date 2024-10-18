@@ -40,12 +40,12 @@ export default function LogMainConsole(props: LogMainConsoleProps) {
   })
 
   return (
-    <div className="flex max-h-full p-2 overflow-auto">
+    <div className="flex max-h-full w-full p-2 overflow-auto bg-background">
       <XTerm
         options={{
           fontSize: 12,
           rows: 14,
-          theme: { background: '#202020' },
+          theme: { background: '#09090b' },
           scrollOnUserInput: true,
         }}
         addons={[fitAddon]}

@@ -3,7 +3,7 @@ import moment from 'moment'
 
 import { useContextMenu } from 'react-contexify'
 import classNames from 'classnames'
-import { useRecoilValue, waitForAll } from 'recoil'
+import { useRecoilValue, useSetRecoilState, waitForAll } from 'recoil'
 import WorkspaceListItemName from 'renderer/components/WorkspaceListItemName'
 import WorkspaceListItemLastOpened from 'renderer/components/WorkspaceListItemLastOpened'
 import WorkspaceListItemLaunch from 'renderer/components/WorkspaceListItemLaunch'
@@ -15,9 +15,12 @@ import ShadowMain from 'renderer/base-components/ShadowMain'
 import WorkspaceListItemDefaultContext from 'renderer/components/WorkspaceListItemDefaultContext'
 import { DashboardViews } from 'renderer/@enums/DashboardViews'
 import initials from 'renderer/helpers/initials'
-import { useProcess } from 'renderer/contexts/ProcessContext'
 import FolderAtom from 'renderer/store/atoms/FolderAtom'
 import SettingAtom from 'renderer/store/atoms/SettingAtom'
+import ElectronApi from 'services/ElectronApi'
+import ProcessByWorkspace from 'renderer/store/selectors/ProcessByWorkspace'
+import Process from 'renderer/@types/Process'
+import WorkspaceAtom from 'renderer/store/atoms/WorkspaceAtom'
 import WorkspaceListItemPath from './WorkspaceListItemPath'
 import BorderLoader from './BorderLoader'
 
@@ -27,23 +30,25 @@ interface Props {
 
 export default function WorkspaceListItemDefault(props: Props) {
   const { workspace } = props
+  const setWorkspaces = useSetRecoilState(WorkspaceAtom)
   const [folders, settings] = useRecoilValue(
     waitForAll([FolderAtom, SettingAtom])
   )
   const { currentView } = settings
-  const { getProcessesByWorkspace } = useProcess()
   const { show: showContextMenu } = useContextMenu({
     id: workspace.id,
   })
 
+  const workspaceProcesses = useRecoilValue(ProcessByWorkspace(workspace))
+
   const isRunning = useMemo(() => {
-    const processes = getProcessesByWorkspace(workspace)
-    return processes.length > 0
-  }, [getProcessesByWorkspace, workspace])
+    return workspaceProcesses.length > 0
+  }, [workspaceProcesses])
 
   const onLaunch = useCallback(() => {
-    ipcRenderer.sendMessage('workspaces.open', workspace)
-  }, [workspace])
+    const workspaces = ElectronApi.call('workspaces.open', workspace)
+    setWorkspaces(workspaces)
+  }, [workspace, setWorkspaces])
 
   const onNewTerminal = useCallback(() => {
     ipcRenderer.sendMessage('process.open', workspace)
@@ -61,13 +66,14 @@ export default function WorkspaceListItemDefault(props: Props) {
   const classes = useMemo(
     () =>
       classNames({
-        'bg-muted flex group rounded border border-transparent p-3 transition ease-in-out duration-200 !border-border':
+        'relative bg-muted flex group rounded border border-transparent p-3 transition ease-in-out duration-200 !border-border z-[2]':
           true,
         'flex-col': currentView === DashboardViews.GRID,
         'flex-row items-center gap-x-3': currentView === DashboardViews.LIST,
-        'hover:!border-foreground': !workspace.favorite,
+        'hover:!border-primary': !isRunning && !workspace.favorite,
+        '!border-primary': workspace.favorite && !isRunning,
       }),
-    [workspace, currentView]
+    [workspace, currentView, isRunning]
   )
 
   const renderDate = useMemo(() => {
@@ -101,7 +107,8 @@ export default function WorkspaceListItemDefault(props: Props) {
 
   const Element = useMemo(() => {
     if (isRunning) return BorderLoader
-    return workspace.favorite ? ShadowMain : 'div'
+    return 'div'
+    // return workspace.favorite ? ShadowMain : 'div'
   }, [workspace.favorite, isRunning])
 
   return (

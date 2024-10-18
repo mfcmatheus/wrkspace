@@ -168,6 +168,13 @@ export const onWorkspaceOpen = async (
   )
 
   workspaces[index].opened_at = moment().format('YYYY-MM-DD HH:mm:ss')
+  workspaces[index].activities = [
+    ...(workspaces[index].activities ?? []),
+    {
+      type: 'open',
+      created_at: moment().format('YYYY-MM-DD HH:mm:ss'),
+    },
+  ]
   workspaces[index].loading = true
 
   const filteredProcesses = killProcesses(workspace)
@@ -193,6 +200,7 @@ export const onWorkspaceOpen = async (
 
   store.set('workspaces', workspaces)
   event.reply('workspaces.reload', workspaces)
+  event.returnValue = workspaces
 }
 
 export const onWorkspaceGet = async (event: IpcMainEvent) => {
@@ -246,6 +254,8 @@ export const onWorkspaceDelete = async (
   const folders = (store.get('folders') ?? []) as Folder[]
   if (!workspace.deleted)
     event.reply('cloud.reload', { w: workspaces, f: folders })
+
+  event.returnValue = workspaces
 }
 
 export const onWorkspaceCreate = async (
@@ -267,6 +277,8 @@ export const onWorkspaceCreate = async (
   const folders = (store.get('folders') ?? []) as Folder[]
   if (!workspace.created)
     event.reply('cloud.reload', { w: workspaces, f: folders })
+
+  event.returnValue = workspaces
 }
 
 export const onWorkspaceUninstall = async (

@@ -34,6 +34,9 @@
     --ring: 240 4.9% 83.9%;
 
     --radius: 0.5rem;
+
+    --toastify-toast-width: 250px !important;
+    --toastify-toast-min-height: 50px !important;
   }
 }
 

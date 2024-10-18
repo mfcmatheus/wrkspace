@@ -13,6 +13,7 @@ function Routes() {
     <Router>
       <RouterRoute>
         <Route path="/" element={<DashboardNew />} />
+        <Route path="/new" element={<WorkspaceEdit />} />
         <Route path="/:id/edit" element={<WorkspaceEdit />} />
       </RouterRoute>
     </Router>

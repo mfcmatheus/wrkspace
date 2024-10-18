@@ -28,7 +28,7 @@ export default function WorkspaceEdit() {
     ModalEditWorkspacePages.General
   )
 
-  const isEditing = useMemo(() => !!workspace.id, [workspace])
+  const isEditing = useMemo(() => !!workspace?.id, [workspace])
   const isGeneralPage = useMemo(
     () => currentPage === ModalEditWorkspacePages.General,
     [currentPage]
@@ -108,9 +108,11 @@ export default function WorkspaceEdit() {
             onClick={onClickBack}
           >
             <Lucide icon="ChevronLeft" size={24} />
-            <span className="font-light">Edit Workspace</span>
+            <span className="font-light">
+              {isEditing ? 'Edit workspace' : 'Create workspace'}
+            </span>
           </button>
-          <WorkspaceSelector />
+          {isEditing && <WorkspaceSelector />}
           <ul className="flex flex-col">
             {sidebarItems.map((item, index) => (
               <li key={index}>

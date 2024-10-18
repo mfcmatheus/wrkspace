@@ -29,7 +29,7 @@ export function ToastProvider(props: props) {
   const showError = useCallback(
     (message: string) =>
       toast.error(message, {
-        position: 'top-center',
+        position: 'bottom-right',
         autoClose: 5000,
         hideProgressBar: true,
         closeOnClick: true,
@@ -37,8 +37,8 @@ export function ToastProvider(props: props) {
         theme: 'dark',
         transition: Zoom,
         closeButton: false,
-        className: '!bg-[#181818]',
-        bodyClassName: '!text-sm !font-thin',
+        className: '!bg-[#1b1b1d]',
+        bodyClassName: '!text-xs !font-thin',
       }),
     []
   )
@@ -46,7 +46,7 @@ export function ToastProvider(props: props) {
   const showSuccess = useCallback(
     (message: string) =>
       toast.success(message, {
-        position: 'top-center',
+        position: 'bottom-right',
         autoClose: 5000,
         hideProgressBar: true,
         closeOnClick: true,
@@ -54,8 +54,8 @@ export function ToastProvider(props: props) {
         theme: 'dark',
         transition: Zoom,
         closeButton: false,
-        className: '!bg-[#181818]',
-        bodyClassName: '!text-sm !font-thin',
+        className: '!bg-background border border-border',
+        bodyClassName: '!text-xs !font-thin',
       }),
     []
   )

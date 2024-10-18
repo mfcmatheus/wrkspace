@@ -11,7 +11,7 @@ export default function useWorkspace(workspace: Workspace) {
 
   const isSynced = useMemo(() => {
     const regex = /^[0-9]+$/
-    return regex.test(workspace.id.toString()) && !isSyncing
+    return regex.test(workspace?.id?.toString()) && !isSyncing
   }, [workspace, isSyncing])
 
   return {

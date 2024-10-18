@@ -1,4 +1,5 @@
 import React from 'react'
+import ButtonMain from 'renderer/base-components/ButtonMain'
 
 function TopBar() {
   return (

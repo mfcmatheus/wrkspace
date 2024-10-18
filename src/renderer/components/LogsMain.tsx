@@ -1,16 +1,19 @@
 import React, { useCallback, useEffect, useState } from 'react'
 
+import { useRecoilValue } from 'recoil'
 import LogWindow from 'renderer/@types/LogWindow'
 import LogMainTabs from 'renderer/components/LogMainTabs'
 import LogMainTabsItem from 'renderer/components/LogMainTabsItem'
 import LogMainWindow from 'renderer/components/LogMainWindow'
 import Process from 'renderer/@types/Process'
 import fakeId from 'renderer/helpers/fakeId'
-import { useProcess } from 'renderer/contexts/ProcessContext'
+import ProcessAtom from 'renderer/store/atoms/ProcessAtom'
+import useProcess from 'renderer/hooks/useProcess'
 
 function LogsMain() {
-  const { processes, closeProcess } = useProcess()
+  const { closeProcess } = useProcess()
 
+  const processes = useRecoilValue(ProcessAtom)
   const [currentWindow, setCurrentWindow] = useState<LogWindow>()
   const [windows, setWindows] = useState<LogWindow[]>([])
 
@@ -30,13 +33,9 @@ function LogsMain() {
 
   const handleClickWindow = useCallback(
     (window: LogWindow) => {
-      if (isSelectedWindow(window)) {
-        return setCurrentWindow(undefined)
-      }
-
       return setCurrentWindow(window)
     },
-    [isSelectedWindow, setCurrentWindow]
+    [setCurrentWindow]
   )
 
   const handleClear = useCallback(
@@ -89,7 +88,7 @@ function LogsMain() {
   if (!windows.length) return null
 
   return (
-    <div className="flex flex-col -mb-[1px] overflow-hidden max-w-full max-h-[35vh]">
+    <div className="relative z-[1] flex flex-col overflow-hidden max-w-full max-h-[40vh] shrink-0">
       <LogMainTabs>
         {windows.map((window) => (
           <LogMainTabsItem

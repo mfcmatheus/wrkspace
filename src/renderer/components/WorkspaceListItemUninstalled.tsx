@@ -2,12 +2,13 @@ import React, { useCallback, useMemo } from 'react'
 import classNames from 'classnames'
 import { useRecoilValue, waitForAll } from 'recoil'
 import ShadowMain from 'renderer/base-components/ShadowMain'
-import { useProcess } from 'renderer/contexts/ProcessContext'
 import Workspace from 'renderer/@types/Workspace'
 import SettingAtom from 'renderer/store/atoms/SettingAtom'
 import { DashboardViews } from 'renderer/@enums/DashboardViews'
 import LoadingIcon from 'renderer/base-components/LoadingIcon'
 import Lucide from 'renderer/base-components/lucide'
+import Process from 'renderer/@types/Process'
+import ProcessByWorkspace from 'renderer/store/selectors/ProcessByWorkspace'
 import BorderLoader from './BorderLoader'
 import WorkspaceListItemName from './WorkspaceListItemName'
 import WorkspaceListItemPath from './WorkspaceListItemPath'
@@ -18,9 +19,16 @@ interface Props {
 
 export default function WorkspaceListItemUninstalled(props: Props) {
   const { workspace } = props
-  const { getProcessesByWorkspace } = useProcess()
   const [settings] = useRecoilValue(waitForAll([SettingAtom]))
   const { currentView } = settings
+
+  const workspaceProcesses = useRecoilValue<Process[]>(
+    ProcessByWorkspace(workspace)
+  )
+
+  const isRunning = useMemo(() => {
+    return workspaceProcesses.length > 0
+  }, [workspaceProcesses])
 
   const classes = useMemo(
     () =>
@@ -33,11 +41,6 @@ export default function WorkspaceListItemUninstalled(props: Props) {
       }),
     [workspace, currentView]
   )
-
-  const isRunning = useMemo(() => {
-    const processes = getProcessesByWorkspace(workspace)
-    return processes.length > 0
-  }, [getProcessesByWorkspace, workspace])
 
   const Element = useMemo(() => {
     if (isRunning) return BorderLoader

@@ -4,7 +4,7 @@ import WorkspaceAtom from '../atoms/WorkspaceAtom'
 
 const filters = {
   favorites: (w: Workspace) => w.favorite,
-  most_used: (w: Workspace) => false, // TODO
+  most_used: (w: Workspace) => w.activities?.length,
   never_used: (w: Workspace) => !w.opened_at,
   not_installed: (w: Workspace) => false, // TODO
   archived: (w: Workspace) => !!w.archived_at,

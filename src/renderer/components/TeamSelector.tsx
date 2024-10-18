@@ -21,7 +21,7 @@ export default function TeamSelector() {
       validationSchema={schema}
       onSubmit={() => {}}
     >
-      <div className="p-1 w-full">
+      <div className="p-[1px] w-full">
         <SelectMain
           name="team_id"
           inputClasses="!h-[30px] !p-0 !px-3 !font-thin !text-sm"

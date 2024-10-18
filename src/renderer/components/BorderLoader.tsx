@@ -13,7 +13,7 @@ function BorderLoader(props: Props) {
   const wrapperClasses = useMemo(
     () =>
       classNames({
-        'relative  p-[1px] overflow-hidden': true,
+        'relative p-[1px] overflow-hidden': true,
         '': true,
         [wrapperClassName!]: !!wrapperClassName,
       }),
@@ -23,7 +23,7 @@ function BorderLoader(props: Props) {
   const borderClasses = useMemo(
     () =>
       classNames({
-        'flex absolute h-[150%] w-[150%] m-[-1px] top-[50%] left-[50%] transform translate-x-[-50%] translate-y-[-50%] rounded-full z-[-1]':
+        'flex absolute h-[150%] w-[150%] m-[-1px] top-[50%] left-[50%] transform translate-x-[-50%] translate-y-[-50%] rounded-full z-[1]':
           true,
         [className!]: !!className,
       }),
@@ -33,7 +33,7 @@ function BorderLoader(props: Props) {
   const classes = useMemo(
     () =>
       classNames({
-        'bg-[#202020]': true,
+        'bg-background': true,
         [className!]: !!className,
       }),
     [className]
@@ -47,7 +47,7 @@ function BorderLoader(props: Props) {
           className="h-full w-full motion-safe:animate-spin-slow"
           style={{
             background:
-              'conic-gradient(#202020, #202020, #202020, oklch(59.59% 0.24 255.09156059071347), oklch(81.58% 0.189 190.74037768509325))',
+              'conic-gradient(#09090b, #09090b, #09090b, oklch(59.59% 0.24 255.09156059071347), oklch(81.58% 0.189 190.74037768509325))',
           }}
         />
       </div>

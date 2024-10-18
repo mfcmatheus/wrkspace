@@ -7,11 +7,11 @@ export default atom({
   key: 'workspaces',
   default: WorkspaceDefaultSelector as Workspace[],
   effects: [
-    ({ onSet }) => {
+    ({ setSelf }) => {
       const eventHandler = ipcRenderer.on(
         'workspaces.reload',
         (data: Workspace[]) => {
-          return onSet(() => data.filter((folder) => !folder.deleted_at))
+          return setSelf(() => data.filter((folder) => !folder.deleted_at))
         }
       )
 

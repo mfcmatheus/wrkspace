@@ -21,9 +21,9 @@ function LogMainTabsItem(props: LogMainTabsItemProps) {
   const classes = useMemo(
     () =>
       classNames({
-        'flex gap-x-3 items-center max-w-[150px] py-1 px-2 border-r border-[#353535] select-none':
+        'flex gap-x-3 items-center max-w-[150px] py-[2px] px-2 border border-border rounded select-none':
           true,
-        'bg-[#353535]': current,
+        'bg-border': current,
       }),
     [current]
   )
@@ -32,12 +32,16 @@ function LogMainTabsItem(props: LogMainTabsItemProps) {
     <div className={classes}>
       <button
         type="button"
-        className="text-sm font-thin text-[#d2d2d2] flex-1 whitespace-nowrap text-ellipsis"
+        className="cursor-default text-sm font-thin text-[#d2d2d2] flex-1 whitespace-nowrap text-ellipsis"
         onClick={() => onSelect?.()}
       >
         {children}
       </button>
-      <button type="button" onClick={() => onClose?.()}>
+      <button
+        type="button"
+        className="cursor-default"
+        onClick={() => onClose?.()}
+      >
         <Lucide icon="X" size={16} color="#6f6f6f" />
       </button>
     </div>

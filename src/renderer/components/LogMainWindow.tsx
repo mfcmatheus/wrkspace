@@ -5,6 +5,7 @@ import Process from 'renderer/@types/Process'
 import Lucide from 'renderer/base-components/lucide'
 import LoadingIcon from 'renderer/base-components/LoadingIcon'
 import LogWindow from 'renderer/@types/LogWindow'
+import useProcess from 'renderer/hooks/useProcess'
 import LogMainConsole from './LogMainConsole'
 
 interface LogMainConsoleProps {
@@ -16,6 +17,7 @@ interface LogMainConsoleProps {
 function LogMainWindow(props: LogMainConsoleProps) {
   const { className, processes, window } = props
 
+  const { closeProcess } = useProcess()
   const [selectedProcess, setSelectedProcess] = useState<Process>(processes[0])
 
   const orderedProcesses = useMemo(() => {
@@ -29,9 +31,12 @@ function LogMainWindow(props: LogMainConsoleProps) {
     [selectedProcess]
   )
 
-  const onCloseProcess = useCallback((process: Process) => {
-    ipcRenderer.sendMessage('process.close', process)
-  }, [])
+  const onCloseProcess = useCallback(
+    (process: Process) => {
+      closeProcess(process)
+    },
+    [closeProcess]
+  )
 
   const defineProcess = useCallback(() => {
     if (processes.find((process) => process?.pid === selectedProcess?.pid))
@@ -54,14 +59,15 @@ function LogMainWindow(props: LogMainConsoleProps) {
         [className!]: !!className,
       })}
     >
-      <ul className="flex flex-col border-r border-[#353535] overflow-y-auto">
+      <ul className="flex flex-col overflow-y-auto p-2 gap-y-1">
         {orderedProcesses.map((process) => (
           <li
             key={process?.pid}
             className={classNames({
-              'flex items-center px-3 border-b border-[#353535] w-[200px] overflow-hidden relative flex-shrink-0':
+              'flex items-center gap-x-2 w-full py-1 px-2 rounded hover:bg-border':
                 true,
-              'opacity-50': !process.running,
+              'opacity-50': process.running,
+              'bg-border text-white': isSelectedProcess(process),
             })}
           >
             <span className="flex w-3 justify-center">
@@ -73,17 +79,18 @@ function LogMainWindow(props: LogMainConsoleProps) {
             </span>
             <button
               type="button"
-              className="text-left flex-1 text-sm font-thin px-3 py-1 whitespace-nowrap overflow-hidden overflow-ellipsis"
+              className="cursor-default font-light text-sm text-left flex-1 whitespace-nowrap overflow-hidden overflow-ellipsis"
               onClick={() => setSelectedProcess(process)}
             >
               {process.title}
             </button>
-            <button type="button" onClick={() => onCloseProcess(process)}>
-              <Lucide icon="X" size={16} color="#6f6f6f" />
+            <button
+              type="button"
+              onClick={() => onCloseProcess(process)}
+              className="cursor-default ml-3"
+            >
+              <Lucide icon="X" size={14} color="#6f6f6f" />
             </button>
-            {isSelectedProcess(process) && (
-              <span className="w-[4px] h-full bg-[#353535] absolute right-0" />
-            )}
           </li>
         ))}
       </ul>

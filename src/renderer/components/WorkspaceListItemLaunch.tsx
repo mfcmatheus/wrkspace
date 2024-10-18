@@ -1,12 +1,17 @@
 import classNames from 'classnames'
+import moment from 'moment'
 import React, { useCallback, useMemo } from 'react'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { DashboardViews } from 'renderer/@enums/DashboardViews'
+import Process from 'renderer/@types/Process'
 
 import Workspace from 'renderer/@types/Workspace'
 import LoadingIcon from 'renderer/base-components/LoadingIcon'
 import Lucide from 'renderer/base-components/lucide'
-import { useProcess } from 'renderer/contexts/ProcessContext'
 import { useSetting } from 'renderer/contexts/SettingContext'
+import useProcess from 'renderer/hooks/useProcess'
+import ProcessByWorkspace from 'renderer/store/selectors/ProcessByWorkspace'
+import WorkspaceItemSelector from 'renderer/store/selectors/WorkspaceItemSelector'
 
 interface WorkspaceListItemLaunchProps {
   workspace: Workspace
@@ -20,34 +25,48 @@ const defaultProps = {
 function WorkspaceListItemLaunch(props: WorkspaceListItemLaunchProps) {
   const { workspace, onClick } = props
   const { currentView } = useSetting()
-  const { getProcessesByWorkspace, closeProcess } = useProcess()
+  const { closeProcess } = useProcess()
+  const updateWorkspace = useSetRecoilState(WorkspaceItemSelector(workspace.id))
+  const workspaceProcesses = useRecoilValue<Process[]>(
+    ProcessByWorkspace(workspace)
+  )
 
   const isRunning = useMemo(() => {
-    const processes = getProcessesByWorkspace(workspace)
-    return processes.length > 0
-  }, [getProcessesByWorkspace, workspace])
+    return workspaceProcesses.length > 0
+  }, [workspaceProcesses])
 
   const classes = useMemo(
     () =>
       classNames({
-        'flex cursor-pointer text-center transition ease-in-out duration-200':
+        'flex cursor-default font-light text-center transition ease-in-out duration-200 text-[#f0f0f0]':
           true,
-        '-mx-[13px] -mb-[13px] mt-1 rounded-b-[3px] bg-border flex-1 py-2 group-hover:bg-foreground':
+        '-mx-[13px] -mb-[13px] mt-1 rounded-b-[3px] bg-border flex-1 py-2':
           currentView === DashboardViews.GRID,
+        'group-hover:bg-foreground group-hover:text-background': !isRunning,
         'order-5 ml-3': currentView === DashboardViews.LIST,
-        'from-highlight-primary to-highlight-secondary': workspace.favorite,
+        'bg-primary !text-background': workspace.favorite && !isRunning,
         'group-hover:!bg-gradient-to-r':
           workspace.favorite && currentView === DashboardViews.GRID,
       }),
-    [workspace, currentView]
+    [workspace, currentView, isRunning]
   )
 
   const onClose = useCallback(() => {
+    updateWorkspace({
+      ...workspace,
+      activities: [
+        ...(workspace.activities ?? []),
+        {
+          type: 'close',
+          created_at: moment().format('YYYY-MM-DD HH:mm:ss'),
+        },
+      ],
+    })
     // eslint-disable-next-line
-    for (const process of getProcessesByWorkspace(workspace)) {
+    for (const process of workspaceProcesses) {
       closeProcess(process)
     }
-  }, [closeProcess, getProcessesByWorkspace, workspace])
+  }, [closeProcess, workspaceProcesses, updateWorkspace, workspace])
 
   const onClickLaunch = useCallback(() => {
     return isRunning ? onClose() : onClick?.()
@@ -66,7 +85,7 @@ function WorkspaceListItemLaunch(props: WorkspaceListItemLaunchProps) {
   return (
     <button type="button" className={classes} onClick={onClickLaunch}>
       {isRunning ? (
-        <p className="uppercase text-[#f0f0f0] group-hover:text-background font-thin text-xs mx-auto transition ease-in-out duration-200">
+        <p className="uppercase text-xs mx-auto">
           {currentView === DashboardViews.GRID ? (
             <>Stop</>
           ) : (
@@ -76,7 +95,7 @@ function WorkspaceListItemLaunch(props: WorkspaceListItemLaunchProps) {
           )}
         </p>
       ) : (
-        <p className="uppercase text-[#f0f0f0] group-hover:text-background font-thin text-xs mx-auto transition ease-in-out duration-200">
+        <p className="uppercase text-xs mx-auto">
           {currentView === DashboardViews.GRID ? (
             <>Start</>
           ) : (
