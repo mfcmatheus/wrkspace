@@ -1,13 +1,20 @@
 import classNames from 'classnames'
-import React from 'react'
-import { useRecoilCallback, useRecoilValue, waitForAll } from 'recoil'
+import React, { useCallback } from 'react'
+import {
+  useRecoilCallback,
+  useRecoilValue,
+  useSetRecoilState,
+  waitForAll,
+} from 'recoil'
 import Lucide from 'renderer/base-components/lucide'
 import FolderAtom from 'renderer/store/atoms/FolderAtom'
 import SettingIsMenuFolderOpened from 'renderer/store/selectors/SettingIsMenuFolderOpened'
 import SettingDefaultSelector from 'renderer/store/selectors/SettingDefaultSelector'
+import FolderItemSelector from 'renderer/store/selectors/FolderItemSelector'
 import FoldersMainItem from './FoldersMainItem'
 
 export default function FoldersMain() {
+  const createFolder = useSetRecoilState(FolderItemSelector(null))
   const [folders, isMenuFolderOpened] = useRecoilValue(
     waitForAll([FolderAtom, SettingIsMenuFolderOpened])
   )
@@ -17,6 +24,10 @@ export default function FoldersMain() {
       isMenuFolderOpened: !isMenuFolderOpened,
     })
   })
+
+  const onClickAddFolder = useCallback(() => {
+    createFolder({})
+  }, [createFolder])
 
   return (
     <div className="flex flex-col gap-y-2">
@@ -28,7 +39,11 @@ export default function FoldersMain() {
         >
           Folders
         </button>
-        <button type="button" className="cursor-default">
+        <button
+          type="button"
+          className="cursor-default"
+          onClick={onClickAddFolder}
+        >
           <Lucide icon="Plus" size={18} />
         </button>
         <button
@@ -44,7 +59,7 @@ export default function FoldersMain() {
         </button>
       </div>
       {isMenuFolderOpened && (
-        <ul className="flex flex-col">
+        <ul className="flex flex-col gap-y-1">
           {folders.map((folder) => (
             <FoldersMainItem key={folder.id} folder={folder} />
           ))}

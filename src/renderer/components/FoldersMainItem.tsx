@@ -1,5 +1,5 @@
 import classNames from 'classnames'
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useContextMenu } from 'react-contexify'
 import {
   useRecoilCallback,
@@ -73,10 +73,17 @@ export default function FoldersMainItem(props: Props) {
       if (e.key === 'Escape') {
         setNewName(folder.name)
         setEditing(false)
+        if (!folder.name) onRemoveFolder()
       }
     },
-    [folder.name, onSaveFolder]
+    [folder.name, onSaveFolder, onRemoveFolder]
   )
+
+  useEffect(() => {
+    if (!folder.name) {
+      onEditFolder()
+    }
+  }, [folder, onEditFolder])
 
   return (
     <>

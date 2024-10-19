@@ -570,6 +570,8 @@ export const onFoldersCreate = async (event: IpcMainEvent, folder: Folder) => {
   const workspaces = (store.get('workspaces') ?? []) as Workspace[]
   if (!folder.created)
     event.reply('cloud.reload', { w: workspaces, f: folders })
+
+  event.returnValue = folders
 }
 
 export const onFoldersDelete = async (event: IpcMainEvent, folder: Folder) => {
