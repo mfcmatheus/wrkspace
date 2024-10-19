@@ -7,6 +7,7 @@ import {
 import Dashboard from 'renderer/pages/Dashboard'
 import DashboardNew from './pages/DashboardNew'
 import WorkspaceEdit from './pages/WorkspaceEdit'
+import Settings from './pages/Settings'
 
 function Routes() {
   return (
@@ -15,6 +16,7 @@ function Routes() {
         <Route path="/" element={<DashboardNew />} />
         <Route path="/new" element={<WorkspaceEdit />} />
         <Route path="/:id/edit" element={<WorkspaceEdit />} />
+        <Route path="/settings" element={<Settings />} />
       </RouterRoute>
     </Router>
   )

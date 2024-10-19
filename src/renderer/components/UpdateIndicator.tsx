@@ -31,7 +31,7 @@ export default function UpdateIndicator() {
         highlight
         bordered
         sm
-        className="flex flex-col !text-[#f0f0f0]"
+        className="!text-xs w-full flex flex-col !text-[#f0f0f0] !rounded"
         onClick={onClickUpdate}
       >
         Update Available &sdot; {version}

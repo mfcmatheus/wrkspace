@@ -1,6 +1,6 @@
 import classNames from 'classnames'
 import React, { useState } from 'react'
-import { useRecoilCallback, useRecoilValue } from 'recoil'
+import { useRecoilCallback, useRecoilValue, waitForAll } from 'recoil'
 import InputMain from 'renderer/base-components/InputMain'
 import Lucide from 'renderer/base-components/lucide'
 import ActionsMain from 'renderer/components/ActionsMain'
@@ -12,14 +12,22 @@ import TeamSelector from 'renderer/components/TeamSelector'
 import TopBar from 'renderer/components/TopBar'
 import WorkspaceList from 'renderer/components/WorkspaceList'
 import MainLayout from 'renderer/layouts/MainLayout'
+import SettingCurrentFilterSelector from 'renderer/store/selectors/SettingCurrentFilterSelector'
+import SettingCurrentFolderSelector from 'renderer/store/selectors/SettingCurrentFolderSelector'
 import SettingDefaultSelector from 'renderer/store/selectors/SettingDefaultSelector'
 import SettingSearchSelector from 'renderer/store/selectors/SettingSearchSelector'
 import SettingShowSearch from 'renderer/store/selectors/SettingShowSearch'
 
 export default function DashboardNew() {
   const [showLogs, setShowLogs] = useState<boolean>(false)
-  const showSearch = useRecoilValue<boolean>(SettingShowSearch)
-  const search = useRecoilValue<string>(SettingSearchSelector)
+  const [showSearch, search, currentFilter] = useRecoilValue(
+    waitForAll([
+      SettingShowSearch,
+      SettingSearchSelector,
+      SettingCurrentFilterSelector,
+      SettingCurrentFolderSelector,
+    ])
+  )
 
   const onClickSearch = useRecoilCallback(({ set }) => () => {
     set(SettingDefaultSelector, {
@@ -64,7 +72,7 @@ export default function DashboardNew() {
       </div>
       <div className="flex flex-col relative bg-background flex-1 rounded-r-md border border-l-0 border-border/75 overflow-hidden h-full">
         <TopBar />
-        <WorkspaceList />
+        <WorkspaceList showAddButton={!currentFilter} />
         {showLogs && <LogsMain />}
         <LogsMainIndicator showLogs={showLogs} setShowLogs={setShowLogs} />
       </div>

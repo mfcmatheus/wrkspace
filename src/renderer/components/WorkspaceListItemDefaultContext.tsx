@@ -35,22 +35,6 @@ function WorkspaceListItemDefaultContext(props: WorkspaceListItemContextProps) {
 
   const updateWorkspace = useSetRecoilState(WorkspaceItemSelector(workspace.id))
 
-  const styles: React.CSSProperties = useMemo(
-    () => ({
-      '--contexify-menu-bgColor': 'hsl(var(--border))',
-      '--contexify-separator-color': '#4c4c4c',
-      '--contexify-item-color': '#fff',
-      '--contexify-activeItem-color': 'hsl(var(--background))',
-      '--contexify-activeItem-bgColor': '#fff',
-      '--contexify-rightSlot-color': '#6f6e77',
-      '--contexify-activeRightSlot-color': '#fff',
-      '--contexify-arrow-color': '#6f6e77',
-      '--contexify-activeArrow-color': '#fff',
-      '--contexify-menu-minWidth': '150px',
-    }),
-    []
-  )
-
   const onClickLaunch = useCallback(
     () => onLaunch?.(workspace),
     [workspace, onLaunch]
@@ -88,7 +72,7 @@ function WorkspaceListItemDefaultContext(props: WorkspaceListItemContextProps) {
   }, [workspace, onNewTerminal])
 
   return (
-    <Menu id={id} style={styles}>
+    <Menu id={id}>
       <Item id="launch" onClick={onClickLaunch}>
         Launch
       </Item>

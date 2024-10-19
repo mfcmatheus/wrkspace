@@ -1,17 +1,17 @@
 import { atom } from 'recoil'
 import Folder from 'renderer/@types/Folder'
 import { ipcRenderer } from 'renderer/hooks/useIpc'
-import FolderSelector from '../selectors/FolderSelector'
+import FolderDefaultSelector from '../selectors/FolderDefaultSelector'
 
 export default atom({
   key: 'folders',
-  default: FolderSelector as Folder[],
+  default: FolderDefaultSelector as Folder[],
   effects: [
-    ({ onSet }) => {
+    ({ setSelf }) => {
       const eventHandler = ipcRenderer.on(
         'folders.reload',
         (data: Folder[]) => {
-          return onSet(() => data.filter((folder) => !folder.deleted_at))
+          return setSelf(() => data.filter((folder) => !folder.deleted_at))
         }
       )
 

@@ -1,28 +1,16 @@
 import classNames from 'classnames'
 import React from 'react'
 import { useRecoilCallback, useRecoilValue, waitForAll } from 'recoil'
-import Folder from 'renderer/@types/Folder'
 import Lucide from 'renderer/base-components/lucide'
 import FolderAtom from 'renderer/store/atoms/FolderAtom'
-import SettingCurrentFolderSelector from 'renderer/store/selectors/SettingCurrentFolderSelector'
 import SettingIsMenuFolderOpened from 'renderer/store/selectors/SettingIsMenuFolderOpened'
 import SettingDefaultSelector from 'renderer/store/selectors/SettingDefaultSelector'
+import FoldersMainItem from './FoldersMainItem'
 
 export default function FoldersMain() {
-  const [folders, currentFolder, isMenuFolderOpened] = useRecoilValue(
-    waitForAll([
-      FolderAtom,
-      SettingCurrentFolderSelector,
-      SettingIsMenuFolderOpened,
-    ])
+  const [folders, isMenuFolderOpened] = useRecoilValue(
+    waitForAll([FolderAtom, SettingIsMenuFolderOpened])
   )
-
-  const onClickFolder = useRecoilCallback(({ set }) => (folder: Folder) => {
-    set(SettingDefaultSelector, {
-      currentFolder: currentFolder?.id === folder.id ? undefined : folder,
-      currentFilter: null,
-    })
-  })
 
   const onClickMenu = useRecoilCallback(({ set }) => () => {
     set(SettingDefaultSelector, {
@@ -58,20 +46,7 @@ export default function FoldersMain() {
       {isMenuFolderOpened && (
         <ul className="flex flex-col">
           {folders.map((folder) => (
-            <li key={folder.id} className="w-full">
-              <button
-                type="button"
-                className={classNames({
-                  'cursor-default flex items-center gap-x-2 w-full py-1 px-2 rounded text-[#d2d2d2] hover:bg-border transition ease-in-out duration-200':
-                    true,
-                  'bg-border text-white': currentFolder?.id === folder.id,
-                })}
-                onClick={() => onClickFolder(folder)}
-              >
-                <Lucide icon="Folder" size={14} />
-                <span className="font-light text-sm">{folder.name}</span>
-              </button>
-            </li>
+            <FoldersMainItem key={folder.id} folder={folder} />
           ))}
         </ul>
       )}

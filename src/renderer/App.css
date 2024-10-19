@@ -37,6 +37,18 @@
 
     --toastify-toast-width: 250px !important;
     --toastify-toast-min-height: 50px !important;
+
+    --contexify-menu-bgColor: hsl(var(--border)) !important;
+    --contexify-separator-color: #4c4c4c !important;
+    --contexify-item-color: #fff !important;
+    --contexify-activeItem-color: hsl(var(--background)) !important;
+    --contexify-activeItem-bgColor: #fff !important;
+    --contexify-rightSlot-color: #6f6e77 !important;
+    --contexify-activeRightSlot-color: #fff !important;
+    --contexify-arrow-color: #6f6e77 !important;
+    --contexify-activeArrow-color: #fff !important;
+    --contexify-menu-minWidth: 150px !important;
+    --contexify-itemContent-padding: 4px 8px !important;
   }
 }
 

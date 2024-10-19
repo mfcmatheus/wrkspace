@@ -104,7 +104,7 @@ export default function WorkspaceEdit() {
         <div className="flex flex-col gap-y-6 flex-grow basis-full overflow-y-auto">
           <button
             type="button"
-            className="flex items-center gap-x-2"
+            className="cursor-default flex items-center gap-x-2"
             onClick={onClickBack}
           >
             <Lucide icon="ChevronLeft" size={24} />
@@ -113,7 +113,7 @@ export default function WorkspaceEdit() {
             </span>
           </button>
           {isEditing && <WorkspaceSelector />}
-          <ul className="flex flex-col">
+          <ul className="flex flex-col gap-y-1">
             {sidebarItems.map((item, index) => (
               <li key={index}>
                 <button

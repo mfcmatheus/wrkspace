@@ -2,6 +2,7 @@ import { selectorFamily } from 'recoil'
 import Workspace from 'renderer/@types/Workspace'
 import ElectronApi from 'services/ElectronApi'
 import WorkspaceAtom from '../atoms/WorkspaceAtom'
+import SettingCurrentFolderSelector from './SettingCurrentFolderSelector'
 
 export default selectorFamily({
   key: 'workspace.item',
@@ -12,7 +13,8 @@ export default selectorFamily({
     },
   set:
     (id: string | undefined) =>
-    ({ set }, newValue: Workspace) => {
+    ({ set, get }, newValue: Workspace) => {
+      const currentFolder = get(SettingCurrentFolderSelector)
       const isEditing = !!id
 
       if (isEditing) {
@@ -29,9 +31,12 @@ export default selectorFamily({
 
       set(WorkspaceAtom, (old) => {
         const values = [...old]
-        values.push(newValue)
+        values.push({ ...newValue, folder: currentFolder ?? undefined })
         return values
       })
-      ElectronApi.call('workspaces.create', newValue)
+      ElectronApi.call('workspaces.create', {
+        ...newValue,
+        folder: currentFolder ?? undefined,
+      })
     },
 })

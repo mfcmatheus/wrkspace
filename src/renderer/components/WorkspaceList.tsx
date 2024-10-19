@@ -8,7 +8,13 @@ import WorkspaceListSelector from 'renderer/store/selectors/WorkspaceListSelecto
 import Lucide from 'renderer/base-components/lucide'
 import WorkspaceListItem from './WorkspaceListItem'
 
-function WorkspaceList() {
+interface Props {
+  showAddButton?: boolean
+}
+
+function WorkspaceList(props: Props) {
+  const { showAddButton } = props
+
   const navigate = useNavigate()
   const [workspaces, settings] = useRecoilValue(
     waitForAll([WorkspaceListSelector, SettingAtom])
@@ -30,24 +36,34 @@ function WorkspaceList() {
   }, [navigate])
 
   return (
-    <div className="flex flex-grow basis-full overflow-auto items-start p-3">
+    <div className="relative flex flex-grow basis-full overflow-auto items-start p-3">
       <div className={gridClasses}>
-        <button
-          type="button"
-          className="cursor-default flex items-center justify-center h-full min-h-[164px] border border-dashed border-border rounded-md"
-          onClick={onClickCreateWorkspace}
-        >
-          <div className="flex flex-col items-center">
-            <Lucide icon="Plus" size={32} strokeWidth={1} />
-            <span className="font-light">Create workspace</span>
-          </div>
-        </button>
+        {showAddButton && (
+          <button
+            type="button"
+            className="cursor-default flex items-center justify-center h-full min-h-[164px] border border-dashed border-border rounded-md"
+            onClick={onClickCreateWorkspace}
+          >
+            <div className="flex flex-col items-center">
+              <Lucide icon="Plus" size={32} strokeWidth={1} />
+              <span className="font-light">Create workspace</span>
+            </div>
+          </button>
+        )}
         {workspaces.map((workspace) => (
           <WorkspaceListItem
             key={workspace.path ? workspace.id : `${workspace.id}-preview`}
             workspace={workspace}
           />
         ))}
+        {!workspaces.length && !showAddButton && (
+          <div className="flex flex-col items-center justify-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <span className="font-light">No workspaces found</span>
+            <span className="font-light">
+              Create one from the dashboard to get started
+            </span>
+          </div>
+        )}
       </div>
     </div>
   )
