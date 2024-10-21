@@ -66,7 +66,7 @@ export default function WorkspaceListItemDefault(props: Props) {
   const classes = useMemo(
     () =>
       classNames({
-        'relative bg-muted flex group rounded border border-transparent p-3 transition ease-in-out duration-200 !border-border z-[2]':
+        'relative bg-muted flex group rounded border border-transparent p-3 !border-border z-[2]':
           true,
         'flex-col': currentView === DashboardViews.GRID,
         'flex-row items-center gap-x-3': currentView === DashboardViews.LIST,

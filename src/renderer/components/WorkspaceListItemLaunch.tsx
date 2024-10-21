@@ -38,8 +38,7 @@ function WorkspaceListItemLaunch(props: WorkspaceListItemLaunchProps) {
   const classes = useMemo(
     () =>
       classNames({
-        'flex cursor-default font-light text-center transition ease-in-out duration-200 text-[#f0f0f0]':
-          true,
+        'flex cursor-default font-light text-center text-[#f0f0f0]': true,
         '-mx-[13px] -mb-[13px] mt-1 rounded-b-[3px] bg-border flex-1 py-2':
           currentView === DashboardViews.GRID,
         'group-hover:bg-foreground group-hover:text-background': !isRunning,

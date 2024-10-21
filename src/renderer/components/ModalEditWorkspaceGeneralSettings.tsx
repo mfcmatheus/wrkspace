@@ -71,7 +71,13 @@ function ModalEditWorkspaceGeneralSettings(props: Props) {
   }, [workspace, showSuccess, navigate])
 
   return (
-    <div className="flex flex-col gap-y-6">
+    <div className="flex flex-col gap-y-8 p-[1px]">
+      <div className="flex flex-col gap-y-1 flex-1">
+        <p className="text-white">General settings</p>
+        <span className="text-sm text-zinc-400 font-thin">
+          Configure your workspace settings.
+        </span>
+      </div>
       <div className="flex flex-col border border-border p-5 rounded-lg bg-muted">
         <label htmlFor="name" className="flex flex-col gap-y-4">
           <span className="text-white">Workspace name</span>
@@ -122,12 +128,17 @@ function ModalEditWorkspaceGeneralSettings(props: Props) {
         <label htmlFor="enableEditor" className="flex flex-col gap-y-4">
           <div className="flex items-center justify-between">
             <span className="text-white">Open with editor</span>
-            <SwitchMain
-              sm
-              primary
-              name="features.enableEditor"
-              id="enableEditor"
-            />
+            <div className="flex items-center gap-x-2">
+              <SwitchMain
+                sm
+                primary
+                name="features.enableEditor"
+                id="enableEditor"
+              />
+              <span className="text-sm font-light">
+                {enableEditorField.value ? 'Enabled' : 'Disabled'}
+              </span>
+            </div>
           </div>
           <p className="font-thin text-sm">
             Choose the application to open your workspace files with.

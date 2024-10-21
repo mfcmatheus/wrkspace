@@ -1,5 +1,7 @@
 import fs from 'fs'
+import path from 'path'
 import { spawn } from 'child_process'
+import plist from 'simple-plist'
 import { IpcMainEvent, BrowserWindow, dialog } from 'electron'
 import Store from 'electron-store'
 import moment from 'moment'
@@ -168,6 +170,7 @@ export const onWorkspaceOpen = async (
   )
 
   workspaces[index].opened_at = moment().format('YYYY-MM-DD HH:mm:ss')
+  workspaces[index].times_opened = (workspaces[index].times_opened ?? 0) + 1
   workspaces[index].activities = [
     ...(workspaces[index].activities ?? []),
     {
@@ -632,13 +635,52 @@ export const onSettingsUpdate = async (
   event.returnValue = { ...setting, ...settings }
 }
 
-export const onApplicationsGet = async (event: IpcMainEvent) => {
+export const onApplicationsGet = async (
+  event: IpcMainEvent,
+  types = ['public.plain-text', 'public.text', 'txt', 'md', 'text']
+) => {
   let applications = fs.readdirSync('/Applications') ?? []
   applications = applications.filter((application) =>
     application.endsWith('.app')
   )
-  event.reply('applications.get', applications)
-  event.returnValue = applications
+
+  const textEditors = []
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const appName of applications) {
+    const appPath = path.join('/Applications', appName)
+    const infoPlistPath = path.join(appPath, 'Contents', 'Info.plist')
+    if (fs.existsSync(infoPlistPath)) {
+      try {
+        const plistData = plist.readFileSync(infoPlistPath)
+
+        const docTypes = plistData.CFBundleDocumentTypes
+        if (docTypes) {
+          // eslint-disable-next-line no-restricted-syntax
+          for (const docType of docTypes) {
+            const contentTypes = docType.LSItemContentTypes || []
+            const extensions = docType.CFBundleTypeExtensions || []
+
+            // Check for common text content types and extensions
+            const isTextEditor = types.some(
+              (type) => contentTypes.includes(type) || extensions.includes(type)
+            )
+
+            if (isTextEditor) {
+              textEditors.push(appName)
+              break
+            }
+          }
+        }
+      } catch (error) {
+        console.error(`Error parsing plist for ${appName}:`, error)
+        // You might choose to handle the error differently, such as logging or ignoring it.
+      }
+    }
+  }
+
+  event.reply('applications.get', textEditors)
+  event.returnValue = textEditors
 }
 
 export const onProcess = (event: IpcMainEvent) => {

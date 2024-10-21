@@ -13,7 +13,7 @@ export default function FoldersMainItemContext(props: Props) {
   return (
     <Menu id={id}>
       <Item id="launch" onClick={onEdit}>
-        Edit
+        Rename
       </Item>
       <Separator />
       <Item id="launch" onClick={onRemove}>

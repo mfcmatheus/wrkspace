@@ -32,6 +32,7 @@ export default interface Workspace {
     variables?: EnvVar[]
   }
   activities?: unknown[]
+  times_opened?: number
   processes?: Process[]
   loading?: boolean
   updated_at: string

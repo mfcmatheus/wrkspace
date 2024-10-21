@@ -102,7 +102,7 @@ export default function Settings() {
           </ul>
         </div>
       </div>
-      <div className="flex flex-col relative bg-background flex-1 rounded-r-md border border-l-0 border-border/75 overflow-hidden h-full">
+      <div className="flex flex-col relative bg-background flex-1 rounded-r-md border border-l-0 border-border/75 overflow-hidden h-full p-4">
         <Formik
           initialValues={formValues}
           validationSchema={SettingsFormSchema}

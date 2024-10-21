@@ -33,12 +33,12 @@ function SwitchMain(props: SwitchMainProps) {
   const switchClasses = useMemo(
     () =>
       classNames({
-        'slider flex items-center rounded-full p-1 duration-200 bg-[#CCCCCE]':
+        'slider flex items-center rounded-full p-[1px] duration-200 bg-[#27272a]':
           true,
         '!bg-gradient-to-r from-highlight-primary to-highlight-secondary':
           isChecked && primary,
-        'w-[30px] h-4': xs,
-        'w-[36px] h-6': sm,
+        'w-[26px] h-4': xs,
+        'w-[38px] h-6': sm,
         'w-[48px] h-7': md,
         'w-[60px] h-8': lg,
       }),
@@ -48,15 +48,15 @@ function SwitchMain(props: SwitchMainProps) {
   const dotClasses = useMemo(
     () =>
       classNames({
-        'dot rounded-full bg-white duration-200': true,
-        'translate-x-[11px]': isChecked && xs,
-        'translate-x-[12px]': isChecked && sm,
+        'dot rounded-full bg-white duration-200 shadow-md': true,
+        'translate-x-[10px]': isChecked && xs,
+        'translate-x-[14px]': isChecked && sm,
         'translate-x-[20px]': isChecked && md,
         'translate-x-[28px]': isChecked && lg,
-        'h-3 w-3': xs,
-        'h-4 w-4': sm,
-        'h-5 w-5': md,
-        'h-6 w-6': lg,
+        'h-[14px] w-[14px]': xs,
+        'h-[22px] w-[22px]': sm,
+        'h-[26px] w-[26px]': md,
+        'h-[30px] w-[30px]': lg,
       }),
     [isChecked, xs, sm, md, lg]
   )

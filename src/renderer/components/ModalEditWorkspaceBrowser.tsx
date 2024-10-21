@@ -24,8 +24,9 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
   const { errors } = useFormikContext()
   const [field, meta, helpers] = useField('browsers')
 
+  const [url, setUrl] = useState<string>('')
   const [browsers, setBrowsers] = useState<Browser[]>(
-    field.value ?? workspace.browsers ?? []
+    field.value ?? workspace?.browsers ?? []
   )
 
   const installedBrowsers = useMemo(() => {
@@ -40,13 +41,14 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
     const browser = {
       id: fakeId(),
       application: Browsers.CHROME,
-      url: '',
+      url,
     } as Browser
     const updatedBrowsers = [...browsers, browser] as Browser[]
 
     setBrowsers(updatedBrowsers)
     helpers.setValue(updatedBrowsers)
-  }, [browsers, helpers])
+    setUrl('')
+  }, [browsers, helpers, url])
 
   const onClickRemove = useCallback(
     (browser: Browser) => {
@@ -79,11 +81,12 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
   const onChangeUrl = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>, browser: Browser) => {
       const index = browsers.findIndex((b) => b.id === browser.id)
+      const newData = { ...browser }
 
-      browser.url = e.target.value
+      newData.url = e.target.value
 
       const updatedBrowsers = [...browsers]
-      updatedBrowsers[index] = browser
+      updatedBrowsers[index] = newData
 
       setBrowsers(updatedBrowsers)
       helpers.setValue(updatedBrowsers)
@@ -95,14 +98,6 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
     (e: React.ChangeEvent<HTMLInputElement>, browser: Browser) => {
       const index = browsers.findIndex((b) => b.id === browser.id)
 
-      browser.url =
-        e.target.value.includes('http://') ||
-        e.target.value.includes('https://')
-          ? e.target.value
-          : `http://${e.target.value}`
-
-      browser.url = browser.url.replace('localhost', '127.0.0.1')
-
       const updatedBrowsers = [...browsers]
       updatedBrowsers[index] = browser
 
@@ -112,53 +107,62 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
     [browsers, helpers]
   )
 
+  const normalize = useCallback((value: string) => {
+    const newValue =
+      value.includes('http://') || value.includes('https://')
+        ? value
+        : `http://${value}`
+
+    return newValue.replace('localhost', '127.0.0.1')
+  }, [])
+
   const renderError = useCallback(
     (message: string) => <p className="text-xs text-red-500">{message}</p>,
     []
   )
 
   useEffect(() => {
-    if (!field.value && !workspace.browsers?.length) return
-
-    helpers.setValue(field.value ?? workspace.browsers)
-  }, [field.value, workspace.browsers, helpers])
-
-  useEffect(() => {
-    setBrowsers(workspace.browsers ?? [])
-  }, [workspace.browsers])
+    if (!field.value && !workspace?.browsers?.length) return
+    helpers.setValue(field.value ?? workspace?.browsers)
+  }, [field.value, workspace?.browsers, helpers])
 
   return (
-    <div className="flex flex-col gap-y-5 flex-grow basis-0 overflow-auto p-3">
-      <div className="flex">
-        <div className="flex items-center gap-x-3">
-          <p className="text-white font-thin">Browser pages</p>
-          <Lucide
-            id="pages-info"
-            icon="Info"
-            size={16}
-            color="#d2d2d2"
-            strokeWidth={1}
+    <div className="flex flex-col gap-y-8 flex-grow basis-0 overflow-auto p-[1px]">
+      <div className="flex flex-col gap-y-1">
+        <p className="text-white">Browser pages</p>
+        <span className="text-sm text-zinc-400 font-thin">
+          Add pages to open in the browser when the workspace is opened.
+        </span>
+      </div>
+      <div className="flex flex-col border border-border rounded-md p-4 gap-y-6">
+        <p className="text-white">Add a new browser page</p>
+        <label className="flex flex-col gap-y-2">
+          <span className="text-sm font-light">Page URL</span>
+          <InputMain
+            standard
+            placeholder="Ex: https://wrkspace.co"
+            value={url}
+            onChange={(e) => setUrl(normalize(e.target.value.trim()))}
           />
-          <Tooltip
-            style={{ backgroundColor: '#181818', maxWidth: '200px' }}
-            anchorSelect="#pages-info"
-            place="bottom"
-            className="flex flex-col text-center font-thin"
-          >
-            <span className="text-xs text-gray-100 font-thin">
-              Add pages to open in the browser when the workspace is opened.
+        </label>
+        <div className="flex items-center -mx-4 -mb-4 border-t border-border py-2 px-4">
+          <div className="flex items-center gap-x-2">
+            <Lucide icon="Info" size={16} color="#d2d2d2" />
+            <span className="text-xs font-light">
+              For local URLs use http://127.0.0.1 or http://your-local-ip.
             </span>
-          </Tooltip>
+          </div>
+          <ButtonMain
+            secondary
+            bordered
+            sm
+            onClick={onClickAddPage}
+            disabled={!url}
+            className="ml-auto"
+          >
+            Save
+          </ButtonMain>
         </div>
-        <ButtonMain
-          sm
-          bordered
-          primary
-          className="ml-auto"
-          onClick={onClickAddPage}
-        >
-          New page
-        </ButtonMain>
       </div>
       <div className="flex flex-col gap-y-3">
         {browsers.map((browser: Browser, index: number) => (
@@ -178,7 +182,7 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
               </option>
             ))}
           </select> */}
-            <div className="col-span-12 flex">
+            <div className="col-span-12 flex gap-x-3">
               <InputMain
                 containerClasses={classNames({
                   'border border-red-500': errors.browsers?.[index]?.url,
@@ -190,13 +194,14 @@ function ModalEditWorkspaceBrowser(props: ModalEditWorkspaceBrowserProps) {
                 onChange={(e) => onChangeUrl(e, browser)}
                 onBlur={(e) => onBlurUrl(e, browser)}
               />
-              <button
-                type="button"
-                className="text-white px-4"
+              <ButtonMain
+                bordered
+                primary
+                sm
                 onClick={() => onClickRemove(browser)}
               >
-                <Lucide icon="X" size={16} color="#d2d2d2" strokeWidth={1} />
-              </button>
+                <Lucide icon="CircleMinus" size={20} color="#d2d2d2" />
+              </ButtonMain>
             </div>
           </div>
         ))}

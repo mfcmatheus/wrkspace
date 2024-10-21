@@ -21,8 +21,9 @@ function ModalEditWorkspaceTerminal(props: ModalEditWorkspaceTerminalProps) {
   const { errors } = useFormikContext()
   const [field, meta, helpers] = useField('terminals')
 
+  const [command, setCommand] = useState<string>('')
   const [terminals, setTerminals] = useState<Terminal[]>(
-    field.value ?? workspace.terminals ?? []
+    field.value ?? workspace?.terminals ?? []
   )
 
   const onClickAddTerminal = useCallback(() => {
@@ -52,11 +53,12 @@ function ModalEditWorkspaceTerminal(props: ModalEditWorkspaceTerminalProps) {
       const updatedTerminal = terminals.find(
         (t) => t.id === terminal.id
       ) as Terminal
+      const newData = { ...updatedTerminal }
       const terminalIndex = terminals.findIndex((t) => t.id === terminal.id)
-      updatedTerminal.command = e.target.value
+      newData.command = e.target.value
 
       const updatedTerminals = [...terminals]
-      updatedTerminals[terminalIndex] = updatedTerminal
+      updatedTerminals[terminalIndex] = newData
 
       setTerminals(updatedTerminals)
       helpers.setValue(updatedTerminals)
@@ -65,52 +67,47 @@ function ModalEditWorkspaceTerminal(props: ModalEditWorkspaceTerminalProps) {
   )
 
   useEffect(() => {
-    if (!field.value && !workspace.terminals?.length) return
+    if (!field.value && !workspace?.terminals?.length) return
 
-    helpers.setValue(field.value ?? workspace.terminals)
-  }, [field.value, workspace.terminals, helpers])
-
-  useEffect(() => {
-    setTerminals(workspace.terminals ?? [])
-  }, [workspace.terminals])
+    helpers.setValue(field.value ?? workspace?.terminals)
+  }, [field.value, workspace?.terminals, helpers])
 
   return (
-    <div className="flex flex-col gap-y-5 flex-grow basis-0 overflow-auto p-3">
-      <div className="flex">
-        <div className="flex items-center gap-x-3">
-          <p className="text-white font-thin">Terminal commands</p>
-          <Lucide
-            id="pages-info"
-            icon="Info"
-            size={16}
-            color="#d2d2d2"
-            strokeWidth={1}
+    <div className="flex flex-col gap-y-8 flex-grow basis-0 overflow-auto p-[1px]">
+      <div className="flex flex-col gap-y-1">
+        <p className="text-white">Terminal commands</p>
+        <span className="text-sm text-zinc-400 font-thin">
+          Create the terminal commands that will be executed when the workspace
+          is opened.
+        </span>
+      </div>
+      <div className="flex flex-col border border-border rounded-md p-4 gap-y-6">
+        <p className="text-white">Add a new terminal command</p>
+        <label className="flex flex-col gap-y-2">
+          <span className="text-sm font-light">Command</span>
+          <InputMain
+            standard
+            placeholder="Ex: yarn dev"
+            value={command}
+            onChange={(e) => setCommand(e.target.value)}
           />
-          <Tooltip
-            style={{ backgroundColor: '#181818', maxWidth: '200px' }}
-            anchorSelect="#pages-info"
-            place="bottom"
-            className="flex flex-col text-center font-thin"
+        </label>
+        <div className="flex items-center -mx-4 -mb-4 border-t border-border py-2 px-4">
+          <ButtonMain
+            secondary
+            bordered
+            sm
+            onClick={onClickAddTerminal}
+            disabled={!command}
+            className="ml-auto"
           >
-            <span className="text-xs text-gray-100 font-thin">
-              Create the terminal commands that will be executed when the
-              workspace is opened.
-            </span>
-          </Tooltip>
+            Save
+          </ButtonMain>
         </div>
-        <ButtonMain
-          sm
-          bordered
-          primary
-          className="ml-auto"
-          onClick={onClickAddTerminal}
-        >
-          New terminal
-        </ButtonMain>
       </div>
       <div className="flex flex-col gap-y-3">
         {terminals.map((terminal: Terminal, index: number) => (
-          <div key={terminal.id} className="flex">
+          <div key={terminal.id} className="flex gap-x-3">
             <InputMain
               containerClasses={classNames({
                 'border border-red-500': errors.terminals?.[index]?.command,
@@ -121,13 +118,14 @@ function ModalEditWorkspaceTerminal(props: ModalEditWorkspaceTerminalProps) {
               onChange={(e) => onChangeCommand(e, terminal)}
               onBlur={() => {}}
             />
-            <button
-              type="button"
-              className="px-4 text-white"
+            <ButtonMain
+              bordered
+              primary
+              sm
               onClick={() => onClickRemoveTerminal(terminal)}
             >
-              <Lucide icon="X" size={16} color="#d2d2d2" strokeWidth={1} />
-            </button>
+              <Lucide icon="CircleMinus" size={20} color="#d2d2d2" />
+            </ButtonMain>
           </div>
         ))}
       </div>

@@ -22,7 +22,13 @@ function ModalSettingsGeneral() {
   })
 
   return (
-    <div className="flex flex-col gap-y-2 flex-grow basis-0 overflow-auto p-3">
+    <div className="flex flex-col gap-y-8 flex-grow basis-0 overflow-auto p-[1px]">
+      <div className="flex flex-col gap-y-1">
+        <p className="text-white">General settings</p>
+        <span className="text-sm text-zinc-400 font-thin">
+          Configure your workspace settings.
+        </span>
+      </div>
       <div className="flex flex-col">
         <label htmlFor="defaultPath" className="flex flex-col">
           <span className="text-white font-thin mb-2">

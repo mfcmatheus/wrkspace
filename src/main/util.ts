@@ -7,6 +7,7 @@ import { dialog } from 'electron'
 import { IEvent } from 'xterm'
 import Store from 'electron-store'
 import treeKill from 'tree-kill'
+import fixPath from 'fix-path'
 import * as pty from 'node-pty'
 
 import Workspace from 'renderer/@types/Workspace'
