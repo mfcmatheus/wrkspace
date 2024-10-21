@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { ApolloProvider } from '@apollo/client'
 
 import 'renderer/App.css'
@@ -6,27 +6,16 @@ import 'tailwindcss/tailwind.css'
 
 import { RecoilRoot } from 'recoil'
 import Routes from 'renderer/routes'
-import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
 import client from 'renderer/graphql/client'
 import { UserProvider } from './contexts/UserContext'
 import { CloudSyncProvider } from './contexts/CloudSyncContext'
 import { ToastProvider } from './contexts/ToastContext'
-import { SettingProvider } from './contexts/SettingContext'
 import { WorkspaceProvider } from './contexts/WorkspaceContext'
-import { FolderProvider } from './contexts/FolderContext'
 
 export default function App() {
   const [token, setToken] = useState<string | null>(null)
 
-  useEffect(() => {
-    ipcRenderer.sendMessage('process')
-  }, [])
-
-  useIpc('process', (data) => {
-    localStorage.setItem('env', JSON.stringify(data))
-  })
-
-  useIpc('user.check', (data) => {
+  /* useIpc('user.check', (data) => {
     setToken(null)
 
     setTimeout(() => {
@@ -37,20 +26,16 @@ export default function App() {
 
   useIpc('user.logout', () => {
     setToken(null)
-  })
+  }) */
 
   if (!token) {
     return (
       <RecoilRoot>
-        <SettingProvider>
-          <FolderProvider>
-            <WorkspaceProvider>
-              <ToastProvider>
-                <Routes />
-              </ToastProvider>
-            </WorkspaceProvider>
-          </FolderProvider>
-        </SettingProvider>
+        <WorkspaceProvider>
+          <ToastProvider>
+            <Routes />
+          </ToastProvider>
+        </WorkspaceProvider>
       </RecoilRoot>
     )
   }
@@ -59,17 +44,13 @@ export default function App() {
     <ApolloProvider client={client()}>
       <RecoilRoot>
         <UserProvider token={token}>
-          <FolderProvider>
-            <WorkspaceProvider>
-              <ToastProvider>
-                <CloudSyncProvider>
-                  <SettingProvider>
-                    <Routes />
-                  </SettingProvider>
-                </CloudSyncProvider>
-              </ToastProvider>
-            </WorkspaceProvider>
-          </FolderProvider>
+          <WorkspaceProvider>
+            <ToastProvider>
+              <CloudSyncProvider>
+                <Routes />
+              </CloudSyncProvider>
+            </ToastProvider>
+          </WorkspaceProvider>
         </UserProvider>
       </RecoilRoot>
     </ApolloProvider>

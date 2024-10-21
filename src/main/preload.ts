@@ -24,7 +24,7 @@ export type Channels =
   | 'settings.update'
   | 'settings.reload'
   | 'applications.get'
-  | 'process'
+  | 'env.get'
   | 'user.get'
   | 'user.set'
   | 'user.authenticate'

@@ -1,16 +1,15 @@
 import classNames from 'classnames'
 import moment from 'moment'
 import React, { useCallback, useMemo } from 'react'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
+import { useRecoilValue, useSetRecoilState, waitForAll } from 'recoil'
 import { DashboardViews } from 'renderer/@enums/DashboardViews'
-import Process from 'renderer/@types/Process'
 
 import Workspace from 'renderer/@types/Workspace'
 import LoadingIcon from 'renderer/base-components/LoadingIcon'
 import Lucide from 'renderer/base-components/lucide'
-import { useSetting } from 'renderer/contexts/SettingContext'
 import useProcess from 'renderer/hooks/useProcess'
 import ProcessByWorkspace from 'renderer/store/selectors/ProcessByWorkspace'
+import SettingCurrentViewSelector from 'renderer/store/selectors/SettingCurrentViewSelector'
 import WorkspaceItemSelector from 'renderer/store/selectors/WorkspaceItemSelector'
 
 interface WorkspaceListItemLaunchProps {
@@ -24,11 +23,10 @@ const defaultProps = {
 
 function WorkspaceListItemLaunch(props: WorkspaceListItemLaunchProps) {
   const { workspace, onClick } = props
-  const { currentView } = useSetting()
   const { closeProcess } = useProcess()
   const updateWorkspace = useSetRecoilState(WorkspaceItemSelector(workspace.id))
-  const workspaceProcesses = useRecoilValue<Process[]>(
-    ProcessByWorkspace(workspace)
+  const [workspaceProcesses, currentView] = useRecoilValue(
+    waitForAll([ProcessByWorkspace(workspace), SettingCurrentViewSelector])
   )
 
   const isRunning = useMemo(() => {

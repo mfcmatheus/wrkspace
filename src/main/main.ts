@@ -25,7 +25,6 @@ import {
   onFoldersGet,
   onFoldersSet,
   onOpenDirectory,
-  onProcess,
   onServicesDocker,
   onSettingsGet,
   onSettingsUpdate,
@@ -47,6 +46,7 @@ import {
   onProcessOpen,
   onTerminalData,
   onFoldersUpdate,
+  onEnvGet,
 } from './process'
 
 const store = new Store()
@@ -104,7 +104,7 @@ ipcMain.on('folders.set', onFoldersSet)
 ipcMain.on('settings.get', onSettingsGet)
 ipcMain.on('settings.update', onSettingsUpdate)
 ipcMain.on('applications.get', onApplicationsGet)
-ipcMain.on('process', onProcess)
+ipcMain.on('env.get', onEnvGet)
 ipcMain.on('process.open', onProcessOpen)
 ipcMain.on('process.close', onProcessClose)
 ipcMain.on('user.get', onUserGet)

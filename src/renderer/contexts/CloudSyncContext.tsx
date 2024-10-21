@@ -8,6 +8,7 @@ import React, {
 } from 'react'
 import { useLazyQuery, useMutation } from '@apollo/client'
 import moment from 'moment'
+import { useRecoilValue } from 'recoil'
 import client from 'renderer/graphql/client'
 import WorkspacesIdsQuery from 'renderer/graphql/queries/WorkspacesIdsQuery'
 import { ipcRenderer, useIpc } from 'renderer/hooks/useIpc'
@@ -18,12 +19,11 @@ import FoldersIdsQuery from 'renderer/graphql/queries/FoldersIdsQuery'
 import FolderMutation from 'renderer/graphql/mutations/FolderMutation'
 import FolderQuery from 'renderer/graphql/queries/FolderQuery'
 import WorkspaceDeleteMutation from 'renderer/graphql/mutations/WorkspaceDeleteMutation'
-import fakeId from 'renderer/helpers/fakeId'
 import FolderDeleteMutation from 'renderer/graphql/mutations/FolderDeleteMutation'
+import FolderAtom from 'renderer/store/atoms/FolderAtom'
 import { useUser } from './UserContext'
 import { useToast } from './ToastContext'
 import { useWorkspace } from './WorkspaceContext'
-import { useFolder } from './FolderContext'
 
 export interface props {
   children: React.ReactNode
@@ -55,8 +55,9 @@ export function CloudSyncProvider(props: props) {
   const { children } = props
   const { hasCloudSync, refetchUser } = useUser()
   const { workspaces } = useWorkspace()
-  const { folders } = useFolder()
   const { showError } = useToast()
+
+  const folders = useRecoilValue(FolderAtom)
 
   const apolloClient = useMemo(() => client('/user'), [])
 

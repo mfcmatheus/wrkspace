@@ -683,9 +683,9 @@ export const onApplicationsGet = async (
   event.returnValue = textEditors
 }
 
-export const onProcess = (event: IpcMainEvent) => {
-  const { NODE_ENV } = process.env
-  event.reply('process', { NODE_ENV })
+export const onEnvGet = (event: IpcMainEvent) => {
+  event.reply('env.get', process.env)
+  event.returnValue = process.env
 }
 
 export const onProcessOpen = (event: IpcMainEvent, workspace: Workspace) => {
@@ -775,7 +775,7 @@ export default {
   onSettingsGet,
   onSettingsUpdate,
   onApplicationsGet,
-  onProcess,
+  onEnvGet,
   onProcessClose,
   onUserGet,
   onUserSet,

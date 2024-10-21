@@ -1,7 +1,8 @@
 import classNames from 'classnames'
 import React, { ReactNode, useMemo } from 'react'
+import { useRecoilValue } from 'recoil'
 import { DashboardViews } from 'renderer/@enums/DashboardViews'
-import { useSetting } from 'renderer/contexts/SettingContext'
+import SettingCurrentViewSelector from 'renderer/store/selectors/SettingCurrentViewSelector'
 
 interface WorkspaceListItemNameProps {
   children: ReactNode
@@ -9,7 +10,7 @@ interface WorkspaceListItemNameProps {
 
 function WorkspaceListItemName(props: WorkspaceListItemNameProps) {
   const { children } = props
-  const { currentView } = useSetting()
+  const currentView = useRecoilValue(SettingCurrentViewSelector)
 
   const classes = useMemo(
     () =>
