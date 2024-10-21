@@ -1,0 +1,32 @@
+import { ipcMain } from 'electron'
+import * as handlers from './handlers'
+
+export default function registerIpcHandlers() {
+  ipcMain.on('containers.get', handlers.onContainersGet)
+  ipcMain.on('workspaces.open', handlers.onWorkspaceOpen)
+  ipcMain.on('workspaces.get', handlers.onWorkspaceGet)
+  ipcMain.on('workspaces.create', handlers.onWorkspaceCreate)
+  ipcMain.on('workspaces.update', handlers.onWorkspaceUpdate)
+  ipcMain.on('workspaces.delete', handlers.onWorkspaceDelete)
+  ipcMain.on('workspaces.uninstall', handlers.onWorkspaceUninstall)
+  ipcMain.on('workspaces.install', handlers.onWorkspaceInstall)
+  ipcMain.on('services.docker', handlers.onServicesDocker)
+  ipcMain.on('services.git', handlers.onServicesGit)
+  ipcMain.on('folders.get', handlers.onFoldersGet)
+  ipcMain.on('folders.update', handlers.onFoldersUpdate)
+  ipcMain.on('folders.create', handlers.onFoldersCreate)
+  ipcMain.on('folders.delete', handlers.onFoldersDelete)
+  ipcMain.on('folders.set', handlers.onFoldersSet)
+  ipcMain.on('settings.get', handlers.onSettingsGet)
+  ipcMain.on('settings.update', handlers.onSettingsUpdate)
+  ipcMain.on('applications.get', handlers.onApplicationsGet)
+  ipcMain.on('env.get', handlers.onEnvGet)
+  ipcMain.on('process.open', handlers.onProcessOpen)
+  ipcMain.on('process.close', handlers.onProcessClose)
+  ipcMain.on('user.get', handlers.onUserGet)
+  ipcMain.on('user.set', handlers.onUserSet)
+  ipcMain.on('user.authenticate', handlers.onUserAuthenticate)
+  ipcMain.on('user.upgrade', handlers.onUserUpgrade)
+  ipcMain.on('user.logout', handlers.onUserLogout)
+  ipcMain.on('terminal.data', handlers.onTerminalData)
+}

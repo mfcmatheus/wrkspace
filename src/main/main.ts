@@ -11,14 +11,13 @@ import { childProcess, execSync } from 'child_process'
  */
 import path from 'path'
 import nodePath from 'node:path'
-import os from 'os'
 import { app, BrowserWindow, shell, ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import Store from 'electron-store'
 import { loadErrorMessages, loadDevMessages } from '@apollo/client/dev'
-import * as handlers from './handlers'
 import MenuBuilder from './menu'
 import { killProcesses, resolveHtmlPath } from './util'
+import registerIpcHandlers from './ipcHandlers'
 
 const store = new Store()
 
@@ -57,33 +56,7 @@ ipcMain.on('dialog:openDirectory', async (event, reference: string | number) =>
   onOpenDirectory(mainWindow as BrowserWindow, event, reference)
 )
 
-ipcMain.on('containers.get', handlers.onContainersGet)
-ipcMain.on('workspaces.open', handlers.onWorkspaceOpen)
-ipcMain.on('workspaces.get', handlers.onWorkspaceGet)
-ipcMain.on('workspaces.create', handlers.onWorkspaceCreate)
-ipcMain.on('workspaces.update', handlers.onWorkspaceUpdate)
-ipcMain.on('workspaces.delete', handlers.onWorkspaceDelete)
-ipcMain.on('workspaces.uninstall', handlers.onWorkspaceUninstall)
-ipcMain.on('workspaces.install', handlers.onWorkspaceInstall)
-ipcMain.on('services.docker', handlers.onServicesDocker)
-ipcMain.on('services.git', handlers.onServicesGit)
-ipcMain.on('folders.get', handlers.onFoldersGet)
-ipcMain.on('folders.update', handlers.onFoldersUpdate)
-ipcMain.on('folders.create', handlers.onFoldersCreate)
-ipcMain.on('folders.delete', handlers.onFoldersDelete)
-ipcMain.on('folders.set', handlers.onFoldersSet)
-ipcMain.on('settings.get', handlers.onSettingsGet)
-ipcMain.on('settings.update', handlers.onSettingsUpdate)
-ipcMain.on('applications.get', handlers.onApplicationsGet)
-ipcMain.on('env.get', handlers.onEnvGet)
-ipcMain.on('process.open', handlers.onProcessOpen)
-ipcMain.on('process.close', handlers.onProcessClose)
-ipcMain.on('user.get', handlers.onUserGet)
-ipcMain.on('user.set', handlers.onUserSet)
-ipcMain.on('user.authenticate', handlers.onUserAuthenticate)
-ipcMain.on('user.upgrade', handlers.onUserUpgrade)
-ipcMain.on('user.logout', handlers.onUserLogout)
-ipcMain.on('terminal.data', handlers.onTerminalData)
+registerIpcHandlers()
 
 process.env.APP_URL = 'http://localhost:3000'
 
