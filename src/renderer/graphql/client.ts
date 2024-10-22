@@ -8,20 +8,21 @@ import { setContext } from '@apollo/client/link/context'
 
 const env = JSON.parse(localStorage.getItem('env') || '{}')
 
-const httpLink = (endpoint: string = '') =>
-  new HttpLink({
-    uri:
-      env.NODE_ENV === 'development'
-        ? `http://127.0.0.1/graphql${endpoint}`
-        : `https://api.wrkspace.co/graphql${endpoint}`,
-    origin:
-      env.NODE_ENV === 'development'
-        ? 'http://127.0.0.1:1212'
-        : 'https://wrkspace.co',
-  })
+const httpLink = new HttpLink({
+  uri:
+    env.NODE_ENV === 'development'
+      ? `http://127.0.0.1/graphql/user`
+      : `https://api.wrkspace.co/graphql/user`,
+  origin:
+    env.NODE_ENV === 'development'
+      ? 'http://127.0.0.1:1212'
+      : 'https://wrkspace.co',
+})
 
 const authLink = setContext((_, { headers }) => {
   const token = localStorage.getItem('token')
+
+  console.log('AHAHHAHA', token)
 
   return {
     headers: {
@@ -53,9 +54,10 @@ const defaultOptions = {
   },
 } as DefaultOptions
 
-export default (endpoint: string = '') =>
-  new ApolloClient({
-    link: authLink.concat(httpLink(endpoint)),
-    cache: new InMemoryCache(),
-    // defaultOptions,
-  })
+const client = new ApolloClient({
+  link: authLink.concat(httpLink),
+  cache: new InMemoryCache(),
+  defaultOptions,
+})
+
+export default client

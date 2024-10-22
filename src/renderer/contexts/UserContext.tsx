@@ -39,14 +39,14 @@ export const useUser = () => {
   return context
 }
 
-const apolloClient = client('/user')
+// const apolloClient = client('/user')
 
 export function UserProvider(props: props) {
   const { token, children } = props
   const [user, setUser] = useState<User | null>(null)
   const [gettingUser, setGettingUser] = useState<boolean>(false)
   const [getUser] = useLazyQuery<User>(MeQuery, {
-    client: apolloClient,
+    // client: apolloClient,
     fetchPolicy: 'no-cache',
   })
 

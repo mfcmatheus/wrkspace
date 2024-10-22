@@ -17,10 +17,17 @@ export const onUserSet = (event: IpcMainEvent, user: User) => {
 
 export const onUserAuthenticate = async (event: IpcMainEvent) => {
   runScript(`open '${process.env.APP_URL}/authorize'`, [''], () => ({}))
+  event.returnValue = true
 }
 
 export const onUserUpgrade = async (event: IpcMainEvent) => {
   runScript(`open '${process.env.APP_URL}/signup'`, [''], () => ({}))
+}
+
+export const onUserToken = (event: IpcMainEvent) => {
+  const token = store.get('token') ?? null
+  event.reply('token.get', token)
+  event.returnValue = token
 }
 
 export const onUserLogout = async (event: IpcMainEvent) => {

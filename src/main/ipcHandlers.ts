@@ -28,5 +28,6 @@ export default function registerIpcHandlers() {
   ipcMain.on('user.authenticate', handlers.onUserAuthenticate)
   ipcMain.on('user.upgrade', handlers.onUserUpgrade)
   ipcMain.on('user.logout', handlers.onUserLogout)
+  ipcMain.on('user.token', handlers.onUserToken)
   ipcMain.on('terminal.data', handlers.onTerminalData)
 }

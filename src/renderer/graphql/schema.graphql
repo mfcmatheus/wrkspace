@@ -1,0 +1,820 @@
+"""Folders"""
+type Folder {
+  """Folder ID"""
+  id: Int!
+
+  """Folder name"""
+  name: String!
+
+  """Folder updated at"""
+  updated_at: String!
+
+  """Folder created at"""
+  created_at: String!
+}
+
+"""An example input"""
+input FolderInput {
+  """Workspace type"""
+  __typename: String
+
+  """Workspace ID"""
+  id: String
+
+  """Workspace name"""
+  name: String!
+
+  """Workspace path"""
+  path: String!
+}
+
+type Mutation {
+  """A mutation"""
+  Workspace(data: WorkspaceInput): Workspace
+
+  """A mutation"""
+  WorkspaceByFields(data: WorkspaceInput): Workspace
+
+  """A mutation"""
+  WorkspaceDelete(id: Int!): Boolean
+
+  """A mutation"""
+  WorkspaceTerminalDelete(id: ID!): [WorkspaceTerminal]
+
+  """A mutation"""
+  WorkspaceBrowserDelete(id: ID!): [WorkspaceBrowser]
+
+  """A mutation"""
+  WorkspaceCommandDelete(id: ID!): [WorkspaceCommand]
+
+  """A mutation"""
+  WorkspaceEnvVarDelete(id: ID!): [WorkspaceEnvVar]
+
+  """A mutation"""
+  WorkspaceArchive(id: Int): Boolean
+
+  """A mutation"""
+  Folder(data: FolderInput): Folder
+
+  """A mutation"""
+  FolderDelete(id: Int!): Boolean
+
+  """A mutation"""
+  User(data: UserInput): Boolean
+
+  """A mutation"""
+  UserMethodDelete(id: String): [UserMethods]
+
+  """A mutation"""
+  UserPlanCancel(type: String!): UserPlans
+
+  """A mutation"""
+  UserProvider(provider: String, code: String): User
+
+  """A mutation"""
+  UserProviderDelete(id: Int!): [UserSocial]
+
+  """A mutation"""
+  Team(name: String): [Team]
+
+  """A mutation"""
+  TeamInvite(team_id: Int, workspace_id: Int, email: String, role: String): Boolean
+
+  """A mutation"""
+  TeamInviteAccept(token: String!): TeamInviteAccept
+
+  """A mutation"""
+  TeamInviteCancel(id: Int, workspace_id: Int): Team
+
+  """A mutation"""
+  TeamMemberRemove(team_id: Int, user_id: Int, workspace_id: Int): Team
+
+  """A mutation"""
+  TeamUpdate(id: Int!, name: String): Team
+
+  """A mutation"""
+  TeamArchive(id: Int): Boolean
+
+  """A mutation"""
+  TeamDelete(id: Int!): Boolean
+}
+
+type Query {
+  """Get current user"""
+  Me: User
+
+  """A query"""
+  Workspaces(query: String, order: String, limit: Int, page: Int, team_id: Int): [Workspace]
+
+  """A query"""
+  Workspace(
+    """The ID of a workspace"""
+    id: ID!
+
+    """The ID of a team"""
+    team_id: ID
+  ): Workspace
+
+  """A query"""
+  Folders: [Folder]
+
+  """A query"""
+  Folder(
+    """The ID of a Folder"""
+    id: ID
+  ): Folder
+
+  """A query"""
+  Team(id: Int): Team
+
+  """A query"""
+  User(id: Int!): User
+}
+
+"""Team"""
+type Team {
+  """Team ID"""
+  id: Int
+
+  """Team name"""
+  name: String
+
+  """User"""
+  user: User
+
+  """Team members"""
+  members(workspace_id: Int, team_id: Int): [TeamMember]
+
+  """Team activities"""
+  activities(team_id: Int, limit: Int): [WorkspaceActivity]
+
+  """Team invites"""
+  invites(workspace_id: Int): [TeamInvite]
+
+  """Team statistics"""
+  statistics: TeamStatistics
+
+  """Team permissions"""
+  permissions: TeamPermissions
+
+  """Team created at"""
+  created_at: String
+
+  """Team updated at"""
+  updated_at: String
+  pivot: TeamPivot
+}
+
+"""A type"""
+type TeamInvite {
+  """ID of the team invite"""
+  id: Int
+
+  """Team ID of the team invite"""
+  team: Team
+
+  """Workspace ID of the team invite"""
+  workspace: Workspace
+
+  """Email of the team invite"""
+  email: String
+
+  """Role of the team invite"""
+  role: String
+
+  """User exists"""
+  user_exists: Boolean
+
+  """Recover token"""
+  recover_token: String
+
+  """Team invite created at"""
+  created_at: String
+
+  """Team invite updated at"""
+  updated_at: String
+}
+
+type TeamInviteAccept {
+  """The invite that was accepted"""
+  invite: TeamInvite
+
+  """The user that accepted the invite"""
+  user: User
+}
+
+"""A type"""
+type TeamMember {
+  """The id of the team member"""
+  id: Int
+
+  """The team of the team member"""
+  team: Team
+
+  """The user of the team member"""
+  user: User
+
+  """The role of the team member"""
+  role: String
+
+  """The date the team member was created"""
+  created_at: String
+
+  """The date the team member was updated"""
+  updated_at: String
+}
+
+"""A type"""
+type TeamPermissions {
+  team: TeamPermissionsTeam
+  workspaces: TeamPermissionsWorkspaces
+}
+
+type TeamPermissionsTeam {
+  """Team view permission"""
+  view: Boolean
+
+  """Team edit permission"""
+  update: Boolean
+
+  """Team delete permission"""
+  delete: Boolean
+}
+
+type TeamPermissionsWorkspaces {
+  """Workspaces view permission"""
+  view: Boolean
+
+  """Workspaces create permission"""
+  create: Boolean
+
+  """Workspaces edit permission"""
+  update: Boolean
+
+  """Workspaces delete permission"""
+  delete: Boolean
+}
+
+type TeamPivot {
+  """Team member role"""
+  role: String
+}
+
+"""A type"""
+type TeamStatistics {
+  """The number of workspaces in the team"""
+  workspaces: Int
+
+  """The number of openings in the team"""
+  openings: Int
+
+  """The number of openings in the team in the last week"""
+  weekly_openings: Int
+
+  """
+  The difference in percentage of openings between the last week and the week before
+  """
+  diff_percentage_openings: Int
+}
+
+"""A user"""
+type User {
+  """ID of the user"""
+  id: Int!
+
+  """Name of the user"""
+  name: String!
+
+  """Email of the user"""
+  email: String!
+
+  """Email verified at of the user"""
+  email_verified_at: String
+
+  """Plans of the user"""
+  plans: UserPlans
+
+  """Methods of the user"""
+  methods: [UserMethods]
+
+  """Invoices of the user"""
+  invoices: [UserInvoices]
+
+  """Teams of the user"""
+  teams: [Team]
+
+  """Teams authorize of the user"""
+  teams_authorized: [Team]
+
+  """Socials of the user"""
+  socials: [UserSocial]
+
+  """Token of the user"""
+  token: String
+
+  """Has setup password of the user"""
+  has_setup_password: Boolean
+
+  """Updated at of the user"""
+  updated_at: String
+
+  """Created at of the user"""
+  created_at: String
+}
+
+"""A user input"""
+input UserInput {
+  """The name of the user"""
+  name: String
+
+  """The email of user"""
+  email: String
+
+  """The password of user"""
+  password: String
+
+  """The password confirmation of user"""
+  password_confirmation: String
+}
+
+"""A type"""
+type UserInvoices {
+  """The id of the user"""
+  id: String
+
+  """The amount paid of the user"""
+  amount_paid: Float
+
+  """The billing reason of the user"""
+  billing_reason: String
+
+  """The created of the user"""
+  created: String
+
+  """The invoice pdf of the user"""
+  invoice_pdf: String
+}
+
+"""A type"""
+type UserMethods {
+  """The id of the user method"""
+  id: String
+
+  """The card of the user method"""
+  card: UserMethodsCard
+
+  """The type of the user method"""
+  type: String
+}
+
+"""A type"""
+type UserMethodsCard {
+  """The brand of the card"""
+  brand: String
+
+  """The last 4 digits of the card"""
+  last4: String
+
+  """The expiration month of the card"""
+  exp_month: Int
+
+  """The expiration year of the card"""
+  exp_year: Int
+}
+
+"""A type"""
+type UserPlans {
+  """Personal plan of the user"""
+  personal: UserPlansItem
+
+  """Enterprise plan of the user"""
+  enterprise: UserPlansItem
+}
+
+"""A type"""
+type UserPlansItem {
+  """ID of the user subscription"""
+  id: Int!
+
+  """Type of the user subscription"""
+  type: String!
+
+  """Stripe ID of the user subscription"""
+  stripe_id: String!
+
+  """Stripe status of the user subscription"""
+  stripe_status: String!
+
+  """Stripe price of the user subscription"""
+  stripe_price: String!
+
+  """Quantity of the user subscription"""
+  quantity: Int!
+
+  """Trial ends at of the user subscription"""
+  trial_ends_at: String
+
+  """Ends at of the user subscription"""
+  ends_at: String
+
+  """Next billing of the user subscription"""
+  next_billing: String
+
+  """Paid amount of the user subscription"""
+  paid_amount: Float
+
+  """Interval of the user subscription"""
+  interval: String
+
+  """Auto renew of the user subscription"""
+  auto_renew: Boolean
+
+  """Created at of the user subscription"""
+  created_at: String
+
+  """Updated at of the user subscription"""
+  updated_at: String
+}
+
+"""A type"""
+type UserSocial {
+  """ID of the user social"""
+  id: Int
+
+  """Provider of the user social"""
+  provider: String
+
+  """Provider ID of the user social"""
+  provider_id: String
+
+  """Provider token of the user social"""
+  provider_token: String
+
+  """Provider account of the user social"""
+  provider_account: String
+
+  """Created at of the user social"""
+  created_at: String
+
+  """Updated at of the user social"""
+  updated_at: String
+}
+
+"""Get current user workspaces."""
+type Workspace {
+  """Workspace ID"""
+  id: Int!
+
+  """Workspace name"""
+  name: String!
+
+  """Workspace repo"""
+  repo: String
+
+  """Workspace description"""
+  editor: String
+
+  """Is workspace favorite?"""
+  favorite: Boolean
+
+  """WOrkspace folder"""
+  folder: Folder
+
+  """Workspace team"""
+  team: Team
+
+  """Workspace browsers"""
+  browsers: [WorkspaceBrowser]
+
+  """Workspace docker"""
+  docker: WorkspaceDocker
+
+  """Workspace features"""
+  features: WorkspaceFeature
+
+  """Workspace terminals"""
+  terminals: [WorkspaceTerminal]
+
+  """Workspace installation"""
+  installation: WorkspaceInstallation
+
+  """Workspace activities"""
+  activities(limit: Int): [WorkspaceActivity]
+
+  """Workspace statistics"""
+  statistics: WorkspaceStatistics
+  permissions: WorkspacePermissions
+
+  """Workspace updated at"""
+  updated_at: String
+
+  """Workspace created at"""
+  created_at: String
+}
+
+"""A type"""
+type WorkspaceActivity {
+  """The id of the workspace activity"""
+  id: Int
+
+  """The workspace of the workspace activity"""
+  workspace: Workspace
+
+  """The user of the workspace activity"""
+  user: User
+
+  """The action of the workspace activity"""
+  action: String
+
+  """The creation date of the workspace activity"""
+  created_at: String
+
+  """The update date of the workspace activity"""
+  updated_at: String
+}
+
+"""A type"""
+type WorkspaceBrowser {
+  """The id of the browser"""
+  id: String!
+
+  """The application of the browser"""
+  application: String
+
+  """The url of the browser"""
+  url: String!
+}
+
+input WorkspaceBrowserInput {
+  """Browser type"""
+  __typename: String
+
+  """Browser ID"""
+  id: String
+
+  """Browser application"""
+  application: String
+
+  """Browser url"""
+  url: String
+}
+
+"""A type"""
+type WorkspaceCommand {
+  """Workspace ID"""
+  id: String!
+
+  """Workspace command"""
+  command: String!
+
+  """Workspace order"""
+  order: Int!
+}
+
+input WorkspaceCommandInput {
+  """Command type"""
+  __typename: String
+
+  """Command ID"""
+  id: String
+
+  """Command command"""
+  command: String
+
+  """Command order"""
+  order: Int
+}
+
+"""A type"""
+type WorkspaceDocker {
+  """The id of the docker"""
+  id: Int!
+
+  """The enableComposer of the docker"""
+  enableComposer: Boolean
+
+  """The enableContainers of the docker"""
+  enableContainers: Boolean
+
+  """The enableSail of the docker"""
+  enableSail: Boolean
+
+  """The enableBuild of the docker"""
+  enableBuild: Boolean
+}
+
+input WorkspaceDockerInput {
+  """Docker type"""
+  __typename: String
+
+  """Enable composer?"""
+  enableComposer: Boolean
+
+  """Enable containers?"""
+  enableContainers: Boolean
+
+  """Enable sail?"""
+  enableSail: Boolean
+
+  """Enable build?"""
+  enableBuild: Boolean
+}
+
+"""A type"""
+type WorkspaceEnvVar {
+  """WorkspaceEnvVar ID"""
+  id: String!
+
+  """WorkspaceEnvVar key"""
+  key: String
+
+  """WorkspaceEnvVar value"""
+  value: String
+}
+
+input WorkspaceEnvVarInput {
+  """Env variable type"""
+  __typename: String
+
+  """Env variable ID"""
+  id: String
+
+  """Env variable key"""
+  key: String
+
+  """Env variable value"""
+  value: String
+}
+
+"""A type"""
+type WorkspaceFeature {
+  """The id of the feature"""
+  id: Int!
+
+  """The enableEditor of the feature"""
+  enableEditor: Boolean
+
+  """The enableDocker of the feature"""
+  enableDocker: Boolean
+}
+
+input WorkspaceFeatureInput {
+  """Feature type"""
+  __typename: String
+
+  """Enable editor?"""
+  enableEditor: Boolean
+
+  """Enable docker?"""
+  enableDocker: Boolean
+}
+
+input WorkspaceFolderInput {
+  """Folder type"""
+  __typename: String
+
+  """Folder ID"""
+  id: String
+
+  """Folder name"""
+  name: String
+
+  """Folder path"""
+  path: String
+
+  """Folder updated at"""
+  updated_at: String
+
+  """Folder created at"""
+  created_at: String
+}
+
+"""An example input"""
+input WorkspaceInput {
+  """Workspace type"""
+  __typename: String
+
+  """Workspace ID"""
+  id: String
+
+  """Workspace name"""
+  name: String
+
+  """Workspace repo"""
+  repo: String
+
+  """Workspace description"""
+  editor: String
+
+  """Is workspace favorite?"""
+  favorite: Boolean
+  folder: WorkspaceFolderInput
+  docker: WorkspaceDockerInput
+  features: WorkspaceFeatureInput
+  browsers: [WorkspaceBrowserInput]
+  terminals: [WorkspaceTerminalInput]
+
+  """Workspace env variables"""
+  envVars: [WorkspaceEnvVarInput]
+
+  """Workspace commands"""
+  commands: [WorkspaceCommandInput]
+
+  """Workspace team ID"""
+  team_id: Int
+}
+
+"""A type"""
+type WorkspaceInstallation {
+  """Workspace installation variables"""
+  variables: [WorkspaceEnvVar]
+
+  """Workspace installation commands"""
+  commands: [WorkspaceCommand]
+}
+
+type WorkspacePermissions {
+  """Can view workspace"""
+  view: Boolean
+
+  """Can update workspace"""
+  update: Boolean
+
+  """Can delete workspace"""
+  delete: Boolean
+}
+
+"""A type"""
+type WorkspaceStatistics {
+  """The workspace id"""
+  workspace: Workspace
+
+  """The total openings"""
+  total_openings: Int
+
+  """The last week openings"""
+  last_week_openings: Int
+
+  """The team openings"""
+  team_openings: Int
+
+  """The team impact"""
+  team_impact: Float
+
+  """The top user id"""
+  top_user: User
+
+  """The top user last week openings"""
+  top_user_last_week_openings: Int
+
+  """The last activity id"""
+  last_activity: WorkspaceActivity
+
+  """The sunday openings"""
+  wo_sunday: Int
+
+  """The monday openings"""
+  wo_monday: Int
+
+  """The tuesday openings"""
+  wo_tuesday: Int
+
+  """The wednesday openings"""
+  wo_wednesday: Int
+
+  """The thursday openings"""
+  wo_thursday: Int
+
+  """The friday openings"""
+  wo_friday: Int
+
+  """The saturday openings"""
+  wo_saturday: Int
+}
+
+"""A type"""
+type WorkspaceTerminal {
+  """The id of the terminal"""
+  id: String!
+
+  """The command of the terminal"""
+  command: String
+
+  """The order of the terminal"""
+  order: Int
+}
+
+input WorkspaceTerminalInput {
+  """Terminal type"""
+  __typename: String
+
+  """Terminal ID"""
+  id: String
+
+  """Terminal command"""
+  command: String
+
+  """Terminal order"""
+  order: Int
+}
+

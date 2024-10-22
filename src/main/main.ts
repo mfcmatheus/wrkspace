@@ -148,7 +148,7 @@ const createWindow = async () => {
       mainWindow.show()
     }
 
-    mainWindow.webContents.send('user.check', store.get('token'))
+    mainWindow.webContents.send('token.reload', store.get('token'))
     // store.delete('processes')
 
     killProcesses()
@@ -193,7 +193,7 @@ app.on('open-url', (event, url) => {
   if (action === 'authorize') {
     const token = params.get('token')
     store.set('token', token)
-    mainWindow?.webContents.send('user.check', token)
+    mainWindow?.webContents.send('token.reload', token)
   }
 
   // dialog.showErrorBox('Welcome Back', mappedUrl.search ?? '')

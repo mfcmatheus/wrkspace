@@ -12,6 +12,8 @@ import TeamSelector from 'renderer/components/TeamSelector'
 import TopBar from 'renderer/components/TopBar'
 import WorkspaceList from 'renderer/components/WorkspaceList'
 import MainLayout from 'renderer/layouts/MainLayout'
+import TokenAtom from 'renderer/store/atoms/TokenAtom'
+import UserAtom from 'renderer/store/atoms/UserAtom'
 import SettingCurrentFilterSelector from 'renderer/store/selectors/SettingCurrentFilterSelector'
 import SettingCurrentFolderSelector from 'renderer/store/selectors/SettingCurrentFolderSelector'
 import SettingDefaultSelector from 'renderer/store/selectors/SettingDefaultSelector'
@@ -20,12 +22,14 @@ import SettingShowSearch from 'renderer/store/selectors/SettingShowSearch'
 
 export default function Dashboard() {
   const [showLogs, setShowLogs] = useState<boolean>(false)
-  const [showSearch, search, currentFilter] = useRecoilValue(
+  const [showSearch, search, currentFilter, token, me] = useRecoilValue(
     waitForAll([
       SettingShowSearch,
       SettingSearchSelector,
       SettingCurrentFilterSelector,
       SettingCurrentFolderSelector,
+      TokenAtom,
+      UserAtom,
     ])
   )
 

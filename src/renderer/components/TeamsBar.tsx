@@ -6,6 +6,7 @@ import Lucide from 'renderer/base-components/lucide'
 import initials from 'renderer/helpers/initials'
 import TeamAtom from 'renderer/store/atoms/TeamAtom'
 import SettingCurrentTeamSelector from 'renderer/store/selectors/SettingCurrentTeamSelector'
+import ElectronApi from 'services/ElectronApi'
 
 export default function TeamsBar() {
   const [teams, currentTeam] = useRecoilValue(
@@ -55,6 +56,7 @@ export default function TeamsBar() {
       <button
         type="button"
         className="flex h-12 w-12 justify-center items-center"
+        onClick={() => ElectronApi.call('user.authenticate')}
       >
         <Lucide icon="UserCircle2" size={32} color="#6f6f6f" strokeWidth={1} />
       </button>
