@@ -14,6 +14,16 @@ export default graphQLSelector({
       }
     }
   `.default,
-  variables: () => ({}),
-  mapResponse: (data) => data?.Me?.name,
+  variables: ({ get }) => {
+    const token = get(TokenAtom)
+    if (!token) {
+      return null
+    }
+    return {
+      tokenDependency: token,
+    }
+  },
+  // Update the mapResponse function
+  mapResponse: (data) => (data && data.Me ? data.Me : null),
+  default: null, // Set a default value
 })

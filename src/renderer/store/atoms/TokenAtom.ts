@@ -8,8 +8,10 @@ export default atom({
   effects: [
     ({ setSelf }) => {
       const handler = ipcRenderer.on('token.reload', (token: string) => {
+        if (!token) return localStorage.removeItem('token')
         localStorage.setItem('token', token)
         setSelf(token)
+        return token
       })
 
       return () => {

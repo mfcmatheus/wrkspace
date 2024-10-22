@@ -8,7 +8,7 @@
     "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
     "package": "ts-node ./.erb/scripts/clean.js dist && yarn run relay && npm run build && electron-builder build --publish never",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
-    "start": "ts-node ./.erb/scripts/check-port-in-use.js && yarn run relay --watch && npm run start:renderer",
+    "start": "ts-node ./.erb/scripts/check-port-in-use.js && yarn run relay && npm run start:renderer",
     "start:main": "cross-env NODE_ENV=development electronmon -r ts-node/register/transpile-only .",
     "start:preload": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.preload.dev.ts",
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
@@ -55,6 +55,7 @@
     "@radix-ui/react-slot": "^1.0.2",
     "@tailwindcss/line-clamp": "^0.4.4",
     "babel-loader": "^9.2.1",
+    "bplist-creator": "^0.1.1",
     "class-variance-authority": "^0.7.0",
     "classnames": "^2.3.2",
     "clsx": "^2.1.0",
@@ -171,13 +172,17 @@
     "appId": "D7ZSWZ7KMM",
     "productName": "wrkspace",
     "asar": true,
-    "asarUnpack": "**\\*.{node,dll}",
+    "asarUnpack": [
+      "**\\*.{node,dll}",
+      "**/node_modules/bplist-creator/**"
+    ],
     "files": [
       "dist",
-      "node_modules",
+      "node_modules/**/*",
       "package.json",
-      "release/app/node_modules",
-      "release/app/package.json"
+      "release/app/node_modules/**/*",
+      "release/app/package.json",
+      "node_modules/bplist-creator/**/*"
     ],
     "afterSign": ".erb/scripts/notarize.js",
     "mac": {

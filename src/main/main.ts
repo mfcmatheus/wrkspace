@@ -20,6 +20,7 @@ import { killProcesses, resolveHtmlPath } from './util'
 import registerIpcHandlers from './ipcHandlers'
 
 const store = new Store()
+require('bplist-creator')
 
 class AppUpdater {
   constructor(mainWindow: BrowserWindow) {
@@ -80,6 +81,7 @@ if (isDebug) {
 // store.delete('workspaces')
 // store.delete('settings')
 // store.delete('folders')
+// store.delete('token')
 
 if (process.defaultApp) {
   if (process.argv.length >= 2) {

@@ -33,6 +33,8 @@ export default function Dashboard() {
     ])
   )
 
+  console.log(me)
+
   const onClickSearch = useRecoilCallback(({ set }) => () => {
     set(SettingDefaultSelector, {
       showSearch: !showSearch,
