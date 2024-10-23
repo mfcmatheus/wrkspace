@@ -2,21 +2,21 @@
  * Build config for electron renderer process
  */
 
-import path from 'path';
-import webpack from 'webpack';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
-import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
-import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
-import { merge } from 'webpack-merge';
-import TerserPlugin from 'terser-webpack-plugin';
-import baseConfig from './webpack.config.base';
-import webpackPaths from './webpack.paths';
-import checkNodeEnv from '../scripts/check-node-env';
-import deleteSourceMaps from '../scripts/delete-source-maps';
+import path from 'path'
+import webpack from 'webpack'
+import HtmlWebpackPlugin from 'html-webpack-plugin'
+import MiniCssExtractPlugin from 'mini-css-extract-plugin'
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
+import CssMinimizerPlugin from 'css-minimizer-webpack-plugin'
+import { merge } from 'webpack-merge'
+import TerserPlugin from 'terser-webpack-plugin'
+import baseConfig from './webpack.config.base'
+import webpackPaths from './webpack.paths'
+import checkNodeEnv from '../scripts/check-node-env'
+import deleteSourceMaps from '../scripts/delete-source-maps'
 
-checkNodeEnv('production');
-deleteSourceMaps();
+checkNodeEnv('production')
+deleteSourceMaps()
 
 const configuration: webpack.Configuration = {
   devtool: 'source-map',
@@ -63,19 +63,39 @@ const configuration: webpack.Configuration = {
           {
             loader: 'postcss-loader',
             options: {
-            postcssOptions: {
-              plugins:
-                [
-                  require('tailwindcss'),
-                  require('autoprefixer'),
-                ]
+              postcssOptions: {
+                plugins: [require('tailwindcss'), require('autoprefixer')],
               },
             },
           },
         ],
         exclude: /\.module\.s?(c|a)ss$/,
       },
-      // ...
+      {
+        test: /\.(ts|tsx)?$/,
+        use: {
+          loader: require.resolve('babel-loader'),
+          options: {
+            generatorOpts: { compact: false },
+            presets: [
+              '@babel/preset-env',
+              ['@babel/preset-react', { runtime: 'automatic' }],
+              '@babel/preset-typescript',
+            ],
+            plugins: [
+              [
+                'relay',
+                {
+                  artifactDirectory:
+                    './src/renderer/store/selectors/__generated__',
+                  eagerESModules: true,
+                },
+              ],
+              ['@babel/plugin-transform-runtime'],
+            ],
+          },
+        },
+      },
     ],
   },
 
@@ -124,6 +144,6 @@ const configuration: webpack.Configuration = {
       'process.type': '"renderer"',
     }),
   ],
-};
+}
 
-export default merge(baseConfig, configuration);
+export default merge(baseConfig, configuration)
